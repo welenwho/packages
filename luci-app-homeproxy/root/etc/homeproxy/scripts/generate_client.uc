@@ -22,10 +22,13 @@ import {
 const ubus = connect();
 
 /* UCI config start */
-const uci = cursor();
+const uci_config_dir = getenv('HOMEPROXY_UCI_CONFIG_DIR');
+const uci = uci_config_dir ? cursor(uci_config_dir) : cursor();
 
 const uciconfig = 'homeproxy';
+const adaptiveconfig = 'homeproxy-adaptive';
 uci.load(uciconfig);
+uci.load(adaptiveconfig);
 
 const uciinfra = 'infra',
       ucimain = 'config',
@@ -43,6 +46,16 @@ const ucinode = 'node';
 const uciruleset = 'ruleset';
 
 const routing_mode = uci.get(uciconfig, ucimain, 'routing_mode') || 'bypass_mainland_china';
+const adaptive_enabled = routing_mode === 'custom' &&
+      uci.get(adaptiveconfig, 'main', 'enabled') === '1';
+const adaptive_dry_run = uci.get(adaptiveconfig, 'main', 'dry_run') !== '0';
+const adaptive_apply = adaptive_enabled && !adaptive_dry_run;
+const adaptive_outbound = uci.get(adaptiveconfig, 'main', 'outbound');
+const adaptive_rules_path = getenv('HOMEPROXY_ADAPTIVE_RULES_PATH') ||
+      '/var/run/homeproxy-adaptive/rules.json';
+const adaptive_final_direct_tag = 'homeproxy-adaptive-final-direct-out';
+const adaptive_direct_probe_port = strToInt(uci.get(adaptiveconfig, 'main', 'direct_probe_port'));
+const adaptive_proxy_probe_port = strToInt(uci.get(adaptiveconfig, 'main', 'proxy_probe_port'));
 
 const outbound_tags = createNodeLabelRegistry();
 const node_outbound_tags = {};
@@ -696,6 +709,24 @@ push(config.inbounds, {
 	set_system_proxy: false
 });
 
+if (adaptive_enabled) {
+	if (!adaptive_direct_probe_port || !adaptive_proxy_probe_port ||
+	    adaptive_direct_probe_port === adaptive_proxy_probe_port)
+		die('Adaptive routing probe ports are unavailable.');
+	push(config.inbounds, {
+		type: 'socks',
+		tag: 'homeproxy-adaptive-direct-probe-in',
+		listen: '127.0.0.1',
+		listen_port: adaptive_direct_probe_port
+	});
+	push(config.inbounds, {
+		type: 'socks',
+		tag: 'homeproxy-adaptive-proxy-probe-in',
+		listen: '127.0.0.1',
+		listen_port: adaptive_proxy_probe_port
+	});
+}
+
 if (tproxy_enabled)
 	push(config.inbounds, {
 		type: 'tproxy',
@@ -734,6 +765,14 @@ config.outbounds = [
 		routing_mark: strToInt(self_mark)
 	}
 ];
+const adaptive_final_direct = adaptive_enabled && default_outbound !== 'reject' &&
+	get_outbound(default_outbound) === 'direct-out';
+if (adaptive_final_direct)
+	push(config.outbounds, {
+		type: 'direct',
+		tag: adaptive_final_direct_tag,
+		routing_mark: strToInt(self_mark)
+	});
 
 /* Main outbounds */
 if (!isEmpty(main_node)) {
@@ -865,6 +904,20 @@ if (!isEmpty(main_node)) {
 				push(config.outbounds, outbound);
 		}
 	}
+
+	if (adaptive_enabled) {
+		const adaptive_section = uci.get_all(uciconfig, adaptive_outbound) || {};
+		if (adaptive_section['.type'] !== uciroutingnode || adaptive_section.enabled !== '1')
+			die('Adaptive routing requires an enabled routing node.');
+
+		push(config.outbounds, {
+			type: 'selector',
+			tag: 'homeproxy-adaptive-out',
+			outbounds: [get_outbound(adaptive_outbound)],
+			default: get_outbound(adaptive_outbound),
+			interrupt_exist_connections: false
+		});
+	}
 }
 
 if (isEmpty(config.endpoints))
@@ -886,6 +939,18 @@ config.route = {
 	find_neighbor: has_mac_control() ? true : null
 };
 config.route.default_http_client = 'direct-http';
+if (adaptive_enabled) {
+	push(config.route.rules, {
+		inbound: 'homeproxy-adaptive-direct-probe-in',
+		action: 'route',
+		outbound: 'direct-out'
+	});
+	push(config.route.rules, {
+		inbound: 'homeproxy-adaptive-proxy-probe-in',
+		action: 'route',
+		outbound: 'homeproxy-adaptive-out'
+	});
+}
 
 /* Routing rules */
 if (!isEmpty(main_node)) {
@@ -1060,11 +1125,20 @@ if (!isEmpty(main_node)) {
 
 		push(config.route.rules, rule);
 	});
+	if (adaptive_apply)
+		push(config.route.rules, {
+			rule_set: 'homeproxy-adaptive-rule',
+			action: 'route',
+			outbound: 'homeproxy-adaptive-out'
+		});
 
 	if (default_outbound === 'reject')
 		push(config.route.rules, { action: 'reject' });
-	else
-		config.route.final = get_outbound(default_outbound);
+	else {
+		const final_outbound = get_outbound(default_outbound);
+		config.route.final = adaptive_final_direct ?
+			adaptive_final_direct_tag : final_outbound;
+	}
 
 	/* Rule set */
 	uci.foreach(uciconfig, uciruleset, (cfg) => {
@@ -1083,11 +1157,19 @@ if (!isEmpty(main_node)) {
 			update_interval: cfg.update_interval
 		});
 	});
+
+	if (adaptive_apply)
+		push(config.route.rule_set, {
+			type: 'local',
+			tag: 'homeproxy-adaptive-rule',
+			format: 'source',
+			path: adaptive_rules_path
+		});
 }
 /* Routing rules end */
 
 /* Experimental start */
-const enable_clash_api = main_node === 'urltest';
+const enable_clash_api = main_node === 'urltest' || adaptive_enabled;
 const enable_cache_file = routing_mode in ['bypass_mainland_china', 'custom'];
 if (enable_clash_api || enable_cache_file) {
 	config.experimental = {
@@ -1120,5 +1202,6 @@ if (dashboard_enabled)
 	];
 
 system('mkdir -p ' + RUN_DIR);
-if (!writefile(RUN_DIR + '/sing-box-c.json.new', sprintf('%.J\n', removeBlankAttrs(config))))
+const output_path = getenv('HOMEPROXY_CLIENT_CONFIG_PATH') || RUN_DIR + '/sing-box-c.json.new';
+if (!writefile(output_path, sprintf('%.J\n', removeBlankAttrs(config))))
 	exit(1);

@@ -19,11 +19,13 @@ LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0_alpha1)
 
 PKG_NAME:=luci-app-homeproxy
 PKG_VERSION:=20260809
-PKG_RELEASE:=1
+PKG_RELEASE:=9
 PKG_PO_VERSION:=$(PKG_VERSION)-r$(PKG_RELEASE)
 
 define Package/luci-app-homeproxy/conffiles
 /etc/config/homeproxy
+/etc/config/homeproxy-adaptive
+/etc/homeproxy/adaptive/
 /etc/homeproxy/cache/
 /etc/homeproxy/certs/
 /etc/homeproxy/dashboard/

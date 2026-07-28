@@ -1,0 +1,65 @@
+{
+  "log": { "disabled": true },
+  "dns": {
+    "servers": [
+      { "type": "local", "tag": "local-dns" }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "127.0.0.1",
+      "listen_port": 45201
+    },
+    { "type": "socks", "tag": "homeproxy-adaptive-direct-probe-in", "listen": "127.0.0.1", "listen_port": 45203 },
+    { "type": "socks", "tag": "homeproxy-adaptive-proxy-probe-in", "listen": "127.0.0.1", "listen_port": 45204 }
+  ],
+  "outbounds": [
+    { "type": "direct", "tag": "direct-out" },
+    { "type": "direct", "tag": "homeproxy-adaptive-final-direct-out" },
+    { "type": "direct", "tag": "proxy-test" },
+    {
+      "type": "selector",
+      "tag": "homeproxy-adaptive-out",
+      "outbounds": ["proxy-test"],
+      "default": "proxy-test",
+      "interrupt_exist_connections": false
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "inbound": "homeproxy-adaptive-direct-probe-in",
+        "action": "route",
+        "outbound": "direct-out"
+      },
+      {
+        "inbound": "homeproxy-adaptive-proxy-probe-in",
+        "action": "route",
+        "outbound": "homeproxy-adaptive-out"
+      },
+      {
+        "rule_set": "homeproxy-adaptive-rule",
+        "action": "route",
+        "outbound": "homeproxy-adaptive-out"
+      }
+    ],
+    "rule_set": [
+      {
+        "type": "local",
+        "tag": "homeproxy-adaptive-rule",
+        "format": "source",
+        "path": "/tmp/homeproxy-adaptive-perf/rules.json"
+      }
+    ],
+    "final": "homeproxy-adaptive-final-direct-out",
+    "auto_detect_interface": true,
+    "default_domain_resolver": "local-dns"
+  },
+  "experimental": {
+    "clash_api": {
+      "external_controller": "127.0.0.1:45202"
+    }
+  }
+}

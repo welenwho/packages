@@ -3130,3 +3130,187 @@ msgstr ""
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:279
 msgid "valid port value"
 msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "A proxy outbound is required."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Adaptive Routing"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Added at"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Clear"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Clear all"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Clear learned rules"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Connection polling interval (seconds)"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Detection"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Detection paused due to router load."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Delete"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Delete learned rule"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Direct latency threshold (ms)"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Domain"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Dry-run"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Excluded domain suffixes"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Failed to clear learned rules."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Failed to delete learned rule."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "First seen"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "General Settings"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Last seen"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Learned Rules"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Maximum bytes during slow window (bytes)"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Maximum learned IP rules"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Maximum learned rules"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Minimum improvement percentage"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Minimum latency improvement (ms)"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Minimum observations"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "No targets recorded."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Observations"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Pause at 1-minute load average"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Pending Candidates"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Performance"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Polls: %d"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Probe interval (seconds)"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Probe samples"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Probe timeout (ms)"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Probes: %d"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Proxy"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Proxy outbound"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Remove all automatically learned targets?"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Remove %s from automatically learned targets?"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Select an outbound"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Slow connection window (seconds)"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Suggested at"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Target"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Tracked connections: %d"
+msgstr ""

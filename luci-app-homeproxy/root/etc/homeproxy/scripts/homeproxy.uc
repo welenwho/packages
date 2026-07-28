@@ -106,7 +106,9 @@ export function reserveUniqueLabel(used, label, fallback) {
 export function createNodeLabelRegistry() {
 	return {
 		'direct-out': true,
-		'main-out': true
+		'main-out': true,
+		'homeproxy-adaptive-out': true,
+		'homeproxy-adaptive-final-direct-out': true
 	};
 };
 
@@ -515,6 +517,160 @@ export function validation(datatype, data) {
 	const ret = system(`/sbin/validate_data ${shellQuote(datatype)} ${shellQuote(data)} 2>/dev/null`);
 	return (ret === 0);
 };
+
+function normalizeAdaptiveIPv4(value) {
+	if (!match(value, /^\d+\.\d+\.\d+\.\d+$/))
+		return null;
+
+	let octets = split(value, '.');
+	for (let i = 0; i < 4; i++) {
+		if (length(octets[i]) > 1 && substr(octets[i], 0, 1) === '0')
+			return null;
+		octets[i] = int(octets[i]);
+		if (octets[i] < 0 || octets[i] > 255)
+			return null;
+	}
+
+	/* Only globally routable unicast addresses are eligible for learning. */
+	const a = octets[0], b = octets[1], c = octets[2];
+	if (a === 0 || a === 10 || a === 127 || a >= 224 ||
+	    (a === 100 && b >= 64 && b <= 127) ||
+	    (a === 169 && b === 254) ||
+	    (a === 172 && b >= 16 && b <= 31) ||
+	    (a === 192 && b === 0 && c === 0) ||
+	    (a === 192 && b === 0 && c === 2) ||
+	    (a === 192 && b === 88 && c === 99) ||
+	    (a === 192 && b === 168) ||
+	    (a === 198 && (b === 18 || b === 19)) ||
+	    (a === 198 && b === 51 && c === 100) ||
+	    (a === 203 && b === 0 && c === 113))
+		return null;
+
+	return join('.', octets);
+}
+
+function normalizeAdaptiveIPv6(value) {
+	value = lc(value);
+	if (!match(value, /^[0-9a-f:]+$/) || index(value, ':') === -1)
+		return null;
+
+	const compressed_at = index(value, '::');
+	if (compressed_at !== -1 && index(substr(value, compressed_at + 2), '::') !== -1)
+		return null;
+
+	let groups = [];
+	for (let side in split(value, '::')) {
+		if (!side)
+			continue;
+		if (match(side, /^:|:$/))
+			return null;
+		for (let group in split(side, ':')) {
+			if (!match(group, /^[0-9a-f]{1,4}$/))
+				return null;
+			push(groups, int(group, 16));
+		}
+	}
+	if ((compressed_at === -1 && length(groups) !== 8) ||
+	    (compressed_at !== -1 && length(groups) >= 8))
+		return null;
+
+	if (compressed_at !== -1) {
+		const left_count = length(split(substr(value, 0, compressed_at), /:/));
+		const insert_at = substr(value, 0, compressed_at) ? left_count : 0;
+		for (let i = length(groups); i < 8; i++)
+			splice(groups, insert_at, 0, 0);
+	}
+
+	/* Conservatively accept global unicast only, excluding documentation space. */
+	if (groups[0] < 0x2000 || groups[0] > 0x3fff ||
+	    (groups[0] === 0x2001 && groups[1] === 0x0db8))
+		return null;
+
+	let best_start = -1, best_length = 0;
+	for (let i = 0; i < 8;) {
+		if (groups[i] !== 0) {
+			i++;
+			continue;
+		}
+		let end = i + 1;
+		while (end < 8 && groups[end] === 0)
+			end++;
+		if (end - i > best_length) {
+			best_start = i;
+			best_length = end - i;
+		}
+		i = end;
+	}
+
+	let rendered = [];
+	for (let group in groups)
+		push(rendered, sprintf('%x', group));
+	if (best_length < 2)
+		return join(':', rendered);
+
+	let before = [], after = [];
+	for (let i = 0; i < best_start; i++)
+		push(before, rendered[i]);
+	for (let i = best_start + best_length; i < 8; i++)
+		push(after, rendered[i]);
+	return join(':', before) + '::' + join(':', after);
+}
+
+export function normalizeAdaptiveTarget(value) {
+	if (type(value) !== 'string')
+		return null;
+
+	value = lc(trim(value));
+	if (match(value, /^\[/) || match(value, /\]$/)) {
+		if (!match(value, /^\[.*\]$/))
+			return null;
+		value = substr(value, 1, length(value) - 2);
+	}
+	const ipv4 = normalizeAdaptiveIPv4(value);
+	if (ipv4)
+		return { type: 'ipv4', value: ipv4, key: `ipv4:${ipv4}` };
+
+	const ipv6 = normalizeAdaptiveIPv6(value);
+	if (ipv6)
+		return { type: 'ipv6', value: ipv6, key: `ipv6:${ipv6}` };
+	if (match(value, /^[0-9.]+$/) || index(value, ':') !== -1)
+		return null;
+
+	value = replace(value, /\.$/, '');
+	if (length(value) < 3 || length(value) > 253 || index(value, '.') === -1 ||
+	    match(value, /\.\./) || !match(value, /^[a-z0-9][a-z0-9.-]*[a-z0-9]$/))
+		return null;
+
+	return { type: 'domain', value, key: `domain:${value}` };
+}
+
+export function adaptiveEntryTarget(entry) {
+	if (type(entry) !== 'object')
+		return null;
+	return normalizeAdaptiveTarget(entry.target || entry.domain || entry.ip);
+}
+
+export function renderAdaptiveRules(entries, apply) {
+	let domains = [], cidrs = [], known = {};
+	if (apply)
+		for (let entry in normalizeList(entries)) {
+			const target = adaptiveEntryTarget(entry);
+			if (!target || known[target.key])
+				continue;
+			known[target.key] = true;
+			if (target.type === 'domain')
+				push(domains, target.value);
+			else
+				push(cidrs, `${target.value}/${target.type === 'ipv4' ? 32 : 128}`);
+		}
+
+	let rules = [];
+	if (length(domains))
+		push(rules, { domain: domains });
+	if (length(cidrs))
+		push(rules, { ip_cidr: cidrs });
+	return { version: 5, rules };
+}
 /* String helper end */
 
 /* String parser start */
