@@ -3200,3 +3200,187 @@ msgstr "有效端口范围（port1:port2）"
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:279
 msgid "valid port value"
 msgstr "有效端口值"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "A proxy outbound is required."
+msgstr "必须选择一个代理出站。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Adaptive Routing"
+msgstr "自适应路由"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Added at"
+msgstr "加入时间"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Clear"
+msgstr "清空"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Clear all"
+msgstr "清空全部"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Clear learned rules"
+msgstr "清空已学习规则"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Connection polling interval (seconds)"
+msgstr "连接轮询间隔（秒）"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Detection"
+msgstr "探测"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Detection paused due to router load."
+msgstr "路由器负载较高，已暂停探测。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Delete"
+msgstr "删除"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Delete learned rule"
+msgstr "删除已学习规则"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Direct latency threshold (ms)"
+msgstr "直连延迟阈值（毫秒）"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Domain"
+msgstr "域名"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Dry-run"
+msgstr "试运行"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Excluded domain suffixes"
+msgstr "排除的域名后缀"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Failed to clear learned rules."
+msgstr "清空已学习规则失败。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Failed to delete learned rule."
+msgstr "删除已学习规则失败。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "First seen"
+msgstr "首次出现"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "General Settings"
+msgstr "常规设置"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Last seen"
+msgstr "最后出现"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Learned Rules"
+msgstr "已学习规则"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Maximum bytes during slow window (bytes)"
+msgstr "慢连接窗口内的最大传输量（字节）"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Maximum learned IP rules"
+msgstr "已学习 IP 规则上限"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Maximum learned rules"
+msgstr "已学习规则上限"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Minimum improvement percentage"
+msgstr "最低改善百分比"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Minimum latency improvement (ms)"
+msgstr "最低延迟改善（毫秒）"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Minimum observations"
+msgstr "最少观测次数"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "No targets recorded."
+msgstr "暂无目标记录。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Observations"
+msgstr "观测次数"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Pause at 1-minute load average"
+msgstr "1 分钟平均负载达到此值时暂停"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Pending Candidates"
+msgstr "待探测候选"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Performance"
+msgstr "性能"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Polls: %d"
+msgstr "轮询：%d"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Probe interval (seconds)"
+msgstr "探测间隔（秒）"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Probe samples"
+msgstr "探测样本数"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Probe timeout (ms)"
+msgstr "探测超时（毫秒）"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Probes: %d"
+msgstr "探测：%d"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Proxy"
+msgstr "代理"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Proxy outbound"
+msgstr "代理出站"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Remove all automatically learned targets?"
+msgstr "确定移除所有自动学习的目标？"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Remove %s from automatically learned targets?"
+msgstr "确定从自动学习目标中移除 %s？"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Select an outbound"
+msgstr "选择一个出站"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Slow connection window (seconds)"
+msgstr "慢连接判定窗口（秒）"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Suggested at"
+msgstr "建议时间"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Target"
+msgstr "目标"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Tracked connections: %d"
+msgstr "已跟踪连接：%d"

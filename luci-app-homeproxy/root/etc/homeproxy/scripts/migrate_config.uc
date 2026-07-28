@@ -12,7 +12,8 @@ import {
 	isEmpty, normalizeList, reconcileUrltestNodes, synchronizeNodeLabels
 } from 'homeproxy';
 
-const uci = cursor();
+const uciConfigDir = getenv('HOMEPROXY_UCI_CONFIG_DIR');
+const uci = uciConfigDir ? cursor(uciConfigDir) : cursor();
 const uciconfig = 'homeproxy';
 uci.load(uciconfig);
 
@@ -68,14 +69,8 @@ const subscriptionNodeMigrationState = uci.get(
 	uciconfig, 'migration', subscriptionNodeMigrationOption
 );
 if (subscriptionNodeMigrationState !== subscriptionNodeMigration) {
-	const subscriptionNodes = [];
-	uci.foreach(uciconfig, 'node', (section) => {
-		if (section.grouphash)
-			push(subscriptionNodes, section['.name']);
-	});
-	for (let node in subscriptionNodes)
-		uci.delete(uciconfig, node);
-
+	/* The updater reconciles old node IDs after a successful download. Keep the
+	 * existing nodes available when the network or subscription is unavailable. */
 	if (uci.get(uciconfig, 'migration') === null)
 		uci.set(uciconfig, 'migration', 'homeproxy');
 	uci.set(
@@ -202,7 +197,8 @@ if (mainNode !== 'nil' && mainNode !== 'urltest' &&
 	uci.get(uciconfig, mainNode) !== 'node')
 	uci.set(uciconfig, 'config', 'main_node', uci.get_first(uciconfig, 'node') || 'nil');
 
-system('rm -f "/etc/homeproxy/resources/china_list.txt" "/etc/homeproxy/resources/china_list.ver" "/etc/homeproxy/resources/gfw_list.txt" "/etc/homeproxy/resources/gfw_list.ver"');
+if (getenv('HOMEPROXY_MIGRATION_SKIP_CLEANUP') !== '1')
+	system('rm -f "/etc/homeproxy/resources/china_list.txt" "/etc/homeproxy/resources/china_list.ver" "/etc/homeproxy/resources/gfw_list.txt" "/etc/homeproxy/resources/gfw_list.ver"');
 
 if (!isEmpty(uci.changes(uciconfig)) && uci.commit(uciconfig) !== true)
 	exit(1);

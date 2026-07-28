@@ -15,6 +15,7 @@
 'require view';
 
 'require homeproxy as hp';
+'require homeproxy-adaptive as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -88,7 +89,8 @@ return view.extend({
 		return Promise.all([
 			uci.load('homeproxy'),
 			hp.getBuiltinFeatures(),
-			network.getHostHints()
+			network.getHostHints(),
+			adaptive.loadStatus()
 		]);
 	},
 
@@ -145,6 +147,7 @@ return view.extend({
 
 		s.tab('routing', _('Routing Settings'));
 		s.tab('dashboard', _('Dashboard'));
+		adaptive.addForm(m, s, data[3]);
 
 		o = s.taboption('routing', form.ListValue, 'main_node', _('Main node'));
 		o.value('nil', _('Disable'));

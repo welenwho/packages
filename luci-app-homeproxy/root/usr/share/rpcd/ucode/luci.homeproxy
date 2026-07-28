@@ -11,7 +11,8 @@ import { lstat, open, popen, readfile, writefile } from 'fs';
 import { cursor } from 'uci';
 
 import {
-	HP_DIR, RUN_DIR, isBinary, removeBlankAttrs, renderEndpoint, renderOutbound, shellQuote
+	adaptiveEntryTarget, HP_DIR, isBinary, normalizeAdaptiveTarget, renderAdaptiveRules,
+	RUN_DIR, removeBlankAttrs, renderEndpoint, renderOutbound, shellQuote
 } from '/etc/homeproxy/scripts/homeproxy.uc';
 
 function hasKernelModule(kmod) {
@@ -44,6 +45,108 @@ const CONNECTION_SITES = {
 	github: 'https://github.com/',
 	youtube: 'https://www.youtube.com/'
 };
+
+const ADAPTIVE_STATE_PATH = getenv('HOMEPROXY_ADAPTIVE_LEARNED_PATH') ||
+      '/etc/homeproxy/adaptive/learned.json';
+const ADAPTIVE_RULES_PATH = getenv('HOMEPROXY_ADAPTIVE_RULES_PATH') ||
+      '/var/run/homeproxy-adaptive/rules.json';
+const ADAPTIVE_STATUS_PATH = getenv('HOMEPROXY_ADAPTIVE_STATUS_PATH') ||
+      '/var/run/homeproxy-adaptive/status.json';
+const ADAPTIVE_SERVICE = getenv('HOMEPROXY_ADAPTIVE_SERVICE') ||
+      '/etc/init.d/homeproxy-adaptive';
+
+function adaptiveCursor() {
+	const config_dir = getenv('HOMEPROXY_UCI_CONFIG_DIR');
+	return config_dir ? cursor(config_dir) : cursor();
+}
+
+function restartAdaptive(was_running) {
+	return !was_running || system(`${shellQuote(ADAPTIVE_SERVICE)} start >/dev/null 2>&1`) === 0;
+}
+
+function mutateAdaptiveRules(remove_target) {
+	const service = shellQuote(ADAPTIVE_SERVICE);
+	const was_running = system(`${service} running >/dev/null 2>&1`) === 0;
+	if (was_running && system(`${service} stop >/dev/null 2>&1`) !== 0)
+		return { result: false, error: 'failed to stop adaptive service' };
+
+	let entries = [];
+	if (remove_target !== null) {
+		let state;
+		try {
+			state = json(readfile(ADAPTIVE_STATE_PATH) || '{"version":1,"entries":[]}');
+		} catch (e) {
+			const restarted = restartAdaptive(was_running);
+			return {
+				result: false,
+				error: restarted ? 'failed to read adaptive rules' : 'failed to reload adaptive service'
+			};
+		}
+
+		let recent = {};
+		try {
+			const status = json(readfile(ADAPTIVE_STATUS_PATH) || '{}');
+			for (let entry in ((type(status?.learned) === 'array') ? status.learned : [])) {
+				const target = adaptiveEntryTarget(entry);
+				if (target)
+					recent[target.key] = int(entry.last_seen);
+			}
+		} catch (e) {}
+
+		let removed = false;
+		for (let entry in ((type(state?.entries) === 'array') ? state.entries : [])) {
+			const target = adaptiveEntryTarget(entry);
+			if (target?.key === remove_target.key) {
+				removed = true;
+				continue;
+			}
+			if (target && recent[target.key] > int(entry.last_seen))
+				entry.last_seen = recent[target.key];
+			push(entries, entry);
+		}
+		if (!removed) {
+			const restarted = restartAdaptive(was_running);
+			return {
+				result: restarted,
+				removed: false,
+				error: restarted ? null : 'failed to reload adaptive service'
+			};
+		}
+	}
+
+	const hpuci = adaptiveCursor();
+	hpuci.load('homeproxy-adaptive');
+	const state = { version: 1, entries };
+	const rules = renderAdaptiveRules(entries,
+		hpuci.get('homeproxy-adaptive', 'main', 'dry_run') === '0');
+	const state_tmp = ADAPTIVE_STATE_PATH + '.tmp';
+	const rules_tmp = ADAPTIVE_RULES_PATH + '.tmp';
+
+	system('/bin/mkdir -p /etc/homeproxy/adaptive /var/run/homeproxy-adaptive');
+	if (writefile(state_tmp, sprintf('%.J\n', state)) === null ||
+	    writefile(rules_tmp, sprintf('%.J\n', rules)) === null ||
+	    system(sprintf(
+		'/bin/chmod 600 %s && /bin/chmod 644 %s && /bin/mv -f %s %s && /bin/mv -f %s %s',
+		shellQuote(state_tmp), shellQuote(rules_tmp),
+		shellQuote(state_tmp), shellQuote(ADAPTIVE_STATE_PATH),
+		shellQuote(rules_tmp), shellQuote(ADAPTIVE_RULES_PATH)
+	    )) !== 0) {
+		system(sprintf('/bin/rm -f %s %s', shellQuote(state_tmp), shellQuote(rules_tmp)));
+		const restarted = restartAdaptive(was_running);
+		return {
+			result: false,
+			error: restarted ? 'failed to update adaptive rules' : 'failed to reload adaptive service'
+		};
+	}
+
+	system(`/bin/rm -f ${shellQuote(ADAPTIVE_STATUS_PATH)}`);
+	const restarted = restartAdaptive(was_running);
+	return {
+		result: restarted,
+		removed: remove_target !== null,
+		error: restarted ? null : 'failed to reload adaptive service'
+	};
+}
 
 const methods = {
 	acllist_read: {
@@ -78,6 +181,47 @@ const methods = {
 				return { result: false, error: 'failed to write domain list' };
 
 			return { result: true };
+		}
+	},
+
+	adaptive_status: {
+		call: function() {
+			const hpuci = adaptiveCursor();
+			hpuci.load('homeproxy-adaptive');
+			let status = {};
+			try {
+				status = json(readfile(ADAPTIVE_STATUS_PATH) || '{}');
+			} catch (e) {}
+
+			status.running = system(`${shellQuote(ADAPTIVE_SERVICE)} running >/dev/null 2>&1`) === 0;
+			status.enabled = hpuci.get('homeproxy-adaptive', 'main', 'enabled') === '1';
+			status.dry_run = hpuci.get('homeproxy-adaptive', 'main', 'dry_run') !== '0';
+			status.candidates = (type(status.candidates) === 'array') ? status.candidates : [];
+			if (type(status.learned) !== 'array') {
+				try {
+					const state = json(readfile(ADAPTIVE_STATE_PATH) || '{}');
+					status.learned = (type(state?.entries) === 'array') ? state.entries : [];
+				} catch (e) {
+					status.learned = [];
+				}
+			}
+			return status;
+		}
+	},
+
+	adaptive_clear: {
+		call: function() {
+			return mutateAdaptiveRules(null);
+		}
+	},
+
+	adaptive_remove: {
+		args: { target: 'target', domain: 'domain' },
+		call: function(req) {
+			const target = normalizeAdaptiveTarget(req.args?.target || req.args?.domain);
+			if (!target)
+				return { result: false, error: 'invalid target' };
+			return mutateAdaptiveRules(target);
 		}
 	},
 
@@ -197,12 +341,22 @@ const methods = {
 			if (requested_site !== 'all' && !CONNECTION_SITES[requested_site])
 				return { result: false, error: 'illegal site' };
 
+			const uci = cursor();
+			uci.load('homeproxy');
+			const mixed_port = int(uci.get('homeproxy', 'infra', 'mixed_port') || 5330);
+			if (mixed_port < 1 || mixed_port > 65535)
+				return { result: false, error: 'invalid mixed proxy port' };
+
+			/* Route probes through HomeProxy to match normal client traffic. */
+			const proxy_url = sprintf('http://127.0.0.1:%d', mixed_port);
 			const sites = (requested_site === 'all') ? keys(CONNECTION_SITES) : [ requested_site ];
 			let commands = [];
 			for (let site in sites) {
 				push(commands, sprintf(
-					'/usr/bin/curl --location --silent --output /dev/null --user-agent %s --connect-timeout 5 --max-time 9 --write-out %s %s',
+					'/usr/bin/curl --location --silent --output /dev/null --user-agent %s --proxy %s --noproxy %s --connect-timeout 5 --max-time 9 --write-out %s %s',
 					shellQuote('Mozilla/5.0'),
+					shellQuote(proxy_url),
+					shellQuote(''),
 					shellQuote(sprintf('%s\\t%%{http_code}\\t%%{time_appconnect}\\t%%{time_total}\\n', site)),
 					shellQuote(CONNECTION_SITES[site])
 				));

@@ -204,6 +204,11 @@ start_service() {
 		log "Error: failed to initialize runtime ports."
 		return 1
 	fi
+	if ! HOMEPROXY_ADAPTIVE_PREPARE=1 \
+	     ucode -S "$HP_DIR/scripts/adaptive.uc" >>"$LOG_PATH" 2>&1; then
+		log "Error: failed to prepare adaptive routing rules."
+		return 1
+	fi
 	if ! ucode -S "$HP_DIR/scripts/cleanup_urltest.uc" >>"$LOG_PATH" 2>&1; then
 		log "Error: failed to clean unavailable URLTest nodes."
 		return 1
@@ -586,6 +591,6 @@ reload_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "$CONF"
+	procd_add_reload_trigger "$CONF" "homeproxy-adaptive"
 	procd_add_interface_trigger "interface.*.up" wan /etc/init.d/$CONF reload
 }

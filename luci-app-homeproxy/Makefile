@@ -27,6 +27,8 @@ PKG_PO_VERSION:=$(PKG_VERSION)-r$(PKG_RELEASE)
 
 define Package/luci-app-homeproxy/conffiles
 /etc/config/homeproxy
+/etc/config/homeproxy-adaptive
+/etc/homeproxy/adaptive/
 /etc/homeproxy/cache/
 /etc/homeproxy/certs/
 /etc/homeproxy/dashboard/

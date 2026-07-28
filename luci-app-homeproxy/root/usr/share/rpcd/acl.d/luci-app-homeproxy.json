@@ -11,12 +11,12 @@
 				"service": [ "list" ],
 				"luci-rpc": [ "getHostHints" ],
 				"luci.homeproxy": [
-					"acllist_read", "connection_check", "current_node_get",
+					"acllist_read", "adaptive_status", "connection_check", "current_node_get",
 					"node_latency_test", "resources_get",
 					"singbox_generator", "singbox_get_features"
 				]
 			},
-			"uci": [ "homeproxy" ]
+			"uci": [ "homeproxy", "homeproxy-adaptive" ]
 		},
 		"write": {
 			"file": {
@@ -25,10 +25,10 @@
 			},
 			"ubus": {
 				"luci.homeproxy": [
-					"acllist_write", "certificate_write", "log_clean", "resources_update"
+					"acllist_write", "adaptive_clear", "adaptive_remove", "certificate_write", "log_clean", "resources_update"
 				]
 			},
-			"uci": [ "homeproxy" ]
+			"uci": [ "homeproxy", "homeproxy-adaptive" ]
 		}
 	}
 }

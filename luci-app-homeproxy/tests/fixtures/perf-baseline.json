@@ -1,0 +1,24 @@
+{
+  "log": { "disabled": true },
+  "dns": {
+    "servers": [
+      { "type": "local", "tag": "local-dns" }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "127.0.0.1",
+      "listen_port": 45201
+    }
+  ],
+  "outbounds": [
+    { "type": "direct", "tag": "direct-out" }
+  ],
+  "route": {
+    "final": "direct-out",
+    "auto_detect_interface": true,
+    "default_domain_resolver": "local-dns"
+  }
+}
