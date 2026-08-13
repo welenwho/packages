@@ -527,6 +527,13 @@ msgstr ""
 msgid "Default server name"
 msgstr ""
 
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:300
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:309
+msgid ""
+"Destinations excluded from TUN automatic redirect and handled by system "
+"routing. Applies to all routing modes."
+msgstr ""
+
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:378
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:480
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:700
@@ -2440,7 +2447,15 @@ msgstr ""
 msgid "TUN TCP/UDP"
 msgstr ""
 
-#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:293
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:299
+msgid "TUN route exclusion IPv4 addresses"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:308
+msgid "TUN route exclusion IPv6 addresses"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:296
 msgid ""
 "TUN uses sing-box automatic routing and redirect on Linux; TProxy uses "
 "native TCP/UDP transparent proxying."
@@ -2495,8 +2510,13 @@ msgstr ""
 msgid "Test current list"
 msgstr ""
 
-#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:168
-#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:544
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:305
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:314
+msgid "The default route cannot be excluded from TUN redirect."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:171
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:565
 msgid "Test interval"
 msgstr ""
 

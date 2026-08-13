@@ -539,6 +539,13 @@ msgstr "默认包封装格式"
 msgid "Default server name"
 msgstr "默认服务器名称"
 
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:300
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:309
+msgid ""
+"Destinations excluded from TUN automatic redirect and handled by system "
+"routing. Applies to all routing modes."
+msgstr "从 TUN 自动重定向中排除并交由系统路由处理的目标地址。适用于所有路由模式。"
+
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:378
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:480
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:700
@@ -2482,7 +2489,15 @@ msgstr "TUIC"
 msgid "TUN TCP/UDP"
 msgstr "TUN TCP/UDP"
 
-#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:293
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:299
+msgid "TUN route exclusion IPv4 addresses"
+msgstr "TUN 路由排除 IPv4 地址"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:308
+msgid "TUN route exclusion IPv6 addresses"
+msgstr "TUN 路由排除 IPv6 地址"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:296
 msgid ""
 "TUN uses sing-box automatic routing and redirect on Linux; TProxy uses "
 "native TCP/UDP transparent proxying."
@@ -2539,8 +2554,13 @@ msgstr "全部测试"
 msgid "Test current list"
 msgstr "测试当前列表"
 
-#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:168
-#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:544
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:305
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:314
+msgid "The default route cannot be excluded from TUN redirect."
+msgstr "不能从 TUN 重定向中排除默认路由。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:171
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:565
 msgid "Test interval"
 msgstr "测试间隔"
 

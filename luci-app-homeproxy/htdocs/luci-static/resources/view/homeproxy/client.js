@@ -296,6 +296,24 @@ return view.extend({
 		o.description = _('TUN uses sing-box automatic routing and redirect on Linux; TProxy uses native TCP/UDP transparent proxying.');
 		o.rmempty = false;
 
+		o = s.taboption('routing', form.DynamicList, 'tun_route_exclude_ipv4_ips', _('TUN route exclusion IPv4 addresses'),
+			_('Destinations excluded from TUN automatic redirect and handled by system routing. Applies to all routing modes.'));
+		o.datatype = 'or(ip4addr, cidr4)';
+		o.depends('proxy_mode', 'tun');
+		o.retain = true;
+		o.validate = function(section_id, value) {
+			return !value.endsWith('/0') || _('The default route cannot be excluded from TUN redirect.');
+		}
+
+		o = s.taboption('routing', form.DynamicList, 'tun_route_exclude_ipv6_ips', _('TUN route exclusion IPv6 addresses'),
+			_('Destinations excluded from TUN automatic redirect and handled by system routing. Applies to all routing modes.'));
+		o.datatype = 'or(ip6addr, cidr6)';
+		o.depends({ proxy_mode: 'tun', ipv6_support: '1' });
+		o.retain = true;
+		o.validate = function(section_id, value) {
+			return !value.endsWith('/0') || _('The default route cannot be excluded from TUN redirect.');
+		}
+
 		o = s.taboption('routing', form.ListValue, 'tcpip_stack', _('TCP/IP stack'),
 			_('TCP/IP stack.'));
 		if (features.with_gvisor) {

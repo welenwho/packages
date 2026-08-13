@@ -736,7 +736,11 @@ if (tproxy_enabled)
 		listen_port: int(tproxy_port),
 		udp_timeout: strToTime(udp_timeout)
 	});
-if (tun_enabled)
+if (tun_enabled) {
+	const route_exclude_address = filter(normalize_cidrs([
+		...normalizeList(uci.get(uciconfig, ucimain, 'tun_route_exclude_ipv4_ips')),
+		...normalizeList(uci.get(uciconfig, ucimain, 'tun_route_exclude_ipv6_ips'))
+	]), (address) => !match(address, /\/0$/));
 	push(config.inbounds, {
 		type: 'tun',
 		tag: 'tun-in',
@@ -747,11 +751,13 @@ if (tun_enabled)
 		auto_route: true,
 		auto_redirect: true,
 		dns_mode: 'hijack',
+		route_exclude_address: length(route_exclude_address) ? route_exclude_address : null,
 		route_exclude_address_set: fast_bypass_mainland ? ['geoip-cn'] : null,
 		include_interface: length(listen_interfaces) ? listen_interfaces : null,
 		udp_timeout: strToTime(udp_timeout),
 		stack: tcpip_stack
 	});
+}
 /* Inbound end */
 
 /* Outbound start */
