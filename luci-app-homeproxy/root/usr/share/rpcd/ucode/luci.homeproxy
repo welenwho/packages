@@ -485,11 +485,12 @@ const methods = {
 	},
 
 	node_latency_test: {
-		args: { nodes: [] },
+		args: { nodes: [], routing_nodes: [] },
 		call: function(req) {
 			const error_codes = {
 				invalid_node: 'invalid_node',
 				invalid_outbound: 'invalid_outbound',
+				invalid_routing_context: 'invalid_routing_context',
 				runtime_prepare_failed: 'runtime_prepare_failed',
 				runtime_launch_failed: 'runtime_launch_failed',
 				runtime_timeout: 'runtime_timeout',
@@ -688,9 +689,13 @@ const methods = {
 			let requested_nodes = req.args?.nodes;
 			if (type(requested_nodes) !== 'array')
 				requested_nodes = requested_nodes ? [requested_nodes] : [];
+			let requested_routing_nodes = req.args?.routing_nodes;
+			if (type(requested_routing_nodes) !== 'array')
+				requested_routing_nodes = requested_routing_nodes ? [requested_routing_nodes] : [];
 
 			let slots = [], entries = [], seen = {};
-			for (let value in requested_nodes) {
+			for (let index = 0; index < length(requested_nodes); index++) {
+				const value = requested_nodes[index];
 				const node = trim(sprintf('%s', value || ''));
 				if (!node || seen[node])
 					continue;
@@ -718,6 +723,24 @@ const methods = {
 						})
 					});
 					continue;
+				}
+
+				const routing_node = trim(sprintf('%s', requested_routing_nodes[index] || ''));
+				if (routing_node) {
+					const routing_context = hpuci.get_all('homeproxy', routing_node);
+					if (!routing_context || routing_context['.type'] !== 'routing_node' ||
+					    routing_context.enabled !== '1' || routing_context.node !== node ||
+					    routing_context.node === 'urltest' || routing_context.outbound) {
+						push(slots, {
+							result: formatResult(node, 'error', null, {
+								code: error_codes.invalid_routing_context,
+								message: 'routing node context does not reference the requested node'
+							})
+						});
+						continue;
+					}
+
+					outbound.bind_interface = routing_context.bind_interface;
 				}
 
 				outbound.tag = tag;

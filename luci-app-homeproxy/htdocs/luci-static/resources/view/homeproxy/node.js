@@ -18,7 +18,7 @@
 const callNodeLatencyTest = rpc.declare({
 	object: 'luci.homeproxy',
 	method: 'node_latency_test',
-	params: ['nodes'],
+	params: ['nodes', 'routing_nodes'],
 	expect: { '': { results: [] } },
 	reject: true
 });
@@ -489,6 +489,7 @@ function getNodeLatencyErrorText(error_code) {
 		return _('Probe failed');
 	case 'invalid_outbound':
 	case 'invalid_node':
+	case 'invalid_routing_context':
 		return _('Invalid node');
 	case 'invalid_response':
 		return _('Invalid response');
@@ -549,6 +550,17 @@ function renderNodeLatencyStatusNode(row_state, attrs) {
 
 function getNodeLatencyActionTitle(row_state) {
 	return (row_state?.state === NODE_LATENCY_ROW_STATES.TESTING) ? _('Testing') : _('Test');
+}
+
+function getNodeLatencyRoutingContext(config, node) {
+	let matches = [];
+
+	uci.sections(config, 'routing_node', (section) => {
+		if (section.enabled === '1' && section.node === node && section.node !== 'urltest' && !section.outbound)
+			matches.push(section['.name']);
+	});
+
+	return (matches.length === 1) ? matches[0] : null;
 }
 
 function parseNodeLatencySectionId(widget_id) {
@@ -759,7 +771,8 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 			this.refreshNodeLatencyRow(sid);
 		}
 
-		return callNodeLatencyTest(section_ids).then((response) => {
+		let routing_nodes = section_ids.map((sid) => getNodeLatencyRoutingContext(data[0], sid));
+		return callNodeLatencyTest(section_ids, routing_nodes).then((response) => {
 			let results = Object.create(null);
 			for (let result of response?.results || [])
 				if (result?.node)
