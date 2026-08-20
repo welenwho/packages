@@ -1,1 +1,2 @@
 luci-app-homeproxy	https://github.com/VIKINGYFY/packages
+luci-app-tailscale	https://github.com/asvow/luci-app-tailscale
