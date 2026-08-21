@@ -226,6 +226,66 @@ function normalize_cidrs(values) {
 	return map(values, (value) => match(value, /\//) ? value : `${value}/${match(value, /:/) ? 128 : 32}`);
 }
 
+function unique_cidrs(values) {
+	let unique = [], seen = {};
+	for (let route in normalize_cidrs(values)) {
+		if (!seen[route]) {
+			seen[route] = true;
+			push(unique, route);
+		}
+	}
+	return unique;
+}
+
+function read_command(command) {
+	const fd = popen(command);
+	if (!fd)
+		return '';
+
+	let payload = '', line;
+	for (line = fd.read('line'); length(line); line = fd.read('line'))
+		payload += line;
+	fd.close();
+	return payload;
+}
+
+function tailscale_route_exclusions() {
+	let routes = [ '100.64.0.0/10' ];
+	if (ipv6_support === '1')
+		push(routes, 'fd7a:115c:a1e0::/48');
+
+	uci.load('tailscale');
+	routes = [
+		...routes,
+		...normalizeList(uci.get('tailscale', 'settings', 'subnet_routes'))
+	];
+
+	const families = (ipv6_support === '1') ? [ '-4', '-6' ] : [ '-4' ];
+	for (let family in families) {
+		let entries;
+		try {
+			entries = json(read_command(`/sbin/ip -j ${family} route show table 52 2>"/dev/null"`));
+		} catch (e) {
+			continue;
+		}
+		if (type(entries) !== 'array')
+			continue;
+
+		for (let entry in entries) {
+			const destination = trim(entry?.dst || '');
+			if (!match(entry?.dev || '', /^tailscale[0-9]+$/) ||
+			    !destination || destination === 'default' ||
+			    destination === '0.0.0.0/0' || destination === '::/0' ||
+			    destination === '0.0.0.0/1' || destination === '128.0.0.0/1' ||
+			    destination === '::/1' || destination === '8000::/1')
+				continue;
+			push(routes, destination);
+		}
+	}
+
+	return unique_cidrs(routes);
+}
+
 function source_match(ipv4_option, ipv6_option, mac_option) {
 	const ips = normalize_cidrs(merge_control_options([ipv4_option, ipv6_option]));
 	const macs = merge_control_options([mac_option]);
@@ -737,9 +797,10 @@ if (tproxy_enabled)
 		udp_timeout: strToTime(udp_timeout)
 	});
 if (tun_enabled) {
-	const route_exclude_address = filter(normalize_cidrs([
+	const route_exclude_address = filter(unique_cidrs([
 		...normalizeList(uci.get(uciconfig, ucimain, 'tun_route_exclude_ipv4_ips')),
-		...normalizeList(uci.get(uciconfig, ucimain, 'tun_route_exclude_ipv6_ips'))
+		...normalizeList(uci.get(uciconfig, ucimain, 'tun_route_exclude_ipv6_ips')),
+		...(strToBool(uci.get(uciconfig, ucimain, 'tun_route_exclude_tailscale')) ? tailscale_route_exclusions() : [])
 	]), (address) => !match(address, /\/0$/));
 	push(config.inbounds, {
 		type: 'tun',

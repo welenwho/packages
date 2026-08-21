@@ -238,6 +238,10 @@ return view.extend({
 		o = s.taboption('routing', form.Flag, 'advertise_exit_node', _('Advertise Exit Node'), _('Offer this device as an exit node for the tailnet.'));
 		o.default = o.disabled;
 		o.rmempty = false;
+		o.validate = function(sectionId, value) {
+			return value !== '1' || this.section.formvalue(sectionId, 'disable_snat_subnet_routes') !== '1'
+				? true : _('Subnet source preservation cannot be enabled while advertising an exit node.');
+		};
 
 		o = s.taboption('routing', form.ListValue, 'exit_node', _('Use Exit Node'), _('Select a specific online exit node or let Tailscale choose automatically.'));
 		o.value('', _('None'));
@@ -265,9 +269,14 @@ return view.extend({
 		o.datatype = 'cidr';
 		o.rmempty = true;
 
-		o = s.taboption('routing', form.Flag, 'disable_snat_subnet_routes', _('Site To Site'), _('Disable source NAT for advertised subnet routes.'));
+		o = s.taboption('routing', form.Flag, 'disable_snat_subnet_routes', _('Preserve Subnet Source Addresses'),
+			_('Disable source NAT for advertised subnet routes. Use only when every destination network has a return route to the originating subnet.'));
 		o.default = o.disabled;
 		o.rmempty = false;
+		o.validate = function(sectionId, value) {
+			return value !== '1' || this.section.formvalue(sectionId, 'advertise_exit_node') !== '1'
+				? true : _('Subnet source preservation cannot be enabled while advertising an exit node.');
+		};
 
 		o = s.taboption('routing', form.DynamicList, 'subnet_routes', _('Static Peer Routes'), _('Install explicit OpenWrt routes through tailscale0 for selected peer subnets.'));
 		for (const route of statusData.subnetRoutes)

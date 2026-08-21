@@ -109,6 +109,10 @@ load_settings() {
 	esac
 }
 
+validate_settings() {
+	[ "$ADVERTISE_EXIT_NODE" != "1" ] || [ "$DISABLE_SNAT_SUBNET_ROUTES" != "1" ]
+}
+
 wait_for_localapi() {
 	local count=0 state
 
@@ -268,11 +272,11 @@ configure_network() {
 	fi
 
 	for route in $SUBNET_ROUTES; do
+		uci -q delete "network.ts_subnet$i.gateway" 2>/dev/null || true
 		uci -q batch <<-EOF || fail "Failed to configure subnet route $route."
 			set network.ts_subnet$i='route'
 			set network.ts_subnet$i.interface='tailscale'
 			set network.ts_subnet$i.target='$route'
-			set network.ts_subnet$i.gateway='$ts_ip'
 		EOF
 		i=$((i + 1))
 	done
@@ -314,7 +318,7 @@ configure_firewall() {
 		set firewall.tszone.input='ACCEPT'
 		set firewall.tszone.output='ACCEPT'
 		set firewall.tszone.forward='ACCEPT'
-		set firewall.tszone.masq='1'
+		set firewall.tszone.masq='$((1 - DISABLE_SNAT_SUBNET_ROUTES))'
 		set firewall.tszone.mtu_fix='1'
 	EOF
 	has_access ts_ac_lan && add_forwarding ts_ac_lan tailscale lan
@@ -346,6 +350,7 @@ sync_all() {
 	local state
 
 	load_settings
+	validate_settings || fail "Subnet source preservation cannot be enabled while advertising an exit node."
 	state="$(wait_for_localapi)" || fail "Tailscale LocalAPI did not become ready."
 	login_if_needed "$state"
 	state="$(wait_for_localapi)" || fail "Tailscale did not become ready after login."
@@ -364,6 +369,7 @@ sync_openwrt() {
 	local state
 
 	load_settings
+	validate_settings || fail "Subnet source preservation cannot be enabled while advertising an exit node."
 	state="$(wait_for_localapi)" || fail "Tailscale LocalAPI did not become ready."
 	[ "$state" = "Running" ] || fail "Tailscale backend is not running (state: $state)."
 	configure_magicdns

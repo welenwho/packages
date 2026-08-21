@@ -66,11 +66,17 @@ RELAY_SERVER_ENABLED=1
 RELAY_SERVER_PORT=0
 RELAY_SERVER_STATIC_ENDPOINTS='192.0.2.1:40000 [2001:db8::1]:40000'
 
+if validate_settings; then
+	echo 'exit node advertising and subnet source preservation must be rejected together' >&2
+	exit 1
+fi
+ADVERTISE_EXIT_NODE=0
+validate_settings
 sync_preferences
 assert_arg set
 assert_arg '--accept-routes=true'
 assert_arg '--accept-dns=false'
-assert_arg '--advertise-exit-node=true'
+assert_arg '--advertise-exit-node=false'
 assert_arg '--advertise-routes=192.168.7.0/24,192.168.9.0/24'
 assert_arg '--snat-subnet-routes=false'
 assert_arg '--exit-node=auto:any'
@@ -84,6 +90,13 @@ assert_arg '--update-check=true'
 assert_arg '--auto-update=true'
 assert_arg '--webclient=true'
 assert_no_arg '--reset'
+
+ADVERTISE_EXIT_NODE=1
+DISABLE_SNAT_SUBNET_ROUTES=0
+validate_settings
+sync_preferences
+assert_arg '--advertise-exit-node=true'
+assert_arg '--snat-subnet-routes=true'
 
 RELAY_SERVER_ENABLED=0
 sync_preferences

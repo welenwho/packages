@@ -25,6 +25,12 @@ replace OpenWrt's system DNS configuration. The helper also maintains the
 matching dnsmasq rebind exception required for Tailscale's CGNAT addresses.
 Optional preferences are detected from the installed Tailscale CLI so older
 cores continue to synchronize safely.
+Subnet source-address preservation now controls both Tailscale subnet SNAT and
+the OpenWrt Tailscale zone masquerade setting. It cannot be combined with exit
+node advertising; the default SNAT mode is recommended unless every destination
+network has an explicit return route. Static peer routes are installed as device
+routes through `tailscale0` and never use the router's own Tailscale address as a
+gateway.
 Linux builds can also set a WireGuard packet batch size from 1 to 128. Smaller
 values trade peak throughput for lower packet-buffer memory use; leaving it
 unset preserves Tailscale's default of 128.

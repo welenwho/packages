@@ -314,6 +314,13 @@ return view.extend({
 			return !value.endsWith('/0') || _('The default route cannot be excluded from TUN redirect.');
 		}
 
+		o = s.taboption('routing', form.Flag, 'tun_route_exclude_tailscale', _('Auto-exclude Tailscale routes'),
+			_('Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when HomeProxy reloads; default routes are ignored so exit-node traffic can still use HomeProxy rules.'));
+		o.default = o.disabled;
+		o.depends('proxy_mode', 'tun');
+		o.retain = true;
+		o.rmempty = false;
+
 		o = s.taboption('routing', form.ListValue, 'tcpip_stack', _('TCP/IP stack'),
 			_('TCP/IP stack.'));
 		if (features.with_gvisor) {

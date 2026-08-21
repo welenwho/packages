@@ -775,3 +775,15 @@ msgstr ""
 #: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/interface.js:94
 msgid "MagicDNS Suffix"
 msgstr ""
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js
+msgid "Preserve Subnet Source Addresses"
+msgstr ""
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js
+msgid "Disable source NAT for advertised subnet routes. Use only when every destination network has a return route to the originating subnet."
+msgstr ""
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js
+msgid "Subnet source preservation cannot be enabled while advertising an exit node."
+msgstr ""

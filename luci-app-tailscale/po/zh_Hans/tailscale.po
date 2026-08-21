@@ -772,3 +772,15 @@ msgstr "自动安装前必须先启用更新检查。"
 #: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/interface.js:94
 msgid "MagicDNS Suffix"
 msgstr "MagicDNS 后缀"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js
+msgid "Preserve Subnet Source Addresses"
+msgstr "保留子网源地址"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js
+msgid "Disable source NAT for advertised subnet routes. Use only when every destination network has a return route to the originating subnet."
+msgstr "禁用发布子网路由的源地址转换。仅当每个目标网络均已配置返回来源子网的路由时使用。"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js
+msgid "Subnet source preservation cannot be enabled while advertising an exit node."
+msgstr "发布出口节点时不能同时启用子网源地址保留。"

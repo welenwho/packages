@@ -3350,3 +3350,11 @@ msgstr ""
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:282
 msgid "valid port value"
 msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Auto-exclude Tailscale routes"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when HomeProxy reloads; default routes are ignored so exit-node traffic can still use HomeProxy rules."
+msgstr ""

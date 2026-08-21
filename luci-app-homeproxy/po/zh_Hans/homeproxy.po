@@ -3416,3 +3416,11 @@ msgstr "有效端口范围（port1:port2）"
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:282
 msgid "valid port value"
 msgstr "有效端口值"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Auto-exclude Tailscale routes"
+msgstr "自动排除 Tailscale 路由"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when HomeProxy reloads; default routes are ignored so exit-node traffic can still use HomeProxy rules."
+msgstr "让活动的 Tailnet 地址与对等子网继续走 tailscale0。HomeProxy 重载时会发现新增的 Tailscale 路由；默认路由会被忽略，因此出口节点流量仍可使用 HomeProxy 分流规则。"
