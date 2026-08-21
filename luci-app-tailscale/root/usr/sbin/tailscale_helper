@@ -200,7 +200,7 @@ sync_preferences() {
 }
 
 remove_magicdns_entries() {
-	local keep="$1" field suffix option
+	local keep="$1" domain field rebind rebind_option suffix option
 
 	for field in address server; do
 		for option in $(uci show dhcp 2>/dev/null | sed -n "s/^\([^=]*\.$field\)=.*\/100\.100\.100\.100'.*/\1/p"); do
@@ -211,6 +211,12 @@ remove_magicdns_entries() {
 							continue
 						fi
 						uci -q del_list "$option=$suffix"
+						domain="${suffix#/}"
+						domain="${domain%/100.100.100.100}"
+						rebind="/$domain/"
+						for rebind_option in $(uci show dhcp 2>/dev/null | sed -n "s/^\([^=]*\.rebind_domain\)=.*/\1/p"); do
+							uci -q del_list "$rebind_option=$rebind"
+						done
 						;;
 				esac
 			done
@@ -219,11 +225,14 @@ remove_magicdns_entries() {
 }
 
 configure_magicdns() {
-	local suffix target index i
+	local suffix target rebind index i
 
 	if [ "$MAGIC_DNS" = "1" ]; then
 		suffix="$(magicdns_suffix)"
-		[ -n "$suffix" ] && target="/$suffix/100.100.100.100"
+		if [ -n "$suffix" ]; then
+			target="/$suffix/100.100.100.100"
+			rebind="/$suffix/"
+		fi
 	fi
 	remove_magicdns_entries "$target"
 	[ -n "$target" ] || return 0
@@ -231,6 +240,8 @@ configure_magicdns() {
 	for i in $index; do
 		uci -q get "dhcp.@dnsmasq[$i].server" 2>/dev/null | tr ' ' '\n' | grep -qxF "$target" ||
 			uci -q add_list "dhcp.@dnsmasq[$i].server=$target" || fail "Failed to add MagicDNS forwarding."
+		uci -q get "dhcp.@dnsmasq[$i].rebind_domain" 2>/dev/null | tr ' ' '\n' | grep -qxF "$rebind" ||
+			uci -q add_list "dhcp.@dnsmasq[$i].rebind_domain=$rebind" || fail "Failed to allow MagicDNS responses."
 	done
 }
 

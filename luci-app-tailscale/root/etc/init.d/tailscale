@@ -105,13 +105,21 @@ start_service() {
 }
 
 remove_openwrt_integration() {
-	local field option suffix route section
+	local domain field option rebind rebind_option suffix route section
 
 	for field in address server; do
 		for option in $(uci show dhcp 2>/dev/null | sed -n "s/^\([^=]*\.$field\)=.*\/100\.100\.100\.100'.*/\1/p"); do
 			for suffix in $(uci -q get "$option" 2>/dev/null); do
 				case "$suffix" in
-					/*/100.100.100.100) uci -q del_list "$option=$suffix" ;;
+					/*/100.100.100.100)
+						uci -q del_list "$option=$suffix"
+						domain="${suffix#/}"
+						domain="${domain%/100.100.100.100}"
+						rebind="/$domain/"
+						for rebind_option in $(uci show dhcp 2>/dev/null | sed -n "s/^\([^=]*\.rebind_domain\)=.*/\1/p"); do
+							uci -q del_list "$rebind_option=$rebind"
+						done
+						;;
 				esac
 			done
 		done

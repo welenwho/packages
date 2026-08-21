@@ -21,8 +21,10 @@ Update checks, automatic installation, and the native Tailscale web client can
 be managed separately. Automatic installation is disabled by default because
 it bypasses OpenWrt package management and may replace locally patched binaries.
 MagicDNS queries can be forwarded through dnsmasq without allowing Tailscale to
-replace OpenWrt's system DNS configuration. Optional preferences are detected
-from the installed Tailscale CLI so older cores continue to synchronize safely.
+replace OpenWrt's system DNS configuration. The helper also maintains the
+matching dnsmasq rebind exception required for Tailscale's CGNAT addresses.
+Optional preferences are detected from the installed Tailscale CLI so older
+cores continue to synchronize safely.
 Linux builds can also set a WireGuard packet batch size from 1 to 128. Smaller
 values trade peak throughput for lower packet-buffer memory use; leaving it
 unset preserves Tailscale's default of 128.
