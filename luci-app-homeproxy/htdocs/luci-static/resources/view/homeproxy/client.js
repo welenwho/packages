@@ -15,7 +15,7 @@
 'require view';
 
 'require homeproxy as hp';
-'require homeproxy-adaptive as adaptive';
+'require homeproxy-adaptive-20260821-r4 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -292,7 +292,7 @@ return view.extend({
 
 		o = s.taboption('routing', form.DynamicList, 'routing_port_extra', _('Additional proxy ports'),
 			_('Built-in common ports: %s. Add only ports or ranges that are not already listed.').format(
-				'<code>%h</code>'.format(common_routing_ports)));
+				'<code>%h</code>'.format(common_routing_ports.replace(/,/g, ', '))));
 		o.depends('routing_port', 'common');
 		o.retain = true;
 		o.rmempty = true;

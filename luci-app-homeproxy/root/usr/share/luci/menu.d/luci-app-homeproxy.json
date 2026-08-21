@@ -15,7 +15,7 @@
 		"order": 10,
 		"action": {
 			"type": "view",
-			"path": "homeproxy/client"
+			"path": "homeproxy/client-20260821-r4"
 		}
 	},
 	"admin/services/homeproxy/node": {

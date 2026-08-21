@@ -7,11 +7,21 @@ CLIENT="$PACKAGE_ROOT/htdocs/luci-static/resources/view/homeproxy/client.js"
 ADAPTIVE="$PACKAGE_ROOT/htdocs/luci-static/resources/homeproxy-adaptive.js"
 OLD_VIEW="$PACKAGE_ROOT/htdocs/luci-static/resources/view/homeproxy/adaptive.js"
 MENU="$PACKAGE_ROOT/root/usr/share/luci/menu.d/luci-app-homeproxy.json"
+MAKEFILE="$PACKAGE_ROOT/Makefile"
 
 test -f "$ADAPTIVE"
 test ! -e "$OLD_VIEW"
 
-grep -Fq "'require homeproxy-adaptive as adaptive';" "$CLIENT"
+pkg_version="$(sed -n 's/^PKG_VERSION:=//p' "$MAKEFILE")"
+pkg_release="$(sed -n 's/^PKG_RELEASE:=//p' "$MAKEFILE")"
+versioned_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/homeproxy/client-${pkg_version}-r${pkg_release}.js"
+versioned_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/homeproxy-adaptive-${pkg_version}-r${pkg_release}.js"
+test -L "$versioned_client"
+test "$(readlink "$versioned_client")" = 'client.js'
+test -L "$versioned_adaptive"
+test "$(readlink "$versioned_adaptive")" = 'homeproxy-adaptive.js'
+grep -Fq '"path": "homeproxy/client-'"${pkg_version}"'-r'"${pkg_release}"'"' "$MENU"
+grep -Fq "'require homeproxy-adaptive-${pkg_version}-r${pkg_release} as adaptive';" "$CLIENT"
 grep -Fq 'adaptive.addForm(m, s, data[3]);' "$CLIENT"
 grep -Fq "map.chain('homeproxy-adaptive');" "$ADAPTIVE"
 grep -Fq "parentSection.tab('adaptive', _('Adaptive Routing'));" "$ADAPTIVE"
