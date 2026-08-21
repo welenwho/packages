@@ -105,13 +105,15 @@ start_service() {
 }
 
 remove_openwrt_integration() {
-	local option suffix route section
+	local field option suffix route section
 
-	for option in $(uci show dhcp 2>/dev/null | sed -n "s/^\([^=]*\.address\)=.*\/100\.100\.100\.100'.*/\1/p"); do
-		for suffix in $(uci -q get "$option" 2>/dev/null); do
-			case "$suffix" in
-				/*/100.100.100.100) uci -q del_list "$option=$suffix" ;;
-			esac
+	for field in address server; do
+		for option in $(uci show dhcp 2>/dev/null | sed -n "s/^\([^=]*\.$field\)=.*\/100\.100\.100\.100'.*/\1/p"); do
+			for suffix in $(uci -q get "$option" 2>/dev/null); do
+				case "$suffix" in
+					/*/100.100.100.100) uci -q del_list "$option=$suffix" ;;
+				esac
+			done
 		done
 	done
 

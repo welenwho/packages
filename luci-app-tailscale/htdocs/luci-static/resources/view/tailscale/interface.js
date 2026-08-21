@@ -30,6 +30,14 @@ function valueOrDash(value) {
 	return value === undefined || value === null || value === '' ? '-' : String(value);
 }
 
+function yesNo(value) {
+	if (value === true)
+		return _('Yes');
+	if (value === false)
+		return _('No');
+	return '-';
+}
+
 function row(label, value) {
 	return E('tr', { class: 'tr' }, [
 		E('td', { class: 'td left', width: '32%' }, label),
@@ -83,10 +91,14 @@ return view.extend({
 			row(_('Hostname'), self.HostName),
 			row(_('DNS Name'), self.DNSName),
 			row(_('Tailscale Addresses'), self.TailscaleIPs || status.TailscaleIPs),
+			row(_('MagicDNS Suffix'), status.MagicDNSSuffix),
 			row(_('Home Relay'), self.Relay),
 			row(_('Exit Node in Use'), exitNode),
 			row(_('Advertised Routes'), prefs?.AdvertiseRoutes || self.PrimaryRoutes),
-			row(_('ACL Tags'), prefs?.AdvertiseTags)
+			row(_('ACL Tags'), prefs?.AdvertiseTags),
+			row(_('Update Checks'), yesNo(prefs?.AutoUpdate?.Check)),
+			row(_('Automatic Updates'), yesNo(prefs?.AutoUpdate?.Apply)),
+			row(_('Native Web Client'), yesNo(prefs?.RunWebClient))
 		]);
 	},
 

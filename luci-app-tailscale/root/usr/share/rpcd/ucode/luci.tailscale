@@ -58,8 +58,14 @@ function valid_dns_name(value) {
 const methods = {
 	summary: {
 		call: function() {
-			const result = execute([ TAILSCALE, 'status', '--json' ], false);
-			return { status: parse_json(result), code: result.code };
+			const status_result = execute([ TAILSCALE, 'status', '--json' ], false);
+			const prefs_result = execute([ TAILSCALE, 'debug', 'prefs' ], false);
+			return {
+				status: parse_json(status_result),
+				prefs: parse_json(prefs_result),
+				code: status_result.code,
+				prefs_code: prefs_result.code
+			};
 		}
 	},
 

@@ -54,6 +54,10 @@ async function getStatus() {
 		backendState: undefined,
 		authURL: undefined,
 		displayName: undefined,
+		version: undefined,
+		updateCheck: undefined,
+		autoUpdate: undefined,
+		webClient: undefined,
 		onlineExitNodes: [],
 		subnetRoutes: []
 	};
@@ -72,6 +76,10 @@ async function getStatus() {
 	result.backendState = status.BackendState;
 	result.authURL = status.AuthURL;
 	result.displayName = status.CurrentTailnet?.Name || status.User?.[status.Self?.UserID]?.DisplayName;
+	result.version = status.Version;
+	result.updateCheck = data?.prefs?.AutoUpdate?.Check;
+	result.autoUpdate = data?.prefs?.AutoUpdate?.Apply;
+	result.webClient = data?.prefs?.RunWebClient;
 	for (const peer of Object.values(status.Peer || {})) {
 		if (peer.ExitNodeOption && peer.Online && peer.TailscaleIPs?.[0]) {
 			result.onlineExitNodes.push({
@@ -109,6 +117,14 @@ function renderLogin(loginStatus, authURL, displayName) {
 		]);
 	}
 	return E('span', { style: 'color:orange' }, loginStatus || _('NOT RUNNING'));
+}
+
+function preferenceState(value) {
+	if (value === true)
+		return _('Enabled');
+	if (value === false)
+		return _('Disabled');
+	return _('Unknown');
 }
 
 return view.extend({
@@ -159,6 +175,7 @@ return view.extend({
 		s.tab('security', _('Security'));
 		s.tab('relay', _('Peer Relay'));
 		s.tab('authentication', _('Authentication'));
+		s.tab('maintenance', _('Maintenance'));
 		s.tab('extra', _('Extra Settings'));
 
 		o = s.taboption('basic', form.Flag, 'enabled', _('Enable'));
@@ -194,6 +211,11 @@ return view.extend({
 		o.rmempty = true;
 
 		o = s.taboption('basic', form.Flag, 'accept_dns', _('Accept DNS'), _('Accept DNS configuration from the Tailscale admin console.'));
+		o.default = o.enabled;
+		o.rmempty = false;
+
+		o = s.taboption('basic', form.Flag, 'magic_dns', _('Forward MagicDNS'),
+			_('Forward queries for the tailnet MagicDNS suffix to 100.100.100.100 through dnsmasq without replacing OpenWrt system DNS.'));
 		o.default = o.enabled;
 		o.rmempty = false;
 
@@ -285,6 +307,11 @@ return view.extend({
 		o.default = o.disabled;
 		o.rmempty = false;
 
+		o = s.taboption('security', form.Flag, 'webclient', _('Native Web Client'),
+			_('Expose the native Tailscale management page to the tailnet on port 5252.'));
+		o.default = o.disabled;
+		o.rmempty = false;
+
 		o = s.taboption('relay', form.Flag, 'relay_server_enabled', _('Enable Peer Relay'));
 		o.default = o.disabled;
 		o.rmempty = false;
@@ -324,6 +351,35 @@ return view.extend({
 		o.validate = function(sectionId, value) {
 			return !value || /^tag:[A-Za-z0-9][A-Za-z0-9._-]*$/.test(value)
 				? true : _('Tags must use the tag:name format.');
+		};
+
+		o = s.taboption('maintenance', form.DummyValue, '_running_version', _('Running Version'));
+		o.cfgvalue = function() {
+			return statusData.version || _('Unknown');
+		};
+
+		o = s.taboption('maintenance', form.DummyValue, '_applied_update_policy', _('Applied Update Policy'));
+		o.renderWidget = function() {
+			return E('div', {}, [
+				`${_('Update Checks')}: ${preferenceState(statusData.updateCheck)}`,
+				E('br'),
+				`${_('Automatic Updates')}: ${preferenceState(statusData.autoUpdate)}`
+			]);
+		};
+
+		o = s.taboption('maintenance', form.Flag, 'update_check', _('Check for Updates'),
+			_('Allow Tailscale to check whether a newer version is available.'));
+		o.default = o.enabled;
+		o.rmempty = false;
+
+		o = s.taboption('maintenance', form.Flag, 'auto_update', _('Automatically Install Updates'),
+			_('Allow Tailscale to replace its own binaries. This bypasses OpenWrt package management and may remove local patches.'));
+		o.default = o.disabled;
+		o.rmempty = false;
+		o.validate = function(sectionId, value) {
+			const updateCheck = this.map.lookupOption('update_check', sectionId)[0];
+			return value !== '1' || updateCheck.formvalue(sectionId) === '1'
+				? true : _('Enable update checks before automatic installation.');
 		};
 
 		o = s.taboption('extra', form.Value, 'wg_batch_size', _('WireGuard Batch Size'),

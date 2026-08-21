@@ -4,14 +4,25 @@ set -eu
 
 TEST_DIR="$(mktemp -d)"
 CAPTURE="$TEST_DIR/args"
-export CAPTURE
+HELP_FLAGS="$TEST_DIR/set-help"
+export CAPTURE HELP_FLAGS
 trap 'rm -rf "$TEST_DIR"' EXIT
 
 cat >"$TEST_DIR/tailscale" <<-'EOF'
 	#!/bin/sh
+	if [ "${1:-}" = "set" ] && [ "${2:-}" = "--help" ]; then
+		cat "$HELP_FLAGS"
+		exit 0
+	fi
 	printf '%s\n' "$@" >"$CAPTURE"
 EOF
 chmod 755 "$TEST_DIR/tailscale"
+
+cat >"$HELP_FLAGS" <<-'EOF'
+	  --auto-update, --auto-update=false
+	  --update-check, --update-check=false
+	  --webclient, --webclient=false
+EOF
 
 TAILSCALE_BIN="$TEST_DIR/tailscale"
 TAILSCALE_FUNCTIONS_LIB=/dev/null
@@ -36,6 +47,9 @@ assert_no_arg() {
 
 ACCEPT_ROUTES=1
 ACCEPT_DNS=0
+UPDATE_CHECK=1
+AUTO_UPDATE=1
+WEBCLIENT=1
 ADVERTISE_EXIT_NODE=1
 ADVERTISE_ROUTES='192.168.7.0/24 192.168.9.0/24'
 DISABLE_SNAT_SUBNET_ROUTES=1
@@ -66,12 +80,37 @@ assert_arg '--stateful-filtering=true'
 assert_arg '--advertise-connector=true'
 assert_arg '--relay-server-port=0'
 assert_arg '--relay-server-static-endpoints=192.0.2.1:40000,[2001:db8::1]:40000'
+assert_arg '--update-check=true'
+assert_arg '--auto-update=true'
+assert_arg '--webclient=true'
 assert_no_arg '--reset'
 
 RELAY_SERVER_ENABLED=0
 sync_preferences
 assert_arg '--relay-server-port='
 assert_arg '--relay-server-static-endpoints='
+
+cat >"$HELP_FLAGS" <<-'EOF'
+	  --update-check, --update-check=false
+EOF
+TAILSCALE_SET_HELP_LOADED=0
+sync_preferences
+assert_arg '--update-check=true'
+assert_no_arg '--auto-update=true'
+assert_no_arg '--auto-update=false'
+assert_no_arg '--webclient=true'
+assert_no_arg '--webclient=false'
+
+cat >"$HELP_FLAGS" <<-'EOF'
+	  --auto-update, --auto-update=false
+	  --update-check, --update-check=false
+EOF
+TAILSCALE_SET_HELP_LOADED=0
+UPDATE_CHECK=0
+AUTO_UPDATE=1
+sync_preferences
+assert_arg '--update-check=false'
+assert_arg '--auto-update=false'
 
 AUTH_KEY_FILE='/etc/tailscale/auth.key'
 AUTHKEY='ignored-literal-key'

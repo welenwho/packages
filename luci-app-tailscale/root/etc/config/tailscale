@@ -19,6 +19,13 @@ config tailscale 'settings'
 	#option hostname ''
 	# Accept DNS configuration from the admin console. (default accept)
 	option accept_dns '1'
+	# Forward MagicDNS queries through dnsmasq without replacing the system DNS
+	option magic_dns '1'
+	# Check for Tailscale updates, but leave installation to the OpenWrt package manager
+	option update_check '1'
+	option auto_update '0'
+	# Expose the native Tailscale web client to the tailnet on port 5252
+	option webclient '0'
 	# Tailscale packet filtering mode (on, nodivert, off)
 	option netfilter_mode 'on'
 	# Apply stateful filtering to forwarded traffic

@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: luci-app-tailscale 1.3.0\n"
+"Project-Id-Version: luci-app-tailscale 1.4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-21 11:24+0800\n"
-"PO-Revision-Date: 2026-08-21 11:24+0800\n"
+"POT-Creation-Date: 2026-08-21 16:26+0800\n"
+"PO-Revision-Date: 2026-08-21 16:26+0800\n"
 "Last-Translator: welenwho/packages contributors\n"
 "Language-Team: zh_Hans\n"
 "Language: zh_Hans\n"
@@ -696,3 +696,79 @@ msgstr "授予访问 Tailscale 配置的权限"
 #: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:302
 msgid "Changes apply on the next login."
 msgstr "修改将在下次登录时生效。"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:124
+msgid "Enabled"
+msgstr "已启用"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:126
+msgid "Disabled"
+msgstr "已禁用"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:127
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:358
+msgid "Unknown"
+msgstr "未知"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:178
+msgid "Maintenance"
+msgstr "维护"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:217
+msgid "Forward MagicDNS"
+msgstr "转发 MagicDNS"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:218
+msgid "Forward queries for the tailnet MagicDNS suffix to 100.100.100.100 through dnsmasq without replacing OpenWrt system DNS."
+msgstr "通过 dnsmasq 将 Tailnet MagicDNS 后缀的查询转发至 100.100.100.100，且不替换 OpenWrt 系统 DNS。"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:310
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/interface.js:101
+msgid "Native Web Client"
+msgstr "原生网页客户端"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:311
+msgid "Expose the native Tailscale management page to the tailnet on port 5252."
+msgstr "在 Tailnet 的 5252 端口开放 Tailscale 原生管理页面。"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:356
+msgid "Running Version"
+msgstr "运行版本"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:361
+msgid "Applied Update Policy"
+msgstr "已应用的更新策略"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:364
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/interface.js:99
+msgid "Update Checks"
+msgstr "更新检查"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:366
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/interface.js:100
+msgid "Automatic Updates"
+msgstr "自动更新"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:370
+msgid "Check for Updates"
+msgstr "检查更新"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:371
+msgid "Allow Tailscale to check whether a newer version is available."
+msgstr "允许 Tailscale 检查是否有新版本可用。"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:375
+msgid "Automatically Install Updates"
+msgstr "自动安装更新"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:376
+msgid "Allow Tailscale to replace its own binaries. This bypasses OpenWrt package management and may remove local patches."
+msgstr "允许 Tailscale 替换自身程序。这会绕过 OpenWrt 包管理，并可能移除本地补丁。"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:382
+msgid "Enable update checks before automatic installation."
+msgstr "自动安装前必须先启用更新检查。"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/interface.js:94
+msgid "MagicDNS Suffix"
+msgstr "MagicDNS 后缀"

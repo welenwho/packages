@@ -9,6 +9,8 @@ FUNCTIONS_LIB="${TAILSCALE_FUNCTIONS_LIB:-/lib/functions.sh}"
 
 TAILSCALE_BIN="${TAILSCALE_BIN:-/usr/sbin/tailscale}"
 LOCK_FILE="${TAILSCALE_LOCK_FILE:-/var/lock/tailscale.lock}"
+TAILSCALE_SET_HELP=''
+TAILSCALE_SET_HELP_LOADED=0
 
 log_error() {
 	logger -p daemon.err -t tailscale_helper "$(date '+%Y/%m/%d %H:%M:%S') $*"
@@ -25,6 +27,16 @@ bool_arg() {
 
 space_to_csv() {
 	printf '%s' "$1" | tr ' ' ','
+}
+
+supports_set_flag() {
+	local flag="$1"
+
+	if [ "$TAILSCALE_SET_HELP_LOADED" != "1" ]; then
+		TAILSCALE_SET_HELP="$($TAILSCALE_BIN set --help 2>&1)"
+		TAILSCALE_SET_HELP_LOADED=1
+	fi
+	printf '%s\n' "$TAILSCALE_SET_HELP" | grep -q -- "--$flag"
 }
 
 backend_state() {
@@ -60,6 +72,10 @@ load_settings() {
 	config_get_bool ACCEPT_ROUTES "$cfg" accept_routes 0
 	config_get HOSTNAME "$cfg" hostname
 	config_get_bool ACCEPT_DNS "$cfg" accept_dns 1
+	config_get_bool MAGIC_DNS "$cfg" magic_dns 1
+	config_get_bool UPDATE_CHECK "$cfg" update_check 1
+	config_get_bool AUTO_UPDATE "$cfg" auto_update 0
+	config_get_bool WEBCLIENT "$cfg" webclient 0
 	config_get_bool ADVERTISE_EXIT_NODE "$cfg" advertise_exit_node 0
 	config_get EXIT_NODE "$cfg" exit_node
 	config_get_bool EXIT_NODE_ALLOW_LAN_ACCESS "$cfg" exit_node_allow_lan_access 0
@@ -169,19 +185,35 @@ sync_preferences() {
 		"--relay-server-port=$relay_port" \
 		"--relay-server-static-endpoints=$relay_endpoints"
 
+	if supports_set_flag update-check; then
+		set -- "$@" "--update-check=$(bool_arg "$UPDATE_CHECK")"
+	fi
+	if supports_set_flag auto-update; then
+		[ "$UPDATE_CHECK" = "1" ] || AUTO_UPDATE=0
+		set -- "$@" "--auto-update=$(bool_arg "$AUTO_UPDATE")"
+	fi
+	if supports_set_flag webclient; then
+		set -- "$@" "--webclient=$(bool_arg "$WEBCLIENT")"
+	fi
+
 	"$@" || fail "tailscale set failed."
 }
 
 remove_magicdns_entries() {
-	local keep="$1" suffix option
+	local keep="$1" field suffix option
 
-	for option in $(uci show dhcp 2>/dev/null | sed -n "s/^\([^=]*\.address\)=.*\/100\.100\.100\.100'.*/\1/p"); do
-		for suffix in $(uci -q get "$option" 2>/dev/null); do
-			case "$suffix" in
-				/*/100.100.100.100)
-					[ -n "$keep" ] && [ "$suffix" = "$keep" ] || uci -q del_list "$option=$suffix"
-					;;
-			esac
+	for field in address server; do
+		for option in $(uci show dhcp 2>/dev/null | sed -n "s/^\([^=]*\.$field\)=.*\/100\.100\.100\.100'.*/\1/p"); do
+			for suffix in $(uci -q get "$option" 2>/dev/null); do
+				case "$suffix" in
+					/*/100.100.100.100)
+						if [ "$field" = "server" ] && [ -n "$keep" ] && [ "$suffix" = "$keep" ]; then
+							continue
+						fi
+						uci -q del_list "$option=$suffix"
+						;;
+				esac
+			done
 		done
 	done
 }
@@ -189,7 +221,7 @@ remove_magicdns_entries() {
 configure_magicdns() {
 	local suffix target index i
 
-	if [ "$ACCEPT_DNS" = "1" ]; then
+	if [ "$MAGIC_DNS" = "1" ]; then
 		suffix="$(magicdns_suffix)"
 		[ -n "$suffix" ] && target="/$suffix/100.100.100.100"
 	fi
@@ -197,8 +229,8 @@ configure_magicdns() {
 	[ -n "$target" ] || return 0
 	index="$(uci show dhcp 2>/dev/null | sed -n "s/^dhcp\.@dnsmasq\[\([0-9][0-9]*\)\]=dnsmasq$/\1/p")"
 	for i in $index; do
-		uci -q get "dhcp.@dnsmasq[$i].address" 2>/dev/null | tr ' ' '\n' | grep -qxF "$target" ||
-			uci -q add_list "dhcp.@dnsmasq[$i].address=$target" || fail "Failed to add MagicDNS forwarding."
+		uci -q get "dhcp.@dnsmasq[$i].server" 2>/dev/null | tr ' ' '\n' | grep -qxF "$target" ||
+			uci -q add_list "dhcp.@dnsmasq[$i].server=$target" || fail "Failed to add MagicDNS forwarding."
 	done
 }
 

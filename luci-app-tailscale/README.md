@@ -7,7 +7,7 @@ This copy is maintained in `welenwho/packages`. It was imported from
 
 ## Maintained feature set
 
-Version 1.3 uses `tailscale set` for incremental preference updates and reserves
+Version 1.4 uses `tailscale set` for incremental preference updates and reserves
 `tailscale up` for initial registration. Applying LuCI settings therefore no
 longer resets preferences that are unknown to this package.
 
@@ -17,6 +17,12 @@ Shields Up, subnet and App Connector routing, ACL registration tags, Tailscale
 SSH, device posture reporting, auth-key files, and Peer Relay server settings.
 The status and diagnostics pages expose node health, routes, peer connection
 paths, traffic, DNS checks, netcheck, Tailscale ping, metrics, and bug reports.
+Update checks, automatic installation, and the native Tailscale web client can
+be managed separately. Automatic installation is disabled by default because
+it bypasses OpenWrt package management and may replace locally patched binaries.
+MagicDNS queries can be forwarded through dnsmasq without allowing Tailscale to
+replace OpenWrt's system DNS configuration. Optional preferences are detected
+from the installed Tailscale CLI so older cores continue to synchronize safely.
 Linux builds can also set a WireGuard packet batch size from 1 to 128. Smaller
 values trade peak throughput for lower packet-buffer memory use; leaving it
 unset preserves Tailscale's default of 128.
