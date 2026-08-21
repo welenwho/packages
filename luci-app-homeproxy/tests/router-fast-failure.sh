@@ -29,6 +29,8 @@ mkdir -p "$UCI_DIR" "$RUN_DIR" "$API_DIR/proxies/direct-out" \
 cat >"$UCI_DIR/homeproxy" <<-EOF
 	config homeproxy 'config'
 		option routing_mode 'custom'
+	config homeproxy 'routing'
+		option default_outbound 'direct-out'
 
 	config homeproxy 'infra'
 		option clash_api_port '$API_PORT'
@@ -38,6 +40,8 @@ cat >"$UCI_DIR/homeproxy-adaptive" <<-'EOF'
 	config adaptive 'main'
 		option enabled '1'
 		option dry_run '0'
+		option outbound 'proxy-test'
+		option candidate_trigger 'failure_only'
 		option poll_interval '10'
 		option slow_seconds '5'
 		option slow_bytes '65536'
@@ -45,7 +49,7 @@ cat >"$UCI_DIR/homeproxy-adaptive" <<-'EOF'
 		option probe_interval '30'
 		option probe_timeout '1000'
 		option probe_samples '1'
-		option direct_slow_ms '100'
+		option baseline_slow_ms '100'
 		option min_improvement_ms '50'
 		option min_improvement_percent '10'
 		option max_rules '100'
@@ -55,7 +59,9 @@ EOF
 printf '%s\n' \
 	'ERROR stale: open connection to stale.example:443 using outbound/direct[homeproxy-adaptive-final-direct-out]: failed' \
 	>"$CORE_LOG"
-printf '%s\n' '{"connections":[]}' >"$API_DIR/connections"
+cat >"$API_DIR/connections" <<-'EOF'
+{"connections":[{"id":"slow-ignored","metadata":{"host":"slow-ignored.example","network":"tcp","destinationPort":"443"},"chains":["direct-out"],"rule":"final","download":0}]}
+EOF
 printf '%s\n' '{"delay":200}' >"$API_DIR/proxies/homeproxy-adaptive-out/delay"
 printf '%s\n' '{"version":1,"entries":[]}' >"$TEST_ROOT/learned.json"
 
@@ -97,5 +103,9 @@ status_failures="$(jsonfilter -i "$RUN_DIR/status.json" -e '@.failure_count')"
 [ "$status_failures" -eq 2 ]
 [ "$(jsonfilter -i "$RUN_DIR/status.json" -e '@.candidates[0].target')" = '1.1.1.1' ]
 [ "$(jsonfilter -i "$RUN_DIR/status.json" -e '@.candidates[0].target_type')" = 'ipv4' ]
+if jsonfilter -i "$RUN_DIR/status.json" -e '@.candidates[*].target' | grep -Fqx 'slow-ignored.example'; then
+	echo 'Failure-only mode incorrectly observed a slow connection' >&2
+	exit 1
+fi
 
-echo 'Fast-failure test passed: final domain/IP failures detected, explicit/private targets ignored'
+echo 'Fast-failure test passed: failure-only mode detected final failures and ignored slow/explicit/private targets'

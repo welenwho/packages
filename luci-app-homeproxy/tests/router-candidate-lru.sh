@@ -32,6 +32,8 @@ grep -Fq 'const CANDIDATE_MAX_IDLE = 86400;' "$WORKER"
 cat >"$UCI_DIR/homeproxy" <<-EOF
 	config homeproxy 'config'
 		option routing_mode 'custom'
+	config homeproxy 'routing'
+		option default_outbound 'direct-out'
 
 	config homeproxy 'infra'
 		option clash_api_port '$API_PORT'
@@ -41,6 +43,7 @@ cat >"$UCI_DIR/homeproxy-adaptive" <<-'EOF'
 	config adaptive 'main'
 		option enabled '1'
 		option dry_run '1'
+		option outbound 'proxy-test'
 		option poll_interval '10'
 		option min_observations '1'
 		option probe_interval '30'

@@ -23,12 +23,14 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 rm -rf /tmp/homeproxy-adaptive-lru-test
-mkdir -p "$UCI_DIR" "$RUN_DIR" "$API_DIR/proxies/direct-out" \
+mkdir -p "$UCI_DIR" "$RUN_DIR" "$API_DIR/proxies/homeproxy-adaptive-final-direct-out" \
 	"$API_DIR/proxies/homeproxy-adaptive-out"
 
 cat >"$UCI_DIR/homeproxy" <<-EOF
 	config homeproxy 'config'
 		option routing_mode 'custom'
+	config homeproxy 'routing'
+		option default_outbound 'direct-out'
 
 	config homeproxy 'infra'
 		option clash_api_port '$API_PORT'
@@ -38,6 +40,7 @@ cat >"$UCI_DIR/homeproxy-adaptive" <<-EOF
 	config adaptive 'main'
 		option enabled '1'
 		option dry_run '0'
+		option outbound 'proxy-test'
 		option poll_interval '10'
 		option slow_seconds '5'
 		option slow_bytes '65536'
@@ -45,7 +48,7 @@ cat >"$UCI_DIR/homeproxy-adaptive" <<-EOF
 		option probe_interval '30'
 		option probe_timeout '1000'
 		option probe_samples '1'
-		option direct_slow_ms '100'
+		option baseline_slow_ms '100'
 		option min_improvement_ms '50'
 		option min_improvement_percent '10'
 		option max_rules '100'
@@ -55,7 +58,7 @@ EOF
 cat >"$API_DIR/connections" <<-'EOF'
 {"connections":[{"id":"old-hit","metadata":{"host":"oldest.example","network":"tcp","destinationPort":"443"},"chains":["direct-out"],"rule":"final","download":0},{"id":"new-candidate","metadata":{"host":"new-entry.example","network":"tcp","destinationPort":"443"},"chains":["direct-out"],"rule":"final","download":0}]}
 EOF
-cat >"$API_DIR/proxies/direct-out/delay" <<-'EOF'
+cat >"$API_DIR/proxies/homeproxy-adaptive-final-direct-out/delay" <<-'EOF'
 {"delay":2000}
 EOF
 cat >"$API_DIR/proxies/homeproxy-adaptive-out/delay" <<-'EOF'

@@ -21,9 +21,16 @@ cat >"$UCI_DIR/homeproxy-adaptive" <<-'EOF'
 config adaptive 'main'
 	option enabled '1'
 	option dry_run '0'
+	option outbound 'proxy-test'
+EOF
+cat >"$UCI_DIR/homeproxy" <<-'EOF'
+config homeproxy 'config'
+	option routing_mode 'custom'
+config homeproxy 'routing'
+	option default_outbound 'direct-out'
 EOF
 cat >"$TEST_ROOT/learned.json" <<-'EOF'
-{"version":1,"entries":[{"target":"1.1.1.1","target_type":"ipv4","added_at":1,"last_seen":10},{"domain":"keep.example","added_at":2,"last_seen":11}]}
+{"version":2,"entries":[{"target":"1.1.1.1","target_type":"ipv4","added_at":1,"last_seen":10},{"domain":"keep.example","added_at":2,"last_seen":11},{"policy_id":"global|main:other|direct","domain":"inactive.example","added_at":3,"last_seen":12}]}
 EOF
 cat >"$RUN_DIR/status.json" <<-'EOF'
 {"version":1,"learned":[{"target":"1.1.1.1","target_type":"ipv4","last_seen":19},{"target":"keep.example","target_type":"domain","last_seen":20}]}
@@ -36,9 +43,11 @@ HOMEPROXY_ADAPTIVE_STATUS_PATH="$RUN_DIR/status.json" \
 HOMEPROXY_ADAPTIVE_SERVICE='/bin/false' \
 	/usr/bin/ucode -S -L "$MODULE_DIR" "$RPC_TEST" "$RPC_PLUGIN"
 
-[ "$(jsonfilter -i "$TEST_ROOT/learned.json" -e '@.entries[*].domain')" = 'keep.example' ]
+[ "$(jsonfilter -i "$TEST_ROOT/learned.json" -e '@.version')" = '2' ]
+[ "$(jsonfilter -i "$TEST_ROOT/learned.json" -e '@.entries[0].domain')" = 'keep.example' ]
 [ "$(jsonfilter -i "$TEST_ROOT/learned.json" -e '@.entries[0].last_seen')" = '20' ]
+[ "$(jsonfilter -i "$TEST_ROOT/learned.json" -e '@.entries[1].domain')" = 'inactive.example' ]
 [ "$(jsonfilter -i "$RUN_DIR/rules.json" -e '@.rules[0].domain[*]')" = 'keep.example' ]
 [ ! -e "$RUN_DIR/status.json" ]
 
-echo 'RPC remove state/rule-set hot update test passed'
+echo 'RPC remove test passed: active policy updated and inactive policy state preserved'

@@ -16,9 +16,15 @@ grep -Fq 'adaptive.addForm(m, s, data[3]);' "$CLIENT"
 grep -Fq "map.chain('homeproxy-adaptive');" "$ADAPTIVE"
 grep -Fq "parentSection.tab('adaptive', _('Adaptive Routing'));" "$ADAPTIVE"
 grep -Fq "o.depends('routing_mode', 'custom');" "$ADAPTIVE"
+grep -Fq "o.depends('routing_mode', 'bypass_mainland_china');" "$ADAPTIVE"
+grep -Fq "o.depends('routing_mode', 'global');" "$ADAPTIVE"
+grep -Fq "form.Flag, 'allow_global'" "$ADAPTIVE"
+grep -Fq "form.ListValue, 'candidate_trigger'" "$ADAPTIVE"
+grep -Fq "o.value('failure_only', _('Failures only'));" "$ADAPTIVE"
 grep -Fq "const routingMode = parentSection.formvalue('config', 'routing_mode');" "$ADAPTIVE"
 grep -Fq "const enabled = this.section.formvalue(sectionId, 'enabled');" "$ADAPTIVE"
-grep -Fq "if (routingMode === 'custom' && enabled === '1' && !value)" "$ADAPTIVE"
+grep -Fq "const defaultOption = map.lookupOption('default_outbound', 'routing')?.[0];" "$ADAPTIVE"
+grep -Fq "if (routingMode === 'custom' && defaultOutbound === 'direct-out' &&" "$ADAPTIVE"
 if grep -Fq "uci.get('homeproxy-adaptive', sectionId, 'enabled')" "$ADAPTIVE"; then
 	echo 'Adaptive outbound validation must use the pending form state' >&2
 	exit 1
@@ -48,4 +54,4 @@ if grep -Fq 'admin/services/homeproxy/adaptive' "$MENU"; then
 	exit 1
 fi
 
-echo 'Adaptive UI test passed: custom-mode tab and outbound validation follow the current form state'
+echo 'Adaptive UI test passed: all routing modes, global opt-in, failure-only trigger, and pending-form validation exposed'

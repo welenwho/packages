@@ -15,6 +15,7 @@ import { cursor } from 'uci';
 import {
 	createNodeLabelRegistry, filterExistingNodes, hasForceProxyRules, isEmpty,
 	normalizeList, parseURL, resolveRoutingPorts,
+	resolveAdaptivePolicy,
 	reserveUniqueLabel, strToBool, strToInt, strToTime,
 	removeBlankAttrs, renderEndpoint, renderOutbound, validation, HP_DIR, RUN_DIR
 } from 'homeproxy';
@@ -46,14 +47,18 @@ const ucinode = 'node';
 const uciruleset = 'ruleset';
 
 const routing_mode = uci.get(uciconfig, ucimain, 'routing_mode') || 'bypass_mainland_china';
-const adaptive_enabled = routing_mode === 'custom' &&
-      uci.get(adaptiveconfig, 'main', 'enabled') === '1';
+const adaptive_policy = resolveAdaptivePolicy(uci, uciconfig, adaptiveconfig);
+if (adaptive_policy.requested && adaptive_policy.mode_allowed && adaptive_policy.error)
+	die(adaptive_policy.error);
+const adaptive_enabled = adaptive_policy.enabled;
 const adaptive_dry_run = uci.get(adaptiveconfig, 'main', 'dry_run') !== '0';
 const adaptive_apply = adaptive_enabled && !adaptive_dry_run;
-const adaptive_outbound = uci.get(adaptiveconfig, 'main', 'outbound');
 const adaptive_rules_path = getenv('HOMEPROXY_ADAPTIVE_RULES_PATH') ||
       '/var/run/homeproxy-adaptive/rules.json';
 const adaptive_final_direct_tag = 'homeproxy-adaptive-final-direct-out';
+const adaptive_proxy_tag = 'homeproxy-adaptive-out';
+const adaptive_target_tag = adaptive_policy.target_kind === 'direct' ?
+      adaptive_final_direct_tag : adaptive_proxy_tag;
 const adaptive_direct_probe_port = strToInt(uci.get(adaptiveconfig, 'main', 'direct_probe_port'));
 const adaptive_proxy_probe_port = strToInt(uci.get(adaptiveconfig, 'main', 'proxy_probe_port'));
 
@@ -833,9 +838,7 @@ config.outbounds = [
 		routing_mark: strToInt(self_mark)
 	}
 ];
-const adaptive_final_direct = adaptive_enabled && default_outbound !== 'reject' &&
-	get_outbound(default_outbound) === 'direct-out';
-if (adaptive_final_direct)
+if (adaptive_enabled)
 	push(config.outbounds, {
 		type: 'direct',
 		tag: adaptive_final_direct_tag,
@@ -973,19 +976,29 @@ if (!isEmpty(main_node)) {
 		}
 	}
 
-	if (adaptive_enabled) {
-		const adaptive_section = uci.get_all(uciconfig, adaptive_outbound) || {};
-		if (adaptive_section['.type'] !== uciroutingnode || adaptive_section.enabled !== '1')
-			die('Adaptive routing requires an enabled routing node.');
+}
 
-		push(config.outbounds, {
-			type: 'selector',
-			tag: 'homeproxy-adaptive-out',
-			outbounds: [get_outbound(adaptive_outbound)],
-			default: get_outbound(adaptive_outbound),
-			interrupt_exist_connections: false
-		});
-	}
+if (adaptive_enabled) {
+	let proxy_outbound;
+	if (adaptive_policy.baseline_kind === 'direct') {
+		const adaptive_section = uci.get_all(uciconfig, adaptive_policy.proxy_outbound) || {};
+		if (adaptive_section['.type'] !== uciroutingnode || adaptive_section.enabled !== '1')
+			die('Adaptive routing requires an enabled proxy routing node.');
+		proxy_outbound = get_outbound(adaptive_policy.proxy_outbound);
+	} else if (routing_mode === 'custom')
+		proxy_outbound = get_outbound(adaptive_policy.proxy_outbound);
+	else
+		proxy_outbound = 'main-out';
+
+	if (isEmpty(proxy_outbound) || proxy_outbound === 'direct-out')
+		die('Adaptive routing proxy path is unavailable.');
+	push(config.outbounds, {
+		type: 'selector',
+		tag: adaptive_proxy_tag,
+		outbounds: [proxy_outbound],
+		default: proxy_outbound,
+		interrupt_exist_connections: false
+	});
 }
 
 if (isEmpty(config.endpoints))
@@ -1011,12 +1024,12 @@ if (adaptive_enabled) {
 	push(config.route.rules, {
 		inbound: 'homeproxy-adaptive-direct-probe-in',
 		action: 'route',
-		outbound: 'direct-out'
+		outbound: adaptive_final_direct_tag
 	});
 	push(config.route.rules, {
 		inbound: 'homeproxy-adaptive-proxy-probe-in',
 		action: 'route',
-		outbound: 'homeproxy-adaptive-out'
+		outbound: adaptive_proxy_tag
 	});
 }
 
@@ -1076,7 +1089,14 @@ if (!isEmpty(main_node)) {
 		});
 	}
 
-	config.route.final = 'main-out';
+	if (adaptive_apply)
+		push(config.route.rules, {
+			rule_set: 'homeproxy-adaptive-rule',
+			action: 'route',
+			outbound: adaptive_target_tag
+		});
+
+	config.route.final = adaptive_enabled ? adaptive_proxy_tag : 'main-out';
 
 	/* Rule set */
 	/* Direct list */
@@ -1098,6 +1118,14 @@ if (!isEmpty(main_node)) {
 	if (routing_mode === 'bypass_mainland_china') {
 		add_mainland_rule_sets(config.route.rule_set);
 	}
+
+	if (adaptive_apply)
+		push(config.route.rule_set, {
+			type: 'local',
+			tag: 'homeproxy-adaptive-rule',
+			format: 'source',
+			path: adaptive_rules_path
+		});
 
 	if (isEmpty(config.route.rule_set))
 		config.route.rule_set = null;
@@ -1197,15 +1225,16 @@ if (!isEmpty(main_node)) {
 		push(config.route.rules, {
 			rule_set: 'homeproxy-adaptive-rule',
 			action: 'route',
-			outbound: 'homeproxy-adaptive-out'
+			outbound: adaptive_target_tag
 		});
 
 	if (default_outbound === 'reject')
 		push(config.route.rules, { action: 'reject' });
 	else {
 		const final_outbound = get_outbound(default_outbound);
-		config.route.final = adaptive_final_direct ?
-			adaptive_final_direct_tag : final_outbound;
+		config.route.final = adaptive_enabled ?
+			(adaptive_policy.baseline_kind === 'direct' ?
+				adaptive_final_direct_tag : adaptive_proxy_tag) : final_outbound;
 	}
 
 	/* Rule set */

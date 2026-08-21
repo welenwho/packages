@@ -14,10 +14,18 @@ prepare_runtime() {
 
 start_service() {
 	config_load "$CONFIG"
-	local enabled
+	local enabled routing_mode allow_global
 	config_get_bool enabled main enabled 0
 	[ "$enabled" -eq 1 ] || return 0
-	[ "$(uci -q get homeproxy.config.routing_mode)" = 'custom' ] || return 0
+	routing_mode="$(uci -q get homeproxy.config.routing_mode)"
+	case "$routing_mode" in
+	custom|bypass_mainland_china) ;;
+	global)
+		config_get_bool allow_global main allow_global 0
+		[ "$allow_global" -eq 1 ] || return 0
+		;;
+	*) return 0 ;;
+	esac
 
 	prepare_runtime || return 1
 

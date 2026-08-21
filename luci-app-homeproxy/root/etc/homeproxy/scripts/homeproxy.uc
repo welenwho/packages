@@ -131,6 +131,75 @@ export function createNodeLabelRegistry() {
 	};
 };
 
+export function resolveAdaptivePolicy(uci, homeConfig, adaptiveConfig) {
+	homeConfig = homeConfig || 'homeproxy';
+	adaptiveConfig = adaptiveConfig || 'homeproxy-adaptive';
+
+	const mode = uci.get(homeConfig, 'config', 'routing_mode') || 'bypass_mainland_china';
+	const requested = uci.get(adaptiveConfig, 'main', 'enabled') === '1';
+	const mode_allowed = mode in ['bypass_mainland_china', 'custom', 'global'] &&
+		(mode !== 'global' || uci.get(adaptiveConfig, 'main', 'allow_global') === '1');
+	let baseline, baseline_kind, proxy_outbound, target, target_kind, error;
+
+	if (mode === 'custom') {
+		const default_outbound = uci.get(homeConfig, 'routing', 'default_outbound') || 'nil';
+		if (default_outbound === 'direct-out') {
+			baseline = 'direct';
+			baseline_kind = 'direct';
+			proxy_outbound = uci.get(adaptiveConfig, 'main', 'outbound');
+			if (isEmpty(proxy_outbound))
+				error = 'Adaptive routing requires a proxy outbound when the default path is direct.';
+			else {
+				target = `routing:${proxy_outbound}`;
+				target_kind = 'proxy';
+			}
+		} else if (default_outbound === 'nil' || default_outbound === 'reject')
+			error = 'Adaptive routing requires a direct or proxy default outbound.';
+		else {
+			baseline = `routing:${default_outbound}`;
+			baseline_kind = 'proxy';
+			proxy_outbound = default_outbound;
+			target = 'direct';
+			target_kind = 'direct';
+		}
+	} else if (mode in ['bypass_mainland_china', 'global']) {
+		const main_node = uci.get(homeConfig, 'config', 'main_node') || 'nil';
+		if (main_node === 'nil')
+			error = 'Adaptive routing requires a main proxy node.';
+		else {
+			baseline = `main:${main_node}`;
+			baseline_kind = 'proxy';
+			proxy_outbound = main_node;
+			target = 'direct';
+			target_kind = 'direct';
+		}
+	} else
+		error = 'Adaptive routing is unavailable in the selected routing mode.';
+
+	return {
+		id: (!error && baseline && target) ? `${mode}|${baseline}|${target}` : null,
+		mode,
+		requested,
+		mode_allowed,
+		enabled: requested && mode_allowed && !error,
+		baseline,
+		baseline_kind,
+		proxy_outbound,
+		target,
+		target_kind,
+		error
+	};
+};
+
+export function adaptiveEntryMatchesPolicy(entry, policy) {
+	if (type(entry) !== 'object' || !policy?.id)
+		return false;
+	if (entry.policy_id)
+		return entry.policy_id === policy.id;
+	/* Version 1 entries were always learned from direct to proxy. */
+	return policy.baseline_kind === 'direct' && policy.target_kind === 'proxy';
+};
+
 export function synchronizeNodeLabels(uci, config, include) {
 	const used = createNodeLabelRegistry();
 	let changed = 0;

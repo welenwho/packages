@@ -11,7 +11,8 @@ import { lstat, open, popen, readfile, writefile } from 'fs';
 import { cursor } from 'uci';
 
 import {
-	adaptiveEntryTarget, HP_DIR, isBinary, normalizeAdaptiveTarget, renderAdaptiveRules,
+	adaptiveEntryMatchesPolicy, adaptiveEntryTarget, HP_DIR, isBinary,
+	normalizeAdaptiveTarget, renderAdaptiveRules, resolveAdaptivePolicy,
 	RUN_DIR, removeBlankAttrs, renderEndpoint, renderOutbound, shellQuote
 } from '/etc/homeproxy/scripts/homeproxy.uc';
 
@@ -70,54 +71,59 @@ function mutateAdaptiveRules(remove_target) {
 	if (was_running && system(`${service} stop >/dev/null 2>&1`) !== 0)
 		return { result: false, error: 'failed to stop adaptive service' };
 
-	let entries = [];
-	if (remove_target !== null) {
-		let state;
-		try {
-			state = json(readfile(ADAPTIVE_STATE_PATH) || '{"version":1,"entries":[]}');
-		} catch (e) {
-			const restarted = restartAdaptive(was_running);
-			return {
-				result: false,
-				error: restarted ? 'failed to read adaptive rules' : 'failed to reload adaptive service'
-			};
-		}
+	const hpuci = adaptiveCursor();
+	hpuci.load('homeproxy-adaptive');
+	hpuci.load('homeproxy');
+	const policy = resolveAdaptivePolicy(hpuci, 'homeproxy', 'homeproxy-adaptive');
+	let state;
+	try {
+		state = json(readfile(ADAPTIVE_STATE_PATH) || '{"version":2,"entries":[]}');
+	} catch (e) {
+		const restarted = restartAdaptive(was_running);
+		return {
+			result: false,
+			error: restarted ? 'failed to read adaptive rules' : 'failed to reload adaptive service'
+		};
+	}
 
-		let recent = {};
-		try {
-			const status = json(readfile(ADAPTIVE_STATUS_PATH) || '{}');
+	let recent = {};
+	try {
+		const status = json(readfile(ADAPTIVE_STATUS_PATH) || '{}');
+		const current_status = status.policy_id ? status.policy_id === policy.id :
+			(policy.baseline_kind === 'direct' && policy.target_kind === 'proxy');
+		if (current_status)
 			for (let entry in ((type(status?.learned) === 'array') ? status.learned : [])) {
 				const target = adaptiveEntryTarget(entry);
 				if (target)
 					recent[target.key] = int(entry.last_seen);
 			}
-		} catch (e) {}
+	} catch (e) {}
 
-		let removed = false;
-		for (let entry in ((type(state?.entries) === 'array') ? state.entries : [])) {
-			const target = adaptiveEntryTarget(entry);
-			if (target?.key === remove_target.key) {
-				removed = true;
-				continue;
-			}
-			if (target && recent[target.key] > int(entry.last_seen))
-				entry.last_seen = recent[target.key];
-			push(entries, entry);
+	let entries = [], active_entries = [], removed = false;
+	for (let entry in ((type(state?.entries) === 'array') ? state.entries : [])) {
+		const active = adaptiveEntryMatchesPolicy(entry, policy);
+		const target = adaptiveEntryTarget(entry);
+		if (active && (remove_target === null || target?.key === remove_target.key)) {
+			removed = true;
+			continue;
 		}
-		if (!removed) {
-			const restarted = restartAdaptive(was_running);
-			return {
-				result: restarted,
-				removed: false,
-				error: restarted ? null : 'failed to reload adaptive service'
-			};
-		}
+		if (active && target && recent[target.key] > int(entry.last_seen))
+			entry.last_seen = recent[target.key];
+		push(entries, entry);
+		if (active)
+			push(active_entries, entry);
+	}
+	if (remove_target !== null && !removed) {
+		const restarted = restartAdaptive(was_running);
+		return {
+			result: restarted,
+			removed: false,
+			error: restarted ? null : 'failed to reload adaptive service'
+		};
 	}
 
-	const hpuci = adaptiveCursor();
-	hpuci.load('homeproxy-adaptive');
-	const state = { version: 1, entries };
-	const rules = renderAdaptiveRules(entries,
+	state = { version: 2, entries };
+	const rules = renderAdaptiveRules(active_entries,
 		hpuci.get('homeproxy-adaptive', 'main', 'dry_run') === '0');
 	const state_tmp = ADAPTIVE_STATE_PATH + '.tmp';
 	const rules_tmp = ADAPTIVE_RULES_PATH + '.tmp';
@@ -188,19 +194,33 @@ const methods = {
 		call: function() {
 			const hpuci = adaptiveCursor();
 			hpuci.load('homeproxy-adaptive');
+			hpuci.load('homeproxy');
+			const policy = resolveAdaptivePolicy(hpuci, 'homeproxy', 'homeproxy-adaptive');
 			let status = {};
 			try {
 				status = json(readfile(ADAPTIVE_STATUS_PATH) || '{}');
 			} catch (e) {}
+			const current_status = status.policy_id ? status.policy_id === policy.id :
+				(policy.baseline_kind === 'direct' && policy.target_kind === 'proxy');
+			if (!current_status) {
+				status.learned = null;
+				status.candidates = [];
+			}
 
 			status.running = system(`${shellQuote(ADAPTIVE_SERVICE)} running >/dev/null 2>&1`) === 0;
 			status.enabled = hpuci.get('homeproxy-adaptive', 'main', 'enabled') === '1';
 			status.dry_run = hpuci.get('homeproxy-adaptive', 'main', 'dry_run') !== '0';
+			status.policy_id = policy.id;
+			status.baseline_kind = policy.baseline_kind;
+			status.target_kind = policy.target_kind;
 			status.candidates = (type(status.candidates) === 'array') ? status.candidates : [];
 			if (type(status.learned) !== 'array') {
 				try {
 					const state = json(readfile(ADAPTIVE_STATE_PATH) || '{}');
-					status.learned = (type(state?.entries) === 'array') ? state.entries : [];
+					status.learned = filter(
+						(type(state?.entries) === 'array') ? state.entries : [],
+						(entry) => adaptiveEntryMatchesPolicy(entry, policy)
+					);
 				} catch (e) {
 					status.learned = [];
 				}

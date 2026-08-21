@@ -29,6 +29,8 @@ mkdir -p "$UCI_DIR" "$RUN_DIR"
 cat >"$UCI_DIR/homeproxy" <<-EOF
 	config homeproxy 'config'
 		option routing_mode 'custom'
+	config homeproxy 'routing'
+		option default_outbound 'direct-out'
 
 	config homeproxy 'infra'
 		option clash_api_port '$API_PORT'
@@ -38,6 +40,7 @@ cat >"$UCI_DIR/homeproxy-adaptive" <<-EOF
 	config adaptive 'main'
 		option enabled '1'
 		option dry_run '0'
+		option outbound 'proxy-test'
 		option direct_probe_port '$DIRECT_PORT'
 		option proxy_probe_port '$PROXY_PORT'
 		option poll_interval '10'
@@ -47,7 +50,7 @@ cat >"$UCI_DIR/homeproxy-adaptive" <<-EOF
 		option probe_interval '30'
 		option probe_timeout '1000'
 		option probe_samples '1'
-		option direct_slow_ms '100'
+		option baseline_slow_ms '100'
 		option min_improvement_ms '50'
 		option min_improvement_percent '10'
 		option max_rules '100'

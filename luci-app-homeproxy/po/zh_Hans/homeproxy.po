@@ -3440,3 +3440,43 @@ msgstr "额外代理端口"
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
 msgid "Built-in common ports: %s. Add only ports or ranges that are not already listed."
 msgstr "内置常用端口：%s。只需添加列表中尚未包含的端口或端口范围。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Default path: %s; learned target: %s"
+msgstr "默认路径：%s；学习目标：%s"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Adaptive routing observes only traffic using the final default path. It learns proxy exceptions when the default is direct, and direct exceptions when the default is proxy. Manual routing rules keep priority."
+msgstr "自适应路由只观察最终使用默认路径的流量。默认直连时学习代理例外，默认代理时学习直连例外；手工路由规则保持更高优先级。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Allow direct exceptions in global mode"
+msgstr "允许全局模式产生直连例外"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Required before adaptive routing can create direct exceptions in global proxy mode."
+msgstr "必须明确开启后，自适应路由才能在全局代理模式下产生直连例外。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Comparison proxy outbound"
+msgstr "对比代理出站"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Used as the learned target only when the custom routing default outbound is Direct."
+msgstr "仅在自定义路由的默认出站为直连时，作为学习规则的目标路径。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Candidate trigger"
+msgstr "候选触发条件"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Slow connections or failures"
+msgstr "慢连接或连接失败"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Failures only"
+msgstr "仅连接失败"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Default path latency threshold (ms)"
+msgstr "默认路径延迟阈值（毫秒）"

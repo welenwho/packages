@@ -19,12 +19,15 @@ mkdir -p "$UCI_DIR" "$RUN_DIR"
 cat >"$UCI_DIR/homeproxy" <<-'EOF'
 config homeproxy 'config'
 	option routing_mode 'custom'
+config homeproxy 'routing'
+	option default_outbound 'direct-out'
 EOF
 
 cat >"$UCI_DIR/homeproxy-adaptive" <<-'EOF'
 config adaptive 'main'
 	option enabled '1'
 	option dry_run '0'
+	option outbound 'proxy-test'
 	option max_rules '100'
 	option max_ip_rules '20'
 EOF

@@ -7,6 +7,8 @@ clash_api_port_initialized="$(uci -q get homeproxy.infra.clash_api_port_initiali
 main_node="$(uci -q get homeproxy.config.main_node)"
 dashboard_enabled="$(uci -q get homeproxy.config.dashboard_enabled)"
 adaptive_enabled="$(uci -q get homeproxy-adaptive.main.enabled)"
+adaptive_baseline_slow_ms="$(uci -q get homeproxy-adaptive.main.baseline_slow_ms)"
+adaptive_direct_slow_ms="$(uci -q get homeproxy-adaptive.main.direct_slow_ms)"
 direct_probe_port="$(uci -q get homeproxy-adaptive.main.direct_probe_port)"
 direct_probe_port_initialized="$(uci -q get homeproxy-adaptive.main.direct_probe_port_initialized)"
 proxy_probe_port="$(uci -q get homeproxy-adaptive.main.proxy_probe_port)"
@@ -61,6 +63,15 @@ clash_api_port="$(initialize_port "$clash_api_port" 9090 "$clash_api_port_initia
 dashboard_port="$(initialize_port "$dashboard_port" 9095 "$dashboard_port_initialized" "$clash_api_port")"
 
 if [ "$adaptive_enabled" = '1' ]; then
+	if [ -z "$adaptive_baseline_slow_ms" ] && [ -n "$adaptive_direct_slow_ms" ]; then
+		uci -q set homeproxy-adaptive.main.baseline_slow_ms="$adaptive_direct_slow_ms"
+		adaptive_changed=1
+	fi
+	if [ -n "$adaptive_direct_slow_ms" ]; then
+		uci -q delete homeproxy-adaptive.main.direct_slow_ms
+		adaptive_changed=1
+	fi
+
 	direct_probe_port="$(initialize_port "$direct_probe_port" auto "$direct_probe_port_initialized" \
 		"$clash_api_port" "$dashboard_port" "$proxy_probe_port")"
 	proxy_probe_port="$(initialize_port "$proxy_probe_port" auto "$proxy_probe_port_initialized" \

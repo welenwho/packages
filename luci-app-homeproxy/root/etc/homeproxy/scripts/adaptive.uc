@@ -7,7 +7,8 @@ import { open, popen, readfile, stat, writefile } from 'fs';
 import { cursor } from 'uci';
 
 import {
-	adaptiveEntryTarget, normalizeAdaptiveTarget, renderAdaptiveRules, shellQuote
+	adaptiveEntryMatchesPolicy, adaptiveEntryTarget, normalizeAdaptiveTarget,
+	renderAdaptiveRules, resolveAdaptivePolicy, shellQuote
 } from 'homeproxy';
 
 const CONFIG = 'homeproxy-adaptive';
@@ -17,6 +18,7 @@ const STATUS_PATH = RUN_DIR + '/status.json';
 const RULES_PATH = getenv('HOMEPROXY_ADAPTIVE_RULES_PATH') || RUN_DIR + '/rules.json';
 const LEARNED_PATH = getenv('HOMEPROXY_ADAPTIVE_LEARNED_PATH') || '/etc/homeproxy/adaptive/learned.json';
 const CORE_LOG_PATH = getenv('HOMEPROXY_ADAPTIVE_CORE_LOG_PATH') || '/var/run/homeproxy/sing-box-c.log';
+const CORE_CONFIG_PATH = getenv('HOMEPROXY_ADAPTIVE_CORE_CONFIG_PATH') || '/var/run/homeproxy/sing-box-c.json';
 const ADAPTIVE_TAG = 'homeproxy-adaptive-out';
 const FINAL_DIRECT_TAG = 'homeproxy-adaptive-final-direct-out';
 const DIRECT_TAG = 'direct-out';
@@ -33,8 +35,12 @@ const uci = uci_config_dir ? cursor(uci_config_dir) : cursor();
 uci.load(CONFIG);
 uci.load('homeproxy');
 
-if (uci.get(CONFIG, SECTION, 'enabled') !== '1' ||
-    uci.get('homeproxy', 'config', 'routing_mode') !== 'custom')
+const policy = resolveAdaptivePolicy(uci, 'homeproxy', CONFIG);
+if (policy.requested && policy.mode_allowed && policy.error) {
+	warn(`homeproxy-adaptive: ${policy.error}\n`);
+	exit(1);
+}
+if (!policy.enabled)
 	exit(0);
 
 function configInt(name, fallback, minimum, maximum) {
@@ -53,6 +59,8 @@ function normalizeList(value) {
 
 const settings = {
 	dry_run: uci.get(CONFIG, SECTION, 'dry_run') !== '0',
+	candidate_trigger: uci.get(CONFIG, SECTION, 'candidate_trigger') === 'failure_only' ?
+		'failure_only' : 'slow_or_failure',
 	poll_interval: configInt('poll_interval', 15, 10, 300),
 	slow_seconds: configInt('slow_seconds', 10, 5, 300),
 	slow_bytes: configInt('slow_bytes', 65536, 0, 10485760),
@@ -60,7 +68,9 @@ const settings = {
 	probe_interval: configInt('probe_interval', 60, 30, 86400),
 	probe_timeout: configInt('probe_timeout', 5000, 1000, 15000),
 	probe_samples: configInt('probe_samples', 2, 1, 3),
-	direct_slow_ms: configInt('direct_slow_ms', 1200, 100, 30000),
+	baseline_slow_ms: configInt(
+		'baseline_slow_ms', configInt('direct_slow_ms', 1200, 100, 30000), 100, 30000
+	),
 	min_improvement_ms: configInt('min_improvement_ms', 300, 50, 30000),
 	min_improvement_percent: configInt('min_improvement_percent', 40, 1, 99),
 	max_rules: configInt('max_rules', 100, 1, 100),
@@ -82,6 +92,7 @@ let active_count = 0;
 let candidates = {};
 let candidate_lru = {};
 let learned = [];
+let inactive_learned = [];
 let learned_by_target = {};
 let learned_lru = {};
 let persisted_seen = {};
@@ -236,6 +247,10 @@ function loadLearned() {
 	const state = parseJson(readfile(LEARNED_PATH));
 	const now = time();
 	for (let entry in normalizeList(state?.entries)) {
+		if (!adaptiveEntryMatchesPolicy(entry, policy)) {
+			push(inactive_learned, entry);
+			continue;
+		}
 		const target = validTarget(entry?.target || entry?.domain || entry?.ip);
 		const last_seen = int(entry?.last_seen) || int(entry?.added_at) || now;
 		if (!target || learned_by_target[target.key]) {
@@ -243,6 +258,7 @@ function loadLearned() {
 			continue;
 		}
 		const normalized = {
+			policy_id: policy.id,
 			target: target.value,
 			target_type: target.type,
 			added_at: int(entry.added_at) || now,
@@ -256,7 +272,8 @@ function loadLearned() {
 		learned_by_target[target.key] = normalized;
 		learned_lru[target.key] = ++lru_clock;
 		persisted_seen[target.key] = last_seen;
-		if (entry.target !== target.value || entry.target_type !== target.type)
+		if (entry.policy_id !== policy.id || entry.target !== target.value ||
+		    entry.target_type !== target.type)
 			learned_dirty = true;
 	}
 	if (evictOldest())
@@ -275,7 +292,7 @@ function persistLearned(force) {
 	if (!force && now - last_persist < 3600)
 		return true;
 
-	const state = { version: 1, entries: learned };
+	const state = { version: 2, entries: [...inactive_learned, ...learned] };
 	if (!atomicWrite(LEARNED_PATH, sprintf('%.J\n', state), '0600'))
 		return false;
 	persisted_seen = {};
@@ -322,9 +339,13 @@ function writeStatus(force) {
 	if (!force && now - last_status < STATUS_INTERVAL)
 		return;
 	const status = {
-		version: 1,
+		version: 2,
 		running: true,
 		dry_run: settings.dry_run,
+		candidate_trigger: settings.candidate_trigger,
+		policy_id: policy.id,
+		baseline_kind: policy.baseline_kind,
+		target_kind: policy.target_kind,
 		last_poll,
 		last_error,
 		poll_count,
@@ -379,9 +400,20 @@ function connectionTarget(metadata) {
 	return validTarget(metadata?.destinationIP || metadata?.destination_ip);
 }
 
-function isFinalDirect(connection) {
-	return connection.rule === 'final' &&
-		(hasChain(connection, FINAL_DIRECT_TAG) || hasChain(connection, DIRECT_TAG));
+function usesDirectPath(connection) {
+	return hasChain(connection, FINAL_DIRECT_TAG) || hasChain(connection, DIRECT_TAG);
+}
+
+function isFinalBaseline(connection) {
+	if (connection.rule !== 'final')
+		return false;
+	return policy.baseline_kind === 'direct' ?
+		usesDirectPath(connection) : hasChain(connection, ADAPTIVE_TAG);
+}
+
+function usesTargetPath(connection) {
+	return policy.target_kind === 'direct' ?
+		usesDirectPath(connection) : hasChain(connection, ADAPTIVE_TAG);
 }
 
 function pollConnections() {
@@ -414,12 +446,12 @@ function pollConnections() {
 
 		const learned_entry = learned_by_target[target.key];
 		if (learned_entry &&
-		    (hasChain(connection, ADAPTIVE_TAG) || isFinalDirect(connection))) {
+		    (usesTargetPath(connection) || isFinalBaseline(connection))) {
 			touchLearned(learned_entry, now);
 			continue;
 		}
 
-		if (!isFinalDirect(connection))
+		if (!isFinalBaseline(connection) || settings.candidate_trigger === 'failure_only')
 			continue;
 		seen[id] = true;
 		let tracked = active[id];
@@ -470,6 +502,30 @@ function initFailureLog() {
 	if (fd.seek(tail_start) === true)
 		log_tail = fd.read(log_offset - tail_start) || '';
 	fd.close();
+}
+
+function baselineFailureTags() {
+	if (policy.baseline_kind === 'direct')
+		return { [FINAL_DIRECT_TAG]: true };
+
+	let by_tag = {};
+	const config = parseJson(readfile(CORE_CONFIG_PATH));
+	for (let outbound in [...normalizeList(config?.outbounds), ...normalizeList(config?.endpoints)])
+		if (outbound?.tag)
+			by_tag[outbound.tag] = outbound;
+
+	let allowed = {}, pending = [ADAPTIVE_TAG];
+	while (length(pending)) {
+		const tag = pop(pending);
+		if (!tag || allowed[tag])
+			continue;
+		allowed[tag] = true;
+		const outbound = by_tag[tag];
+		for (let child in normalizeList(outbound?.outbounds))
+			if (!allowed[child])
+				push(pending, child);
+	}
+	return allowed;
 }
 
 function pollFastFailures() {
@@ -523,10 +579,11 @@ function pollFastFailures() {
 	const content = log_remainder + appended;
 	const lines = split(content, /\n/);
 	log_remainder = pop(lines) || '';
+	const failure_tags = baselineFailureTags();
 	for (let line in lines) {
 		const matched = match(line,
-			/open connection to (\[[0-9a-fA-F:]+\]|[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]):443 using outbound\/direct\[homeproxy-adaptive-final-direct-out\]:/);
-		const target = matched ? validTarget(matched[1]) : null;
+			/open connection to (\[[0-9a-fA-F:]+\]|[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]):443 using (outbound|endpoint)\/[^\[]+\[([^\]]+)\]:/);
+		const target = matched && failure_tags[matched[3]] ? validTarget(matched[1]) : null;
 		if (!target)
 			continue;
 		observe(target, true);
@@ -607,12 +664,13 @@ function promote(candidate, direct_ms, proxy_ms, reason) {
 	if (!target || learned_by_target[target.key])
 		return;
 	const entry = {
+		policy_id: policy.id,
 		target: target.value,
 		target_type: target.type,
 		added_at: time(),
 		last_seen: candidate.last_seen,
 		direct_ms: direct_ms || 0,
-		proxy_ms,
+		proxy_ms: proxy_ms || 0,
 		observations: candidate.observations,
 		reason
 	};
@@ -685,7 +743,7 @@ function probeCandidate() {
 	}
 	for (let i = 0; i < settings.probe_samples; i++) {
 		const direct_value = target.type === 'domain' ?
-			domainDelay(DIRECT_TAG, target.value) : ipDelay(probePort('direct'), target);
+			domainDelay(FINAL_DIRECT_TAG, target.value) : ipDelay(probePort('direct'), target);
 		if (direct_value)
 			push(direct, direct_value);
 		const proxy_value = target.type === 'domain' ?
@@ -699,29 +757,28 @@ function probeCandidate() {
 	const proxy_ms = median(proxy);
 	candidate.direct_ms = direct_ms || 0;
 	candidate.proxy_ms = proxy_ms || 0;
-	if (!proxy_ms) {
-		finishUnsuccessfulProbe(candidate);
-		return;
-	}
-
 	const required_successes = int((settings.probe_samples + 1) / 2);
-	if (length(proxy) < required_successes) {
+	const baseline_ms = policy.baseline_kind === 'direct' ? direct_ms : proxy_ms;
+	const target_ms = policy.target_kind === 'direct' ? direct_ms : proxy_ms;
+	const baseline_samples = policy.baseline_kind === 'direct' ? length(direct) : length(proxy);
+	const target_samples = policy.target_kind === 'direct' ? length(direct) : length(proxy);
+	if (!target_ms || target_samples < required_successes) {
 		finishUnsuccessfulProbe(candidate);
 		return;
 	}
-	if (!direct_ms) {
-		promote(candidate, null, proxy_ms, 'direct_failed');
+	if (!baseline_ms) {
+		promote(candidate, direct_ms, proxy_ms, 'baseline_failed');
 		return;
 	}
-	if (length(direct) < required_successes || direct_ms < settings.direct_slow_ms) {
+	if (baseline_samples < required_successes || baseline_ms < settings.baseline_slow_ms) {
 		finishUnsuccessfulProbe(candidate);
 		return;
 	}
 
-	const improvement = direct_ms - proxy_ms;
-	const percent = int(improvement * 100 / direct_ms);
+	const improvement = baseline_ms - target_ms;
+	const percent = int(improvement * 100 / baseline_ms);
 	if (improvement >= settings.min_improvement_ms && percent >= settings.min_improvement_percent)
-		promote(candidate, direct_ms, proxy_ms, 'proxy_faster');
+		promote(candidate, direct_ms, proxy_ms, 'target_faster');
 	else
 		finishUnsuccessfulProbe(candidate);
 }

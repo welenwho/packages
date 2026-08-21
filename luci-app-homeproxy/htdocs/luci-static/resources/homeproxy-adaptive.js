@@ -156,6 +156,10 @@ function renderStatus(status) {
 			' | ',
 			_('Probes: %d').format(status.probe_count || 0)
 		]),
+		status.baseline_kind && status.target_kind ? E('p', {},
+			_('Default path: %s; learned target: %s').format(
+				status.baseline_kind === 'direct' ? _('Direct') : _('Proxy'),
+				status.target_kind === 'direct' ? _('Direct') : _('Proxy'))) : null,
 		status.paused_for_load ? E('p', { class: 'alert-message warning' }, _('Detection paused due to router load.')) : null,
 		status.last_error ? E('p', { class: 'alert-message warning' }, status.last_error) : null
 	];
@@ -192,6 +196,9 @@ return baseclass.extend({
 		o = parentSection.taboption('adaptive', form.SectionValue, '_adaptive',
 			form.NamedSection, 'main', 'adaptive');
 		o.depends('routing_mode', 'custom');
+		o.depends('routing_mode', 'bypass_mainland_china');
+		o.depends('routing_mode', 'global');
+		o.description = _('Adaptive routing observes only traffic using the final default path. It learns proxy exceptions when the default is direct, and direct exceptions when the default is proxy. Manual routing rules keep priority.');
 
 		s = o.subsection;
 		s.uciconfig = 'homeproxy-adaptive';
@@ -225,7 +232,14 @@ return baseclass.extend({
 		o.default = o.enabled;
 		o.rmempty = false;
 
-		o = s.taboption('general', form.ListValue, 'outbound', _('Proxy outbound'));
+		o = s.taboption('general', form.Flag, 'allow_global', _('Allow direct exceptions in global mode'),
+			_('Required before adaptive routing can create direct exceptions in global proxy mode.'));
+		o.default = o.disabled;
+		o.rmempty = false;
+		o.depends('homeproxy.config.routing_mode', 'global');
+
+		o = s.taboption('general', form.ListValue, 'outbound', _('Comparison proxy outbound'),
+			_('Used as the learned target only when the custom routing default outbound is Direct.'));
 		o.value('', _('Select an outbound'));
 		uci.sections('homeproxy', 'routing_node', (section) => {
 			if (section.enabled === '1')
@@ -234,10 +248,24 @@ return baseclass.extend({
 		o.validate = function(sectionId, value) {
 			const routingMode = parentSection.formvalue('config', 'routing_mode');
 			const enabled = this.section.formvalue(sectionId, 'enabled');
-			if (routingMode === 'custom' && enabled === '1' && !value)
+			const defaultOption = map.lookupOption('default_outbound', 'routing')?.[0];
+			const defaultOutbound = defaultOption?.formvalue('routing') ||
+				uci.get('homeproxy', 'routing', 'default_outbound');
+			if (routingMode === 'custom' && defaultOutbound === 'direct-out' &&
+			    enabled === '1' && !value)
 				return _('A proxy outbound is required.');
 			return true;
 		};
+		o.depends({
+			'homeproxy.config.routing_mode': 'custom',
+			'homeproxy.routing.default_outbound': 'direct-out'
+		});
+		o.rmempty = true;
+
+		o = s.taboption('general', form.ListValue, 'candidate_trigger', _('Candidate trigger'));
+		o.value('slow_or_failure', _('Slow connections or failures'));
+		o.value('failure_only', _('Failures only'));
+		o.default = 'slow_or_failure';
 		o.rmempty = false;
 
 		o = s.taboption('general', form.Value, 'max_rules', _('Maximum learned rules'));
@@ -256,20 +284,27 @@ return baseclass.extend({
 		o.datatype = 'range(5,300)';
 		o.default = '10';
 		o.rmempty = false;
+		o.depends('candidate_trigger', 'slow_or_failure');
 
 		o = s.taboption('detection', form.Value, 'slow_bytes', _('Maximum bytes during slow window (bytes)'));
 		o.datatype = 'range(0,10485760)';
 		o.default = '65536';
 		o.rmempty = false;
+		o.depends('candidate_trigger', 'slow_or_failure');
 
 		o = s.taboption('detection', form.Value, 'min_observations', _('Minimum observations'));
 		o.datatype = 'range(1,10)';
 		o.default = '2';
 		o.rmempty = false;
+		o.depends('candidate_trigger', 'slow_or_failure');
 
-		o = s.taboption('detection', form.Value, 'direct_slow_ms', _('Direct latency threshold (ms)'));
+		o = s.taboption('detection', form.Value, 'baseline_slow_ms', _('Default path latency threshold (ms)'));
 		o.datatype = 'range(100,30000)';
 		o.default = '1200';
+		o.cfgvalue = function(sectionId) {
+			return uci.get('homeproxy-adaptive', sectionId, 'baseline_slow_ms') ||
+				uci.get('homeproxy-adaptive', sectionId, 'direct_slow_ms') || this.default;
+		};
 		o.rmempty = false;
 
 		o = s.taboption('detection', form.Value, 'min_improvement_ms', _('Minimum latency improvement (ms)'));

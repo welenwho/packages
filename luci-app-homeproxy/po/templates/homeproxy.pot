@@ -3374,3 +3374,43 @@ msgstr ""
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
 msgid "Built-in common ports: %s. Add only ports or ranges that are not already listed."
 msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Default path: %s; learned target: %s"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Adaptive routing observes only traffic using the final default path. It learns proxy exceptions when the default is direct, and direct exceptions when the default is proxy. Manual routing rules keep priority."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Allow direct exceptions in global mode"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Required before adaptive routing can create direct exceptions in global proxy mode."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Comparison proxy outbound"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Used as the learned target only when the custom routing default outbound is Direct."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Candidate trigger"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Slow connections or failures"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Failures only"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/homeproxy-adaptive.js
+msgid "Default path latency threshold (ms)"
+msgstr ""
