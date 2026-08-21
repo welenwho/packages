@@ -16,6 +16,13 @@ grep -Fq 'adaptive.addForm(m, s, data[3]);' "$CLIENT"
 grep -Fq "map.chain('homeproxy-adaptive');" "$ADAPTIVE"
 grep -Fq "parentSection.tab('adaptive', _('Adaptive Routing'));" "$ADAPTIVE"
 grep -Fq "o.depends('routing_mode', 'custom');" "$ADAPTIVE"
+grep -Fq "const routingMode = parentSection.formvalue('config', 'routing_mode');" "$ADAPTIVE"
+grep -Fq "const enabled = this.section.formvalue(sectionId, 'enabled');" "$ADAPTIVE"
+grep -Fq "if (routingMode === 'custom' && enabled === '1' && !value)" "$ADAPTIVE"
+if grep -Fq "uci.get('homeproxy-adaptive', sectionId, 'enabled')" "$ADAPTIVE"; then
+	echo 'Adaptive outbound validation must use the pending form state' >&2
+	exit 1
+fi
 grep -Fq "s.uciconfig = 'homeproxy-adaptive';" "$ADAPTIVE"
 grep -Fq "s.tab('learned', _('Learned Rules'));" "$ADAPTIVE"
 grep -Fq "s.tab('candidates', _('Pending Candidates'));" "$ADAPTIVE"
@@ -41,4 +48,4 @@ if grep -Fq 'admin/services/homeproxy/adaptive' "$MENU"; then
 	exit 1
 fi
 
-echo 'Adaptive UI test passed: custom-mode secondary tab uses its own UCI config'
+echo 'Adaptive UI test passed: custom-mode tab and outbound validation follow the current form state'

@@ -232,7 +232,9 @@ return baseclass.extend({
 				o.value(section['.name'], section.label || section['.name']);
 		});
 		o.validate = function(sectionId, value) {
-			if (uci.get('homeproxy-adaptive', sectionId, 'enabled') === '1' && !value)
+			const routingMode = parentSection.formvalue('config', 'routing_mode');
+			const enabled = this.section.formvalue(sectionId, 'enabled');
+			if (routingMode === 'custom' && enabled === '1' && !value)
 				return _('A proxy outbound is required.');
 			return true;
 		};
