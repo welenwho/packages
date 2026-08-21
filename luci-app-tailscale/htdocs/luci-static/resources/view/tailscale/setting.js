@@ -326,6 +326,15 @@ return view.extend({
 				? true : _('Tags must use the tag:name format.');
 		};
 
+		o = s.taboption('extra', form.Value, 'wg_batch_size', _('WireGuard Batch Size'),
+			_('Controls Linux packet batching. Smaller values reduce memory usage but may lower throughput.'));
+		o.value('', _('Default (128)'));
+		for (const size of [ 1, 8, 16, 32, 64, 128 ])
+			o.value(String(size));
+		o.datatype = 'range(1,128)';
+		o.default = '';
+		o.rmempty = true;
+
 		o = s.taboption('extra', form.DynamicList, 'flags', _('Additional Login Flags'),
 		String.format(_('Compatibility flags used only during initial login. Prefer the dedicated settings above. See %s.'),
 			'<a href="https://tailscale.com/kb/1241/tailscale-up" target="_blank" rel="noreferrer noopener">' + _('tailscale up flags') + '</a>'));

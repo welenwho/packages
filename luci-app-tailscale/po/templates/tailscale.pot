@@ -373,18 +373,30 @@ msgstr ""
 msgid "Tags must use the tag:name format."
 msgstr ""
 
-#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:319
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:329
+msgid "WireGuard Batch Size"
+msgstr ""
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:330
+msgid "Controls Linux packet batching. Smaller values reduce memory usage but may lower throughput."
+msgstr ""
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:331
+msgid "Default (128)"
+msgstr ""
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:338
 msgid "Additional Login Flags"
 msgstr ""
 
-#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:320
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:339
 #, javascript-format
 msgid ""
 "Compatibility flags used only during initial login. Prefer the dedicated "
 "settings above. See %s."
 msgstr ""
 
-#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:321
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:340
 msgid "tailscale up flags"
 msgstr ""
 

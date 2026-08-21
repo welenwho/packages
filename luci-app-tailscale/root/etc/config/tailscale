@@ -7,6 +7,8 @@ config tailscale 'settings'
 	option config_path '/etc/tailscale'
 	# Firewall implementation used internally by tailscaled (auto, nftables, iptables)
 	option fw_mode 'auto'
+	# Linux WireGuard packet batch size (1-128); leave unset for the Tailscale default (128)
+	#option wg_batch_size '32'
 	# Enable stdout log
 	option log_stdout '1'
 	# Enable stderr log

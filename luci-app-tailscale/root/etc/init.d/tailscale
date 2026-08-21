@@ -20,16 +20,25 @@ section_enabled() {
 	[ "$enabled" -gt 0 ]
 }
 
+normalize_wg_batch_size() {
+	case "$1" in
+		[1-9]|[1-9][0-9]|1[01][0-9]|12[0-8]) printf '%s' "$1" ;;
+	esac
+	return 0
+}
+
 daemon_signature() {
-	local cfg="$1" port config_path fw_mode std_out std_err
+	local cfg="$1" port config_path fw_mode wg_batch_size std_out std_err
 
 	config_get port "$cfg" port 41641
 	config_get config_path "$cfg" config_path /etc/tailscale
 	config_get fw_mode "$cfg" fw_mode auto
+	config_get wg_batch_size "$cfg" wg_batch_size
+	wg_batch_size="$(normalize_wg_batch_size "$wg_batch_size")"
 	config_get_bool std_out "$cfg" log_stdout 1
 	config_get_bool std_err "$cfg" log_stderr 1
-	printf 'port=%s\nconfig_path=%s\nfw_mode=%s\nstdout=%s\nstderr=%s\n' \
-		"$port" "$config_path" "$fw_mode" "$std_out" "$std_err"
+	printf 'port=%s\nconfig_path=%s\nfw_mode=%s\nwg_batch_size=%s\nstdout=%s\nstderr=%s\n' \
+		"$port" "$config_path" "$fw_mode" "$wg_batch_size" "$std_out" "$std_err"
 }
 
 start_helper() {
@@ -47,7 +56,7 @@ start_helper() {
 }
 
 start_instance() {
-	local cfg="$1" port config_path fw_mode std_out std_err state_file
+	local cfg="$1" port config_path fw_mode wg_batch_size std_out std_err state_file
 
 	if ! section_enabled "$cfg"; then
 		echo "disabled in /etc/config/tailscale"
@@ -57,6 +66,8 @@ start_instance() {
 	config_get port "$cfg" port 41641
 	config_get config_path "$cfg" config_path /etc/tailscale
 	config_get fw_mode "$cfg" fw_mode auto
+	config_get wg_batch_size "$cfg" wg_batch_size
+	wg_batch_size="$(normalize_wg_batch_size "$wg_batch_size")"
 	config_get_bool std_out "$cfg" log_stdout 1
 	config_get_bool std_err "$cfg" log_stderr 1
 
@@ -73,7 +84,12 @@ start_instance() {
 	procd_set_param command "$PROGD"
 	[ -n "$port" ] && procd_append_param command --port "$port"
 	procd_append_param command --state "$state_file"
-	procd_set_param env "TS_DEBUG_FIREWALL_MODE=$fw_mode"
+	if [ -n "$wg_batch_size" ]; then
+		procd_set_param env "TS_DEBUG_FIREWALL_MODE=$fw_mode" \
+			"TS_DEBUG_WG_BATCH_SIZE=$wg_batch_size"
+	else
+		procd_set_param env "TS_DEBUG_FIREWALL_MODE=$fw_mode"
+	fi
 	procd_set_param respawn
 	procd_set_param stdout "$std_out"
 	procd_set_param stderr "$std_err"

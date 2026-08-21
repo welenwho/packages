@@ -17,6 +17,9 @@ Shields Up, subnet and App Connector routing, ACL registration tags, Tailscale
 SSH, device posture reporting, auth-key files, and Peer Relay server settings.
 The status and diagnostics pages expose node health, routes, peer connection
 paths, traffic, DNS checks, netcheck, Tailscale ping, metrics, and bug reports.
+Linux builds can also set a WireGuard packet batch size from 1 to 128. Smaller
+values trade peak throughput for lower packet-buffer memory use; leaving it
+unset preserves Tailscale's default of 128.
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/asvow/luci-app-tailscale?style=flat-square)](https://github.com/asvow/luci-app-tailscale/releases)
 [![GitHub stars](https://img.shields.io/github/stars/asvow/luci-app-tailscale?style=flat-square)](https://github.com/asvow/luci-app-tailscale/stargazers)

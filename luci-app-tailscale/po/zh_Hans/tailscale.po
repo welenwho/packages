@@ -370,18 +370,30 @@ msgstr "注册标签，例如 <code>tag:router</code>。修改将在下次登录
 msgid "Tags must use the tag:name format."
 msgstr "标签必须使用 tag:name 格式。"
 
-#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:319
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:329
+msgid "WireGuard Batch Size"
+msgstr "WireGuard 批处理大小"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:330
+msgid "Controls Linux packet batching. Smaller values reduce memory usage but may lower throughput."
+msgstr "控制 Linux 数据包批处理。较小的值可降低内存占用，但可能降低吞吐量。"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:331
+msgid "Default (128)"
+msgstr "默认（128）"
+
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:338
 msgid "Additional Login Flags"
 msgstr "附加登录参数"
 
-#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:320
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:339
 #, javascript-format
 msgid ""
 "Compatibility flags used only during initial login. Prefer the dedicated "
 "settings above. See %s."
 msgstr "仅在首次登录时使用的兼容参数。请优先使用上方的专用设置。参见 %s。"
 
-#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:321
+#: luci-app-tailscale/htdocs/luci-static/resources/view/tailscale/setting.js:340
 msgid "tailscale up flags"
 msgstr "tailscale up 参数"
 
