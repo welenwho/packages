@@ -56,10 +56,33 @@ function mergeListOption(section, sourceOption, targetOption) {
 		uci.delete(uciconfig, section, sourceOption);
 }
 
+function splitPortList(value) {
+	return filter(map(split(value || '', ','), (port) => trim(port)), (port) => port);
+}
+
+function migrateCommonPortExtras(commonPort, basePort) {
+	const common = splitPortList(commonPort);
+	const base = splitPortList(basePort);
+	if (length(common) <= length(base) ||
+	    length(filter(base, (port) => index(common, port) === -1)))
+		return false;
+
+	const extras = filter(common, (port) => index(base, port) === -1);
+	if (!length(extras))
+		return false;
+
+	const configured = normalizeList(uci.get(uciconfig, 'config', 'routing_port_extra'));
+	uci.set(uciconfig, 'config', 'routing_port_extra', uniq([...configured, ...extras]));
+	uci.set(uciconfig, 'infra', 'common_port', updatedCommonPort);
+	return true;
+}
+
 const commonPort = uci.get(uciconfig, 'infra', 'common_port');
 if (commonPort === stockCommonPort)
 	uci.set(uciconfig, 'infra', 'common_port', updatedCommonPort);
-else
+else if (commonPort !== updatedCommonPort &&
+	 !migrateCommonPortExtras(commonPort, updatedCommonPort) &&
+	 !migrateCommonPortExtras(commonPort, stockCommonPort))
 	setDefault('infra', 'common_port', updatedCommonPort);
 
 /* Only migrate nodes written before this schema marker was recorded. */

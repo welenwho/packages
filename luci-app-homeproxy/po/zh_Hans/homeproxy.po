@@ -3424,3 +3424,19 @@ msgstr "自动排除 Tailscale 路由"
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
 msgid "Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when HomeProxy reloads; default routes are ignored so exit-node traffic can still use HomeProxy rules."
 msgstr "让活动的 Tailnet 地址与对等子网继续走 tailscale0。HomeProxy 重载时会发现新增的 Tailscale 路由；默认路由会被忽略，因此出口节点流量仍可使用 HomeProxy 分流规则。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Choose all ports, common ports, or enter a comma-separated custom list. A custom list replaces the common ports."
+msgstr "选择全部端口、常用端口，或输入以逗号分隔的自定义列表。自定义列表将替代常用端口。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Common ports + additional ports"
+msgstr "常用端口 + 额外端口"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Additional proxy ports"
+msgstr "额外代理端口"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Built-in common ports: %s. Add only ports or ranges that are not already listed."
+msgstr "内置常用端口：%s。只需添加列表中尚未包含的端口或端口范围。"

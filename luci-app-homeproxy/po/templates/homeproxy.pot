@@ -3358,3 +3358,19 @@ msgstr ""
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
 msgid "Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when HomeProxy reloads; default routes are ignored so exit-node traffic can still use HomeProxy rules."
 msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Choose all ports, common ports, or enter a comma-separated custom list. A custom list replaces the common ports."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Common ports + additional ports"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Additional proxy ports"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js
+msgid "Built-in common ports: %s. Add only ports or ranges that are not already listed."
+msgstr ""

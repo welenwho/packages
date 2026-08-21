@@ -91,6 +91,25 @@ export function normalizeList(value) {
 	return (type(value) === 'array') ? value : [value];
 };
 
+export function resolveRoutingPorts(routingPort, commonPorts, extraPorts) {
+	if (isEmpty(routingPort))
+		return [];
+
+	let values = (routingPort === 'common') ?
+		[commonPorts, ...normalizeList(extraPorts)] : [routingPort];
+	let ports = [], seen = {};
+	for (let value in values) {
+		for (let port in split(value || '', ',')) {
+			port = trim(port);
+			if (port && !seen[port]) {
+				seen[port] = true;
+				push(ports, port);
+			}
+		}
+	}
+	return ports;
+};
+
 export function reserveUniqueLabel(used, label, fallback) {
 	let base = trim(label || '') || fallback;
 	let candidate = base;

@@ -16,6 +16,7 @@ mkdir -p "$UCI_DIR"
 
 cat >"$UCI_DIR/homeproxy" <<-'EOF'
 config homeproxy 'infra'
+	option common_port '22,53,80,143,443,465,587,853,873,993,995,5222,6002,8080,8443,9418'
 config homeproxy 'config'
 	option routing_mode 'custom'
 	option proxy_mode 'tun'
@@ -60,5 +61,7 @@ run_migration
 [ "$(uci -q -c "$UCI_DIR" get homeproxy.subscription_urltest.enabled)" = '1' ]
 [ "$(uci -q -c "$UCI_DIR" get homeproxy.subscription_urltest.urltest_nodes)" = 'subscription_node' ]
 [ "$(uci -q -c "$UCI_DIR" get homeproxy.migration.subscription_node_migration)" = '1' ]
+[ "$(uci -q -c "$UCI_DIR" get homeproxy.infra.common_port)" = '20,21,22,25,53,80,110,119,123,143,389,443,465,514,563,587,636,853,873,989,990,993,995,1194,1883,3306,3389,5222,5432,5671,5672,5900,6379,6443,6514,8080,8443,8883,9418' ]
+[ "$(uci -q -c "$UCI_DIR" get homeproxy.config.routing_port_extra)" = '6002' ]
 
-echo 'Migration test passed: subscription nodes and URLTest references preserved'
+echo 'Migration test passed: subscription nodes and URLTest references preserved, custom common ports extracted'

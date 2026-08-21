@@ -3,7 +3,7 @@
 {%-
 import { readfile } from 'fs';
 import { cursor } from 'uci';
-import { isEmpty, normalizeList } from '/etc/homeproxy/scripts/homeproxy.uc';
+import { isEmpty, normalizeList, resolveRoutingPorts } from '/etc/homeproxy/scripts/homeproxy.uc';
 
 const fw4 = require('fw4');
 
@@ -56,10 +56,11 @@ const proxy_domain_list = mainland_mode ?
             (isEmpty(proxy_domain_list) ||
              (isEmpty(proxy_domain_keywords) && dnsmasq_nftset));
 
-let routing_port = uci.get(cfgname, 'config', 'routing_port');
-if (routing_port === 'common')
-	routing_port = uci.get(cfgname, 'infra', 'common_port');
-const routing_ports = isEmpty(routing_port) ? [] : split(routing_port, ',');
+const routing_ports = resolveRoutingPorts(
+	uci.get(cfgname, 'config', 'routing_port'),
+	uci.get(cfgname, 'infra', 'common_port'),
+	uci.get(cfgname, 'config', 'routing_port_extra')
+);
 
 const lan_direct_ipv4 = normalizeList(uci.get(cfgname, 'control', 'lan_direct_ipv4_ips')),
       lan_direct_mac = normalizeList(uci.get(cfgname, 'control', 'lan_direct_mac_addrs')),

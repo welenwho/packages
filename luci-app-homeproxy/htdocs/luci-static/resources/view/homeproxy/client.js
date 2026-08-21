@@ -98,7 +98,8 @@ return view.extend({
 		let m, s, o, ss, so;
 
 		let features = data[1],
-		    hosts = data[2]?.hosts;
+		    hosts = data[2]?.hosts,
+		    common_routing_ports = uci.get('homeproxy', 'infra', 'common_port') || '';
 
 		/* Cache all configured proxy nodes, they will be called multiple times */
 		let proxy_nodes = {};
@@ -270,9 +271,9 @@ return view.extend({
 		o.rmempty = false;
 
 		o = s.taboption('routing', form.Value, 'routing_port', _('Routing ports'),
-			_('Specify target ports to be proxied. Multiple ports must be separated by commas.'));
+			_('Choose all ports, common ports, or enter a comma-separated custom list. A custom list replaces the common ports.'));
 		o.value('', _('All ports'));
-		o.value('common', _('Common ports only (bypass P2P traffic)'));
+		o.value('common', _('Common ports + additional ports'));
 		o.validate = function(section_id, value) {
 			if (section_id && value && value !== 'common') {
 
@@ -287,6 +288,17 @@ return view.extend({
 			}
 
 			return true;
+		}
+
+		o = s.taboption('routing', form.DynamicList, 'routing_port_extra', _('Additional proxy ports'),
+			_('Built-in common ports: %s. Add only ports or ranges that are not already listed.').format(
+				'<code>%h</code>'.format(common_routing_ports)));
+		o.depends('routing_port', 'common');
+		o.retain = true;
+		o.rmempty = true;
+		o.validate = function(section_id, value) {
+			return !value || stubValidator.apply('port', value) || stubValidator.apply('portrange', value)
+				? true : _('Expecting: %s').format(_('valid port value'));
 		}
 
 		o = s.taboption('routing', form.ListValue, 'proxy_mode', _('Proxy mode'));

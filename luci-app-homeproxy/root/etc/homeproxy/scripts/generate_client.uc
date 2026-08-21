@@ -14,7 +14,7 @@ import { cursor } from 'uci';
 
 import {
 	createNodeLabelRegistry, filterExistingNodes, hasForceProxyRules, isEmpty,
-	normalizeList, parseURL,
+	normalizeList, parseURL, resolveRoutingPorts,
 	reserveUniqueLabel, strToBool, strToInt, strToTime,
 	removeBlankAttrs, renderEndpoint, renderOutbound, validation, HP_DIR, RUN_DIR
 } from 'homeproxy';
@@ -309,18 +309,19 @@ function destination_match(ipv4_option, ipv6_option) {
 }
 
 function routing_port_match() {
-	let value = uci.get(uciconfig, ucimain, 'routing_port');
-	if (value === 'common')
-		value = uci.get(uciconfig, uciinfra, 'common_port');
-	if (isEmpty(value))
+	const ports_config = resolveRoutingPorts(
+		uci.get(uciconfig, ucimain, 'routing_port'),
+		uci.get(uciconfig, uciinfra, 'common_port'),
+		uci.get(uciconfig, ucimain, 'routing_port_extra')
+	);
+	if (!length(ports_config))
 		return null;
 
 	let ports = [], ranges = [], rules = [];
-	for (let item in split(value, ',')) {
-		item = trim(item);
+	for (let item in ports_config) {
 		if (match(item, /-/))
 			push(ranges, replace(item, '-', ':'));
-		else if (item)
+		else
 			push(ports, int(item));
 	}
 	if (length(ports))
