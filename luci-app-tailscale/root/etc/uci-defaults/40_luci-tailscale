@@ -5,5 +5,13 @@ uci -q batch <<-EOF >/dev/null
 	commit ucitrack
 EOF
 
+# Migrate the mixed-case key written by luci-app-tailscale 1.2.x.
+legacy_authkey="$(uci -q get tailscale.settings.authKey)"
+if [ -n "$legacy_authkey" ] && [ -z "$(uci -q get tailscale.settings.authkey)" ]; then
+	uci -q set tailscale.settings.authkey="$legacy_authkey"
+	uci -q delete tailscale.settings.authKey
+	uci -q commit tailscale
+fi
+
 rm -f /tmp/luci-indexcache
 exit 0

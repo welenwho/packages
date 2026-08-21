@@ -6,12 +6,16 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=LuCI for Tailscale
-LUCI_DEPENDS:=+tailscale
+LUCI_DEPENDS:=+luci-base +tailscale +flock +ip-full
 LUCI_PKGARCH:=all
 
 PKG_NAME:=luci-app-tailscale
-PKG_VERSION:=1.2.6
-PKG_RELEASE:=2
+PKG_VERSION:=1.3.0
+PKG_RELEASE:=1
+
+define Package/luci-app-tailscale/conffiles
+/etc/config/tailscale
+endef
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

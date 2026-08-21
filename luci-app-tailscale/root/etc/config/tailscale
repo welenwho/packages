@@ -5,8 +5,8 @@ config tailscale 'settings'
 	option port '41641'
 	# Path to config file
 	option config_path '/etc/tailscale'
-	# Default to using nftables - change below to 'iptables' if still using iptables
-	option fw_mode 'nftables'
+	# Firewall implementation used internally by tailscaled (auto, nftables, iptables)
+	option fw_mode 'auto'
 	# Enable stdout log
 	option log_stdout '1'
 	# Enable stderr log
@@ -17,10 +17,20 @@ config tailscale 'settings'
 	#option hostname ''
 	# Accept DNS configuration from the admin console. (default accept)
 	option accept_dns '1'
+	# Tailscale packet filtering mode (on, nodivert, off)
+	option netfilter_mode 'on'
+	# Apply stateful filtering to forwarded traffic
+	option stateful_filtering '0'
+	# Refuse incoming Tailscale connections
+	option shields_up '0'
+	# Allow device posture collection
+	option report_posture '0'
 	# Offer to be an exit node for outbound internet traffic from the Tailscale network
 	#option advertise_exit_node '1'
 	# Provide a Tailscale IP or machine name to use as an exit node
 	#option exit_node ''
+	# Keep access to local LANs while using an exit node
+	option exit_node_allow_lan_access '0'
 	# Expose physical subnet routes to your entire Tailscale network (e.g. 10.0.0.0/24)
 	#list advertise_routes ''
 	# Set to '1' to disable subnet route masquerading
@@ -28,6 +38,10 @@ config tailscale 'settings'
 	# To connect subnets within your tailnet (e.g. 192.168.1.0/24)
 	# Documentation https://tailscale.com/kb/1214/site-to-site
 	#list subnet_routes ''
+	# Offer this node as an app connector
+	option advertise_connector '0'
+	# Run Tailscale SSH (may conflict with Dropbear on port 22)
+	option tailscale_ssh '0'
 	# Set firewall zone (ts_ac_lan: Tailscale access LAN, ts_ac_wan: Tailscale access WAN:, lan_ac_ts: LAN access Tailscale, wan_ac_ts: WAN access Tailscale)
 	# Documentation https://openwrt.org/docs/guide-user/services/vpn/tailscale/start
 	#list access 'ts_ac_lan'
@@ -39,5 +53,13 @@ config tailscale 'settings'
 	#list flags ''
 	# Provide the base URL of a custom server instead of https://controlplane.tailscale.com
 	#option login_server ''
-	# Set auth Key of custom server
+	# Registration tags are used during the next login
+	#list advertise_tags 'tag:router'
+	# Enable the Peer Relay server; an enabled port of 0 selects a random port
+	option relay_server_enabled '0'
+	option relay_server_port '0'
+	#list relay_server_static_endpoints '192.0.2.1:40000'
+	# Set auth key for the control server
 	#option authkey ''
+	# Or load the auth key from an absolute path (takes precedence)
+	#option auth_key_file '/etc/tailscale/auth.key'

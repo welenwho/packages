@@ -19,16 +19,24 @@
 		}
 	},
 	"admin/vpn/tailscale/interface": {
-		"title": "Interface Info",
+		"title": "Status",
 		"order": 20,
 		"action": {
 			"type": "view",
 			"path": "tailscale/interface"
 		}
 	},
+	"admin/vpn/tailscale/diagnostics": {
+		"title": "Diagnostics",
+		"order": 30,
+		"action": {
+			"type": "view",
+			"path": "tailscale/diagnostics"
+		}
+	},
 	"admin/vpn/tailscale/log": {
 		"title": "Logs",
-		"order": 30,
+		"order": 40,
 		"action": {
 			"type": "view",
 			"path": "tailscale/log"
