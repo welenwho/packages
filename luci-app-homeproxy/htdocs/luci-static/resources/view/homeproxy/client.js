@@ -113,6 +113,34 @@ return view.extend({
 				String.format('[%s] %s', res.type, res.label || endpoint);
 		});
 
+		/* Keep URLTest subscription choices stable across subscription updates. */
+		let subscription_sources = [], seen_subscriptions = {};
+		let configured_subscriptions = uci.get(data[0], 'subscription', 'subscription_url');
+		configured_subscriptions = Array.isArray(configured_subscriptions) ? configured_subscriptions :
+			(configured_subscriptions ? [ configured_subscriptions ] : []);
+		for (let suburl of configured_subscriptions) {
+			const hash = hp.calcStringMD5(suburl.replace(/#.*$/, ''));
+			if (seen_subscriptions[hash])
+				continue;
+			seen_subscriptions[hash] = true;
+
+			let title = suburl;
+			try {
+				const url = new URL(suburl);
+				if (url.hash) {
+					try {
+						title = decodeURIComponent(url.hash.slice(1));
+					} catch (e) {
+						title = url.hash.slice(1);
+					}
+				} else {
+					title = url.hostname;
+				}
+			} catch (e) { }
+
+			subscription_sources.push({ hash, title });
+		}
+
 		m = new form.Map('homeproxy', _('HomeProxy'),
 			_('The modern ImmortalWrt proxy platform for ARM64/AMD64. — AI Edition'));
 
@@ -162,11 +190,27 @@ return view.extend({
 		o.retain = true;
 
 		o = s.taboption('routing', hp.CBIStaticList, 'main_urltest_nodes', _('URLTest nodes'),
-			_('List of nodes to test.'));
+			_('Manually selected nodes to test.'));
 		for (let i in proxy_nodes)
 			o.value(i, proxy_nodes[i]);
 		o.depends('main_node', 'urltest');
-		o.rmempty = false;
+		o.rmempty = true;
+		o.retain = true;
+		o.validate = function(section_id) {
+			let value = this.section.formvalue(section_id, 'main_urltest_nodes');
+			let subscriptions = this.section.formvalue(section_id, 'main_urltest_subscriptions');
+			let hasNodes = Array.isArray(value) ? value.length : !!value;
+			let hasSubscriptions = Array.isArray(subscriptions) ? subscriptions.length : !!subscriptions;
+			return !section_id || hasNodes || hasSubscriptions
+				? true : _('Expecting: %s').format(_('non-empty value'));
+		};
+
+		o = s.taboption('routing', form.MultiValue, 'main_urltest_subscriptions', _('URLTest subscriptions'),
+			_('Include all current and future nodes from the selected subscriptions.'));
+		for (const source of subscription_sources)
+			o.value(source.hash, source.title);
+		o.depends('main_node', 'urltest');
+		o.rmempty = true;
 		o.retain = true;
 
 		o = s.taboption('routing', form.Value, 'main_urltest_interval', _('Test interval'),
@@ -548,17 +592,28 @@ return view.extend({
 		so.editable = true;
 
 		so = ss.option(hp.CBIStaticList, 'urltest_nodes', _('URLTest nodes'),
-			_('List of nodes to test.'));
+			_('Manually selected nodes to test.'));
 		for (let i in proxy_nodes)
 			so.value(i, proxy_nodes[i]);
 		so.depends('node', 'urltest');
+		so.rmempty = true;
 		so.validate = function(section_id) {
 			let value = this.section.formvalue(section_id, 'urltest_nodes');
-			if (section_id && !value.length)
+			let subscriptions = this.section.formvalue(section_id, 'urltest_subscriptions');
+			let hasNodes = Array.isArray(value) ? value.length : !!value;
+			let hasSubscriptions = Array.isArray(subscriptions) ? subscriptions.length : !!subscriptions;
+			if (section_id && !hasNodes && !hasSubscriptions)
 				return _('Expecting: %s').format(_('non-empty value'));
 
 			return true;
 		}
+		so.modalonly = true;
+
+		so = ss.option(form.MultiValue, 'urltest_subscriptions', _('URLTest subscriptions'),
+			_('Include all current and future nodes from the selected subscriptions.'));
+		for (const source of subscription_sources)
+			so.value(source.hash, source.title);
+		so.depends('node', 'urltest');
 		so.modalonly = true;
 
 		so = ss.option(form.Value, 'urltest_url', _('Test URL'),

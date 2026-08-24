@@ -106,6 +106,7 @@ return baseclass.extend({
 	reconcileUrltestNodes(uciconfig) {
 		const subscriptionGroups = Object.create(null);
 		const available = Object.create(null);
+		const nodeGroups = Object.create(null);
 		const orphanedNodes = [];
 		let firstNode = null;
 		let changed = false, removed = 0, removedNodes = 0, disabled = 0;
@@ -125,6 +126,7 @@ return baseclass.extend({
 			}
 
 			available[section['.name']] = true;
+			nodeGroups[section['.name']] = section.grouphash || '';
 			firstNode ??= section['.name'];
 		});
 		for (const node of orphanedNodes) {
@@ -133,7 +135,7 @@ return baseclass.extend({
 			removedNodes++;
 		}
 
-		function reconcileList(section, option) {
+		function reconcileList(section, option, subscriptionOption) {
 			const current = uci.get(uciconfig, section, option);
 			const normalized = Array.isArray(current) ? current : (current ? [ current ] : []);
 			const seen = Object.create(null);
@@ -152,10 +154,20 @@ return baseclass.extend({
 				changed = true;
 			}
 
+			const selectedGroups = Object.create(null);
+			const configuredGroups = uci.get(uciconfig, section, subscriptionOption);
+			for (const group of (Array.isArray(configuredGroups) ? configuredGroups :
+				(configuredGroups ? [ configuredGroups ] : [])))
+				selectedGroups[group] = true;
+
+			for (const node in nodeGroups)
+				if (selectedGroups[nodeGroups[node]] && !filtered.includes(node))
+					filtered.push(node);
+
 			return filtered;
 		}
 
-		const mainNodes = reconcileList('config', 'main_urltest_nodes');
+		const mainNodes = reconcileList('config', 'main_urltest_nodes', 'main_urltest_subscriptions');
 		const mainNode = uci.get(uciconfig, 'config', 'main_node');
 		if (mainNode === 'urltest' && !mainNodes.length) {
 			uci.set(uciconfig, 'config', 'main_node', firstNode || 'nil');
@@ -170,7 +182,7 @@ return baseclass.extend({
 			if (section.node !== 'urltest')
 				return;
 
-			const nodes = reconcileList(section['.name'], 'urltest_nodes');
+			const nodes = reconcileList(section['.name'], 'urltest_nodes', 'urltest_subscriptions');
 			if (section.enabled === '1' && !nodes.length) {
 				uci.set(uciconfig, section['.name'], 'enabled', '0');
 				changed = true;

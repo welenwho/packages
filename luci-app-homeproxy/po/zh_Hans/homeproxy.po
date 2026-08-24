@@ -3095,6 +3095,21 @@ msgstr "URLTest"
 msgid "URLTest nodes"
 msgstr "URLTest 节点"
 
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:163
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:531
+msgid "URLTest subscriptions"
+msgstr "URLTest 订阅"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:163
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:531
+msgid "Manually selected nodes to test."
+msgstr "手动选择要测速的节点。"
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:163
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:531
+msgid "Include all current and future nodes from the selected subscriptions."
+msgstr "包含所选订阅当前及后续新增的全部节点。"
+
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:133
 msgid "URLTest: %s"
 msgstr "URLTest: %s"

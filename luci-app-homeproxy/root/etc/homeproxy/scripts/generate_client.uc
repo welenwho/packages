@@ -15,7 +15,7 @@ import { cursor } from 'uci';
 import {
 	createNodeLabelRegistry, filterExistingNodes, hasForceProxyRules, isEmpty,
 	normalizeList, parseURL, resolveRoutingPorts,
-	resolveAdaptivePolicy,
+	resolveAdaptivePolicy, resolveUrltestNodes,
 	reserveUniqueLabel, strToBool, strToInt, strToTime,
 	removeBlankAttrs, renderEndpoint, renderOutbound, validation, HP_DIR, RUN_DIR
 } from 'homeproxy';
@@ -850,8 +850,10 @@ if (!isEmpty(main_node)) {
 	let urltest_nodes = [];
 
 	if (main_node === 'urltest') {
-		const main_urltest_nodes = filterExistingNodes(
-			uci, uciconfig, uci.get(uciconfig, ucimain, 'main_urltest_nodes')
+		const main_urltest_nodes = resolveUrltestNodes(
+			uci, uciconfig,
+			uci.get(uciconfig, ucimain, 'main_urltest_nodes'),
+			uci.get(uciconfig, ucimain, 'main_urltest_subscriptions')
 		);
 		if (!length(main_urltest_nodes))
 			die('Main URLTest group has no available nodes.');
@@ -910,7 +912,9 @@ if (!isEmpty(main_node)) {
 			return;
 
 		if (cfg.node === 'urltest') {
-			const urltest_list = filterExistingNodes(uci, uciconfig, cfg.urltest_nodes);
+			const urltest_list = resolveUrltestNodes(
+				uci, uciconfig, cfg.urltest_nodes, cfg.urltest_subscriptions
+			);
 			if (!length(urltest_list))
 				die(sprintf('Routing URLTest group %s has no available nodes.', cfg['.name']));
 			push(config.outbounds, {

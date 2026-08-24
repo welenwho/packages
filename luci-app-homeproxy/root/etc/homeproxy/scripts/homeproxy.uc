@@ -239,6 +239,33 @@ export function filterExistingNodes(uci, config, value, onRemove) {
 	return result;
 };
 
+export function expandSubscriptionNodes(uci, config, subscriptions) {
+	let groups = {}, result = [];
+
+	for (let group in normalizeList(subscriptions))
+		if (!isEmpty(group))
+			groups[group] = true;
+
+	if (!length(keys(groups)))
+		return result;
+
+	uci.foreach(config, 'node', (section) => {
+		if (section.grouphash && groups[section.grouphash])
+			push(result, section['.name']);
+	});
+
+	return result;
+};
+
+export function resolveUrltestNodes(uci, config, nodes, subscriptions) {
+	let selected = normalizeList(nodes);
+	for (let node in expandSubscriptionNodes(uci, config, subscriptions))
+		if (!~index(selected, node))
+			push(selected, node);
+
+	return filterExistingNodes(uci, config, selected);
+};
+
 export function reconcileUrltestNodes(uci, config, logger) {
 	let changed = false, removed = 0, disabled = 0;
 
@@ -247,7 +274,7 @@ export function reconcileUrltestNodes(uci, config, logger) {
 			logger(message);
 	}
 
-	function reconcileList(section, option) {
+	function reconcileList(section, option, subscriptionOption) {
 		const current = uci.get(config, section, option);
 		const normalized = normalizeList(current);
 		const available = filterExistingNodes(uci, config, normalized, (node) => {
@@ -263,10 +290,11 @@ export function reconcileUrltestNodes(uci, config, logger) {
 			changed = true;
 		}
 
-		return available;
+		return resolveUrltestNodes(uci, config, available,
+			subscriptionOption ? uci.get(config, section, subscriptionOption) : null);
 	}
 
-	const mainNodes = reconcileList('config', 'main_urltest_nodes');
+	const mainNodes = reconcileList('config', 'main_urltest_nodes', 'main_urltest_subscriptions');
 	if (uci.get(config, 'config', 'main_node') === 'urltest' && !length(mainNodes)) {
 		const fallback = uci.get_first(config, 'node') || 'nil';
 		uci.set(config, 'config', 'main_node', fallback);
@@ -280,7 +308,7 @@ export function reconcileUrltestNodes(uci, config, logger) {
 		if (section.node !== 'urltest')
 			return;
 
-		const nodes = reconcileList(section['.name'], 'urltest_nodes');
+		const nodes = reconcileList(section['.name'], 'urltest_nodes', 'urltest_subscriptions');
 		if (section.enabled === '1' && !length(nodes)) {
 			uci.set(config, section['.name'], 'enabled', '0');
 			changed = true;

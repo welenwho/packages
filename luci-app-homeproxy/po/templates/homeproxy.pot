@@ -3030,6 +3030,21 @@ msgstr ""
 msgid "URLTest nodes"
 msgstr ""
 
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:163
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:531
+msgid "URLTest subscriptions"
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:163
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:531
+msgid "Manually selected nodes to test."
+msgstr ""
+
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:163
+#: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:531
+msgid "Include all current and future nodes from the selected subscriptions."
+msgstr ""
+
 #: luci-app-homeproxy/htdocs/luci-static/resources/view/homeproxy/client.js:133
 msgid "URLTest: %s"
 msgstr ""
