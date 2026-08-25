@@ -211,7 +211,8 @@ return view.extend({
 					}
 
 						let view = document.getElementById('service_status');
-						view.innerHTML = renderStatus(isRunning, features.version, current_label);
+						if (view)
+							view.innerHTML = renderStatus(isRunning, features.version, current_label);
 
 						view = document.getElementById('tailscale_status');
 						if (view)
@@ -258,7 +259,7 @@ return view.extend({
 				? true : _('Expecting: %s').format(_('non-empty value'));
 		};
 
-		o = s.taboption('routing', form.MultiValue, 'main_urltest_subscriptions', _('URLTest subscriptions'),
+		o = s.taboption('routing', sb.CBIEmptySafeMultiValue, 'main_urltest_subscriptions', _('URLTest subscriptions'),
 			_('Include all current and future nodes from the selected subscriptions.'));
 		for (const source of subscription_sources)
 			o.value(source.hash, source.title);
@@ -923,7 +924,7 @@ return view.extend({
 		}
 		so.modalonly = true;
 
-		so = ss.option(form.MultiValue, 'urltest_subscriptions', _('URLTest subscriptions'),
+		so = ss.option(sb.CBIEmptySafeMultiValue, 'urltest_subscriptions', _('URLTest subscriptions'),
 			_('Include all current and future nodes from the selected subscriptions.'));
 		for (const source of subscription_sources)
 			so.value(source.hash, source.title);

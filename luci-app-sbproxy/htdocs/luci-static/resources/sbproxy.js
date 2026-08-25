@@ -83,6 +83,14 @@ return baseclass.extend({
 		'1.3'
 	],
 
+	CBIEmptySafeMultiValue: form.MultiValue.extend({
+		__name__: 'CBI.EmptySafeMultiValue',
+
+		transformChoices: function() {
+			return form.MultiValue.prototype.transformChoices.apply(this, arguments) || {};
+		}
+	}),
+
 	CBIStaticList: form.DynamicList.extend({
 		__name__: 'CBI.StaticList',
 
