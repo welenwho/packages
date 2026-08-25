@@ -14,14 +14,19 @@ test ! -e "$OLD_VIEW"
 
 pkg_version="$(sed -n 's/^PKG_VERSION:=//p' "$MAKEFILE")"
 pkg_release="$(sed -n 's/^PKG_RELEASE:=//p' "$MAKEFILE")"
-versioned_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${pkg_version}-r${pkg_release}.js"
-versioned_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${pkg_version}-r${pkg_release}.js"
+cache_version="$(printf '%s\n' "$pkg_version" | sed 's/[^A-Za-z0-9_-]/-/g')"
+cache_key="${cache_version}-r${pkg_release}"
+versioned_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${cache_key}.js"
+versioned_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${cache_key}.js"
 test -L "$versioned_client"
 test "$(readlink "$versioned_client")" = 'client.js'
 test -L "$versioned_adaptive"
 test "$(readlink "$versioned_adaptive")" = 'sbproxy-adaptive.js'
-grep -Fq '"path": "sbproxy/client-'"${pkg_version}"'-r'"${pkg_release}"'"' "$MENU"
-grep -Fq "'require sbproxy-adaptive-${pkg_version}-r${pkg_release} as adaptive';" "$CLIENT"
+case "$cache_key" in
+	*.*) echo "LuCI cache key must not contain dots: $cache_key" >&2; exit 1 ;;
+esac
+grep -Fq "\"path\": \"sbproxy/client-${cache_key}\"" "$MENU"
+grep -Fq "'require sbproxy-adaptive-${cache_key} as adaptive';" "$CLIENT"
 grep -Fq 'adaptive.addForm(m, s, data[3]);' "$CLIENT"
 grep -Fq "map.chain('sbproxy-adaptive');" "$ADAPTIVE"
 grep -Fq "parentSection.tab('adaptive', _('Adaptive Routing'));" "$ADAPTIVE"

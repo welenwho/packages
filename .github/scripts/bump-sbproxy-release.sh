@@ -52,8 +52,9 @@ release="$(make_value PKG_RELEASE)"
 }
 
 new_release=$((10#$release + 1))
-old_cache_key="${version}-r${release}"
-new_cache_key="${version}-r${new_release}"
+cache_version="$(printf '%s\n' "$version" | sed 's/[^A-Za-z0-9_-]/-/g')"
+old_cache_key="${cache_version}-r${release}"
+new_cache_key="${cache_version}-r${new_release}"
 old_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${old_cache_key}.js"
 new_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${new_cache_key}.js"
 old_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${old_cache_key}.js"
@@ -88,4 +89,5 @@ mv -- "$old_client" "$new_client"
 grep -Fq "\"path\": \"sbproxy/client-${new_cache_key}\"" "$MENU"
 grep -Fq "'require sbproxy-adaptive-${new_cache_key} as adaptive';" "$CLIENT"
 
-printf 'SBProxy package release: %s -> %s\n' "$old_cache_key" "$new_cache_key"
+printf 'SBProxy package release: %s-r%s -> %s-r%s (LuCI cache key: %s)\n' \
+	"$version" "$release" "$version" "$new_release" "$new_cache_key"

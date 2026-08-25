@@ -11,8 +11,9 @@ trap 'rm -rf -- "$TEST_ROOT"' EXIT INT TERM
 version="$(sed -n 's/^PKG_VERSION:=//p' "$PACKAGE_ROOT/Makefile")"
 release="$(sed -n 's/^PKG_RELEASE:=//p' "$PACKAGE_ROOT/Makefile")"
 new_release=$((release + 1))
-old_cache_key="${version}-r${release}"
-new_cache_key="${version}-r${new_release}"
+cache_version="$(printf '%s\n' "$version" | sed 's/[^A-Za-z0-9_-]/-/g')"
+old_cache_key="${cache_version}-r${release}"
+new_cache_key="${cache_version}-r${new_release}"
 
 mkdir -p \
 	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy" \
