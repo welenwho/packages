@@ -1,0 +1,32 @@
+--- a/wgengine/router/osrouter/router_linux.go
++++ b/wgengine/router/osrouter/router_linux.go
+@@ -151,6 +151,29 @@ func newUserspaceRouterAdvanced(logf logger.Logf, tunname string, netMon *netmon
+ 	})
+ 	r.eventClient = ec
+ 
++	if r.useIPCommand() {
++		r.ipRuleAvailable = (cmd.run("ip", "rule") == nil)
++	} else {
++		if rules, err := netlink.RuleList(netlink.FAMILY_V4); err != nil {
++			r.logf("error querying IP rules (does kernel have IP_MULTIPLE_TABLES?): %v", err)
++			r.logf("warning: running without policy routing")
++		} else {
++			r.logf("[v1] policy routing available; found %d rules", len(rules))
++			r.ipRuleAvailable = true
++		}
++	}
++
++	// mwan3 installs rules ahead of Tailscale's usual 52xx range. Match the
++	// upstream OpenWrt behavior and move Tailscale between mwan3's source
++	// rules and its routing-table lookup when mwan3 is active.
++	isMWAN3, err := checkOpenWRTUsingMWAN3()
++	if err != nil {
++		r.logf("error checking mwan3 installation: %v", err)
++	} else if isMWAN3 {
++		r.ipPolicyPrefBase = 1300
++		r.logf("mwan3 on OpenWrt detected, switching policy base priority to 1300")
++	}
++
+ 	r.fixupWSLMTU()
+ 
+ 	return r, nil

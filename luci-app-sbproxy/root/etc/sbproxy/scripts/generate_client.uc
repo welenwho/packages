@@ -237,6 +237,7 @@ const tailscale_endpoint = tailscale_enabled ? {
 	},
 	ephemeral: strToBool(uci.get(uciconfig, ucitailscale, 'ephemeral')),
 	hostname: uci.get(uciconfig, ucitailscale, 'hostname'),
+	/* OpenWrt policy rules expose only the peer routes selected in subnet_routes. */
 	accept_routes: strToBool(uci.get(uciconfig, ucitailscale, 'accept_routes')),
 	exit_node: tailscale_exit_node,
 	exit_node_allow_lan_access: strToBool(
@@ -930,7 +931,8 @@ if (proxy_client_enabled && tun_enabled) {
 		mtu: strToInt(tun_mtu),
 		auto_route: true,
 		auto_redirect: true,
-		dns_mode: 'hijack',
+		/* dnsmasq already redirects LAN DNS to dns-in; avoid an earlier TUN DNAT. */
+		dns_mode: 'disabled',
 		route_exclude_address: length(route_exclude_address) ? route_exclude_address : null,
 		route_exclude_address_set: fast_bypass_mainland ? ['geoip-cn'] : null,
 		include_interface: length(listen_interfaces) ? listen_interfaces : null,

@@ -16,7 +16,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r3 as adaptive';
+'require sbproxy-adaptive-1-0-0-r4 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -74,6 +74,40 @@ const callTailscalePing = rpc.declare({
 	params: [ 'target' ],
 	expect: { '': {} }
 });
+
+function ipv4Subnet(address) {
+	const parts = (address || '').split('/');
+	const cidr = Number(parts[1]);
+	const octets = parts[0]?.split('.').map(Number);
+	if (parts.length !== 2 || !Number.isInteger(cidr) || cidr < 1 || cidr >= 32 ||
+	    octets?.length !== 4 || octets.some(octet => !Number.isInteger(octet) || octet < 0 || octet > 255))
+		return null;
+
+	const mask = (0xffffffff << (32 - cidr)) >>> 0;
+	const numeric = octets.reduce((value, octet) => ((value << 8) | octet) >>> 0, 0);
+	const subnet = (numeric & mask) >>> 0;
+	return [ 24, 16, 8, 0 ].map(shift => (subnet >>> shift) & 255).join('.') + '/' + cidr;
+}
+
+async function getLocalAdvertiseSubnets() {
+	const ignored = [ 'loopback', 'tailscale', 'sbproxy_ts' ];
+	const networks = await network.getNetworks();
+	const candidates = [], seen = new Set();
+
+	for (const iface of networks) {
+		const name = iface.getName();
+		if (ignored.includes(name) || /^tailscale\d*$/.test(name) || /^singtun\d*$/.test(name))
+			continue;
+		for (const address of (iface.getIPAddrs() || [])) {
+			const subnet = ipv4Subnet(address);
+			if (!subnet || seen.has(subnet) || subnet.startsWith('127.') || subnet.startsWith('169.254.'))
+				continue;
+			seen.add(subnet);
+			candidates.push({ value: subnet, network: name });
+		}
+	}
+	return candidates;
+}
 
 function tailscaleStatusRow(label, value) {
 	return E('tr', { 'class': 'tr' }, [
@@ -175,7 +209,8 @@ return view.extend({
 			network.getHostHints(),
 			adaptive.loadStatus(),
 			L.resolveDefault(uci.load('tailscale'), null),
-			L.resolveDefault(callTailscaleStatus(), {})
+			L.resolveDefault(callTailscaleStatus(), {}),
+			L.resolveDefault(getLocalAdvertiseSubnets(), [])
 		]);
 	},
 
@@ -538,6 +573,9 @@ return view.extend({
 		const standaloneTailscaleEnabled = uci.get('tailscale', 'settings', 'enabled') === '1';
 		const tailscaleStatus = data[5] || {};
 		const configuredExitNode = uci.get(data[0], 'tailscale', 'exit_node') || '';
+		const configuredPeerRoutes = L.toArray(uci.get(data[0], 'tailscale', 'subnet_routes'));
+		const configuredAdvertiseRoutes = L.toArray(uci.get(data[0], 'tailscale', 'advertise_routes'));
+		const localAdvertiseSubnets = data[6] || [];
 
 		so = ss.taboption('status', form.DummyValue, '_status');
 		so.render = function() {
@@ -662,12 +700,43 @@ return view.extend({
 		so.rmempty = false;
 
 		so = ss.taboption('routing', form.DynamicList, 'subnet_routes', _('Static peer routes'),
-			_('Install explicit OpenWrt routes through the embedded Tailscale interface.'));
+			_('Select subnets advertised by peers after login. Custom CIDR values remain supported.'));
+		let peerRouteValues = [];
+		for (const route of (tailscaleStatus.peer_routes || [])) {
+			if (!route.route || peerRouteValues.includes(route.route))
+				continue;
+			peerRouteValues.push(route.route);
+			so.value(route.route, `${route.route} - ${route.name || route.address}` +
+				(route.online ? '' : ` (${_('offline or unavailable')})`));
+		}
+		for (const route of configuredPeerRoutes) {
+			if (!peerRouteValues.includes(route)) {
+				peerRouteValues.push(route);
+				so.value(route, `${route} (${_('configured or unavailable')})`);
+			}
+		}
 		so.datatype = 'or(cidr4,cidr6)';
+		so.validate = function(sectionId, value) {
+			return !value.endsWith('/0') || _('The default route must be configured as an exit node.');
+		};
 		so.depends({ enabled: '1', accept_routes: '1' });
 		so.rmempty = true;
 
-		so = ss.taboption('routing', form.DynamicList, 'advertise_routes', _('Advertise subnets'));
+		so = ss.taboption('routing', form.DynamicList, 'advertise_routes', _('Advertise subnets'),
+			_('Select local interface subnets to publish. Custom CIDR values remain supported.'));
+		let advertiseRouteValues = [];
+		for (const route of localAdvertiseSubnets) {
+			if (!route.value || advertiseRouteValues.includes(route.value))
+				continue;
+			advertiseRouteValues.push(route.value);
+			so.value(route.value, `${route.value} (${route.network})`);
+		}
+		for (const route of configuredAdvertiseRoutes) {
+			if (!advertiseRouteValues.includes(route)) {
+				advertiseRouteValues.push(route);
+				so.value(route, `${route} (${_('configured or unavailable')})`);
+			}
+		}
 		so.datatype = 'or(cidr4,cidr6)';
 		so.depends('enabled', '1');
 		so.rmempty = true;
@@ -676,22 +745,12 @@ return view.extend({
 		so.default = so.disabled;
 		so.depends('enabled', '1');
 		so.rmempty = false;
-		so.validate = function(sectionId, value) {
-			const preserveSource = this.section.formvalue(sectionId, 'disable_snat_subnet_routes');
-			return value !== '1' || preserveSource !== '1' ? true :
-				_('Subnet source address preservation cannot be enabled while advertising an exit node.');
-		};
 
 		so = ss.taboption('routing', form.Flag, 'disable_snat_subnet_routes', _('Preserve subnet source addresses'),
 			_('Disable SNAT for traffic forwarded from Tailscale. LAN devices must have a return route to the Tailnet address ranges.'));
 		so.default = so.disabled;
-		so.depends('enabled', '1');
+		so.depends({ enabled: '1', advertise_exit_node: '0' });
 		so.rmempty = false;
-		so.validate = function(sectionId, value) {
-			const advertiseExitNode = this.section.formvalue(sectionId, 'advertise_exit_node');
-			return value !== '1' || advertiseExitNode !== '1' ? true :
-				_('Subnet source address preservation cannot be enabled while advertising an exit node.');
-		};
 
 		so = ss.taboption('routing', form.ListValue, 'exit_node', _('Use exit node'),
 			_('Select an online Tailscale exit node.'));

@@ -102,6 +102,29 @@ function parseTailscaleExitNodes(output) {
 	return nodes;
 }
 
+function parseTailscalePeerRoutes(output) {
+	let routes = [], seen = {};
+	for (let line in split(output || '', '\n')) {
+		const fields = split(trim(line), '\t');
+		if (length(fields) < 4)
+			continue;
+		const route = trim(fields[0]);
+		const name = trim(fields[1]);
+		const address = trim(fields[2]);
+		if (!route || !name || !address || index(route, '/') < 0 ||
+		    route === '0.0.0.0/0' || route === '::/0' || seen[route])
+			continue;
+		seen[route] = true;
+		push(routes, {
+			route,
+			name,
+			address,
+			online: lc(trim(fields[3])) === 'yes'
+		});
+	}
+	return routes;
+}
+
 const RESOURCES = {
 	china_ip4: {
 		source: 'https://cdn.jsdelivr.net/gh/Loyalsoldier/surge-rules@release/cncidr.txt',
@@ -250,6 +273,7 @@ const methods = {
 					network_name: null,
 					auth_url: null,
 					exit_nodes: [],
+					peer_routes: [],
 					code: 0,
 					output: 'Disabled'
 				};
@@ -262,18 +286,25 @@ const methods = {
 					network_name: null,
 					auth_url: null,
 					exit_nodes: [],
+					peer_routes: [],
 					code: 1,
 					output: 'API port is unavailable.'
 				};
 			const result = runCommand(command);
 			const status = parseTailscaleStatus(result.output);
-			let exit_nodes = [];
+			let exit_nodes = [], peer_routes = [];
 			if (result.code === 0) {
 				const exit_command = tailscaleAPICommand([ 'tailscale', 'exit-node', 'list' ]);
 				if (exit_command) {
 					const exit_result = runCommand(exit_command);
 					if (exit_result.code === 0)
 						exit_nodes = parseTailscaleExitNodes(exit_result.output);
+				}
+				const route_command = tailscaleAPICommand([ 'tailscale', 'route', 'list' ]);
+				if (route_command) {
+					const route_result = runCommand(route_command);
+					if (route_result.code === 0)
+						peer_routes = parseTailscalePeerRoutes(route_result.output);
 				}
 			}
 			return {
@@ -283,6 +314,7 @@ const methods = {
 				network_name: status.network_name,
 				auth_url: status.auth_url,
 				exit_nodes,
+				peer_routes,
 				code: result.code,
 				output: result.output
 			};

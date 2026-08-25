@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=sing-box
 PKG_UPSTREAM_VERSION:=1.14.0-rc.1
 PKG_VERSION:=1.14.0_rc1
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/SagerNet/sing-box/tar.gz/v$(PKG_UPSTREAM_VERSION)?
@@ -39,6 +39,11 @@ PKG_BUILD_FLAGS:=no-mips16
 GO_PKG:=github.com/sagernet/sing-box
 GO_PKG_BUILD_PKG:=$(GO_PKG)/cmd/sing-box
 GO_PKG_LDFLAGS_X:=$(GO_PKG)/constant.Version=$(PKG_UPSTREAM_VERSION)
+GO_PKG_INSTALL_EXTRA:=third_party/tailscale
+
+TAILSCALE_MODULE_VERSION:=v1.102.1-sing-box-1.14-mod.3
+TAILSCALE_MODULE:=github.com/sagernet/tailscale@$(TAILSCALE_MODULE_VERSION)
+TAILSCALE_MODULE_DIR:=$(GO_MOD_CACHE_DIR)/github.com/sagernet/tailscale@$(TAILSCALE_MODULE_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
@@ -151,6 +156,20 @@ endif
 # x/net/http2 uses a stdlib-backed wrapper by default on Go 1.27, which omits
 # the private connPool symbol referenced by sing-box's v2ray HTTP transport.
 GO_PKG_TAGS:=http2legacy,$(GO_PKG_TAGS)
+
+define Build/Configure
+	cd $(PKG_BUILD_DIR) && \
+		$(GO_PKG_BUILD_VARS) go mod download $(GO_MOD_ARGS) $(TAILSCALE_MODULE)
+	rm -rf $(PKG_BUILD_DIR)/third_party/tailscale
+	mkdir -p $(PKG_BUILD_DIR)/third_party/tailscale
+	cp -fpR $(TAILSCALE_MODULE_DIR)/. $(PKG_BUILD_DIR)/third_party/tailscale/
+	chmod -R u+w $(PKG_BUILD_DIR)/third_party/tailscale
+	$(call PatchDir,$(PKG_BUILD_DIR)/third_party/tailscale,./tailscale-patches,)
+	cd $(PKG_BUILD_DIR) && \
+		$(GO_PKG_BUILD_VARS) go mod edit \
+		-replace github.com/sagernet/tailscale=./third_party/tailscale
+	$(call GoPackage/Build/Configure)
+endef
 
 define Package/sing-box/conffiles
 /etc/config/sing-box

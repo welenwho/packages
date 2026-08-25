@@ -1,0 +1,190 @@
+From 330d7ae1a114439d8f52f055b054751265d357e7 Mon Sep 17 00:00:00 2001
+From: huangwl <huangwl@happeny.to>
+Date: Tue, 25 Aug 2026 20:31:56 +0800
+Subject: [PATCH] api: expose Tailscale peer subnet routes
+
+---
+ adapter/tailscale.go                    |  1 +
+ cmd/sing-box/cmd_api_tailscale_route.go | 59 +++++++++++++++++++++++++
+ daemon/started_service.go               |  1 +
+ daemon/started_service.pb.go            | 13 +++++-
+ daemon/started_service.proto            |  1 +
+ protocol/tailscale/status.go            |  8 ++++
+ 6 files changed, 81 insertions(+), 2 deletions(-)
+ create mode 100644 cmd/sing-box/cmd_api_tailscale_route.go
+
+diff --git a/adapter/tailscale.go b/adapter/tailscale.go
+index a97430a..4db7478 100644
+--- a/adapter/tailscale.go
++++ b/adapter/tailscale.go
+@@ -77,6 +77,7 @@ type TailscalePeer struct {
+ 	DNSName         string
+ 	OS              string
+ 	TailscaleIPs    []string
++	PrimaryRoutes   []string
+ 	SSHHostKeys     []string
+ 	Online          bool
+ 	ExitNode        bool
+diff --git a/cmd/sing-box/cmd_api_tailscale_route.go b/cmd/sing-box/cmd_api_tailscale_route.go
+new file mode 100644
+index 0000000..72947aa
+--- /dev/null
++++ b/cmd/sing-box/cmd_api_tailscale_route.go
+@@ -0,0 +1,59 @@
++package main
++
++import (
++	"github.com/sagernet/sing/common"
++
++	"github.com/spf13/cobra"
++)
++
++var commandAPITailscaleRoute = &cobra.Command{
++	Use:   "route",
++	Short: "Manage Tailscale subnet routes",
++}
++
++var commandAPITailscaleRouteList = &cobra.Command{
++	Use:   "list",
++	Short: "List Tailscale peer subnet routes",
++	Args:  cobra.NoArgs,
++	RunE: func(cmd *cobra.Command, args []string) error {
++		return runAPITailscaleRouteList()
++	},
++}
++
++func init() {
++	commandAPITailscaleRoute.PersistentFlags().StringVar(&commandAPITailscaleFlagEndpoint, "endpoint", "", commandAPITailscaleEndpointUsage)
++	commandAPITailscaleRoute.AddCommand(commandAPITailscaleRouteList)
++	commandAPITailscale.AddCommand(commandAPITailscaleRoute)
++}
++
++func runAPITailscaleRouteList() error {
++	clientConn, client, err := createAPIClient()
++	if err != nil {
++		return err
++	}
++	defer clientConn.Close()
++	endpoint, err := fetchTailscaleEndpoint(client)
++	if err != nil {
++		return err
++	}
++	entries := common.Filter(tailscalePeerEntries(endpoint), func(it tailscalePeerEntry) bool {
++		return !it.self && len(it.peer.GetPrimaryRoutes()) > 0
++	})
++	sortTailscalePeerEntries(entries)
++	table := tableWriter{
++		header:       []string{"ROUTE", "DNS NAME", "IP", "ONLINE"},
++		emptyMessage: "no subnet routes",
++	}
++	for _, entry := range entries {
++		for _, route := range entry.peer.GetPrimaryRoutes() {
++			table.addRow(
++				route,
++				tailscalePeerName(entry.peer),
++				tailscalePeerAddress(entry.peer),
++				formatYesNo(entry.peer.GetOnline()),
++			)
++		}
++	}
++	table.flush()
++	return nil
++}
+diff --git a/daemon/started_service.go b/daemon/started_service.go
+index 0633524..72527fd 100644
+--- a/daemon/started_service.go
++++ b/daemon/started_service.go
+@@ -1684,6 +1684,7 @@ func tailscalePeerToProto(peer *adapter.TailscalePeer) *TailscalePeer {
+ 		DnsName:         peer.DNSName,
+ 		Os:              peer.OS,
+ 		TailscaleIPs:    peer.TailscaleIPs,
++		PrimaryRoutes:   peer.PrimaryRoutes,
+ 		SshHostKeys:     peer.SSHHostKeys,
+ 		Online:          peer.Online,
+ 		ExitNode:        peer.ExitNode,
+diff --git a/daemon/started_service.pb.go b/daemon/started_service.pb.go
+index 718c9c5..5654938 100644
+--- a/daemon/started_service.pb.go
++++ b/daemon/started_service.pb.go
+@@ -2461,6 +2461,7 @@ type TailscalePeer struct {
+ 	ShareeNode      bool                   `protobuf:"varint,15,opt,name=shareeNode,proto3" json:"shareeNode,omitempty"`
+ 	LastSeen        int64                  `protobuf:"varint,16,opt,name=lastSeen,proto3" json:"lastSeen,omitempty"`
+ 	CanReceiveFiles bool                   `protobuf:"varint,17,opt,name=canReceiveFiles,proto3" json:"canReceiveFiles,omitempty"`
++	PrimaryRoutes   []string               `protobuf:"bytes,18,rep,name=primaryRoutes,proto3" json:"primaryRoutes,omitempty"`
+ 	unknownFields   protoimpl.UnknownFields
+ 	sizeCache       protoimpl.SizeCache
+ }
+@@ -2614,6 +2615,13 @@ func (x *TailscalePeer) GetCanReceiveFiles() bool {
+ 	return false
+ }
+ 
++func (x *TailscalePeer) GetPrimaryRoutes() []string {
++	if x != nil {
++		return x.PrimaryRoutes
++	}
++	return nil
++}
++
+ type TailscalePingRequest struct {
+ 	state         protoimpl.MessageState `protogen:"open.v1"`
+ 	EndpointTag   string                 `protobuf:"bytes,1,opt,name=endpointTag,proto3" json:"endpointTag,omitempty"`
+@@ -7518,7 +7526,7 @@ const file_daemon_started_service_proto_rawDesc = "" +
+ 	"\tloginName\x18\x02 \x01(\tR\tloginName\x12 \n" +
+ 	"\vdisplayName\x18\x03 \x01(\tR\vdisplayName\x12$\n" +
+ 	"\rprofilePicURL\x18\x04 \x01(\tR\rprofilePicURL\x12+\n" +
+-	"\x05peers\x18\x05 \x03(\v2\x15.daemon.TailscalePeerR\x05peers\"\xfd\x03\n" +
++	"\x05peers\x18\x05 \x03(\v2\x15.daemon.TailscalePeerR\x05peers\"\xa3\x04\n" +
+ 	"\rTailscalePeer\x12\x1a\n" +
+ 	"\bhostName\x18\x01 \x01(\tR\bhostName\x12\x18\n" +
+ 	"\adnsName\x18\x02 \x01(\tR\adnsName\x12\x0e\n" +
+@@ -7539,7 +7547,8 @@ const file_daemon_started_service_proto_rawDesc = "" +
+ 	"shareeNode\x18\x0f \x01(\bR\n" +
+ 	"shareeNode\x12\x1a\n" +
+ 	"\blastSeen\x18\x10 \x01(\x03R\blastSeen\x12(\n" +
+-	"\x0fcanReceiveFiles\x18\x11 \x01(\bR\x0fcanReceiveFiles\"P\n" +
++	"\x0fcanReceiveFiles\x18\x11 \x01(\bR\x0fcanReceiveFiles\x12$\n" +
++	"\rprimaryRoutes\x18\x12 \x03(\tR\rprimaryRoutes\"P\n" +
+ 	"\x14TailscalePingRequest\x12 \n" +
+ 	"\vendpointTag\x18\x01 \x01(\tR\vendpointTag\x12\x16\n" +
+ 	"\x06peerIP\x18\x02 \x01(\tR\x06peerIP\"\xed\x01\n" +
+diff --git a/daemon/started_service.proto b/daemon/started_service.proto
+index 21116b3..a15c522 100644
+--- a/daemon/started_service.proto
++++ b/daemon/started_service.proto
+@@ -321,6 +321,7 @@ message TailscalePeer {
+   bool shareeNode = 15;
+   int64 lastSeen = 16;
+   bool canReceiveFiles = 17;
++  repeated string primaryRoutes = 18;
+ }
+ 
+ message TailscalePingRequest {
+diff --git a/protocol/tailscale/status.go b/protocol/tailscale/status.go
+index 17b6d64..9fc48d2 100644
+--- a/protocol/tailscale/status.go
++++ b/protocol/tailscale/status.go
+@@ -172,6 +172,13 @@ func convertTailscalePeer(peer *ipnstate.PeerStatus) *adapter.TailscalePeer {
+ 	for i, ip := range peer.TailscaleIPs {
+ 		ips[i] = ip.String()
+ 	}
++	var primaryRoutes []string
++	if peer.PrimaryRoutes != nil {
++		primaryRoutes = make([]string, peer.PrimaryRoutes.Len())
++		for i, route := range peer.PrimaryRoutes.AsSlice() {
++			primaryRoutes[i] = route.String()
++		}
++	}
+ 	var keyExpiry int64
+ 	if peer.KeyExpiry != nil {
+ 		keyExpiry = peer.KeyExpiry.Unix()
+@@ -186,6 +193,7 @@ func convertTailscalePeer(peer *ipnstate.PeerStatus) *adapter.TailscalePeer {
+ 		DNSName:        peer.DNSName,
+ 		OS:             peer.OS,
+ 		TailscaleIPs:   ips,
++		PrimaryRoutes:  primaryRoutes,
+ 		SSHHostKeys:    peer.SSH_HostKeys,
+ 		Online:         peer.Online,
+ 		ExitNode:       peer.ExitNode,
+-- 
+2.55.0
+
