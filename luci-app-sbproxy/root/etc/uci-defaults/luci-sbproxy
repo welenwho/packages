@@ -1,0 +1,45 @@
+#!/bin/sh
+
+ucode "/etc/sbproxy/scripts/migrate_config.uc" || exit 1
+
+if ! /usr/libexec/sbproxy-runtime-init; then
+	printf '%s\n' 'SBProxy: failed to initialize runtime ports.' >&2
+	exit 1
+fi
+
+if ! uci -q batch <<-EOF >"/dev/null"
+	delete firewall.sbproxy_pre
+
+	delete firewall.sbproxy_forward
+	set firewall.sbproxy_forward=include
+	set firewall.sbproxy_forward.type=nftables
+	set firewall.sbproxy_forward.path="/var/run/sbproxy/fw4_forward.nft"
+	set firewall.sbproxy_forward.position="chain-pre"
+	set firewall.sbproxy_forward.chain="forward"
+
+	delete firewall.sbproxy_input
+	set firewall.sbproxy_input=include
+	set firewall.sbproxy_input.type=nftables
+	set firewall.sbproxy_input.path="/var/run/sbproxy/fw4_input.nft"
+	set firewall.sbproxy_input.position="chain-pre"
+	set firewall.sbproxy_input.chain="input"
+
+	delete firewall.sbproxy_post
+	set firewall.sbproxy_post=include
+	set firewall.sbproxy_post.type=nftables
+	set firewall.sbproxy_post.path="/var/run/sbproxy/fw4_post.nft"
+	set firewall.sbproxy_post.position="table-post"
+	commit firewall
+EOF
+then
+	printf '%s\n' 'SBProxy: failed to configure firewall includes.' >&2
+	exit 1
+fi
+
+rm -rf /tmp/luci-*
+rm -f /etc/sbproxy/dashboard/.etag
+[ ! -d /etc/sbproxy/dashboard ] || chmod -R a+rX /etc/sbproxy/dashboard
+[ ! -f /var/run/sbproxy/sing-box-c.json ] || \
+	/etc/init.d/sbproxy restart >/dev/null 2>&1 || \
+	printf '%s\n' 'SBProxy: failed to restart the running service after upgrade.' >&2
+exit 0

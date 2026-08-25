@@ -1,1 +1,0 @@
-homeproxy-adaptive.js

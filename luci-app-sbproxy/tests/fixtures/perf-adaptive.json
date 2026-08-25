@@ -1,0 +1,65 @@
+{
+  "log": { "disabled": true },
+  "dns": {
+    "servers": [
+      { "type": "local", "tag": "local-dns" }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "127.0.0.1",
+      "listen_port": 45201
+    },
+    { "type": "socks", "tag": "sbproxy-adaptive-direct-probe-in", "listen": "127.0.0.1", "listen_port": 45203 },
+    { "type": "socks", "tag": "sbproxy-adaptive-proxy-probe-in", "listen": "127.0.0.1", "listen_port": 45204 }
+  ],
+  "outbounds": [
+    { "type": "direct", "tag": "direct-out" },
+    { "type": "direct", "tag": "sbproxy-adaptive-final-direct-out" },
+    { "type": "direct", "tag": "proxy-test" },
+    {
+      "type": "selector",
+      "tag": "sbproxy-adaptive-out",
+      "outbounds": ["proxy-test"],
+      "default": "proxy-test",
+      "interrupt_exist_connections": false
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "inbound": "sbproxy-adaptive-direct-probe-in",
+        "action": "route",
+        "outbound": "direct-out"
+      },
+      {
+        "inbound": "sbproxy-adaptive-proxy-probe-in",
+        "action": "route",
+        "outbound": "sbproxy-adaptive-out"
+      },
+      {
+        "rule_set": "sbproxy-adaptive-rule",
+        "action": "route",
+        "outbound": "sbproxy-adaptive-out"
+      }
+    ],
+    "rule_set": [
+      {
+        "type": "local",
+        "tag": "sbproxy-adaptive-rule",
+        "format": "source",
+        "path": "/tmp/sbproxy-adaptive-perf/rules.json"
+      }
+    ],
+    "final": "sbproxy-adaptive-final-direct-out",
+    "auto_detect_interface": true,
+    "default_domain_resolver": "local-dns"
+  },
+  "experimental": {
+    "clash_api": {
+      "external_controller": "127.0.0.1:45202"
+    }
+  }
+}

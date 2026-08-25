@@ -1,0 +1,45 @@
+{
+	"admin/vpn/sbproxy": {
+		"title": "SBProxy",
+		"order": 10,
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-sbproxy" ],
+			"uci": { "sbproxy": true }
+		}
+	},
+	"admin/vpn/sbproxy/client": {
+		"title": "Client Settings",
+		"order": 10,
+		"action": {
+			"type": "view",
+				"path": "sbproxy/client-20260825-r1"
+		}
+	},
+	"admin/vpn/sbproxy/node": {
+		"title": "Node Settings",
+		"order": 15,
+		"action": {
+			"type": "view",
+			"path": "sbproxy/node"
+		}
+	},
+	"admin/vpn/sbproxy/server": {
+		"title": "Server Settings",
+		"order": 20,
+		"action": {
+			"type": "view",
+			"path": "sbproxy/server"
+		}
+	},
+	"admin/vpn/sbproxy/status": {
+		"title": "Service Status",
+		"order": 30,
+		"action": {
+			"type": "view",
+			"path": "sbproxy/status"
+		}
+	}
+}

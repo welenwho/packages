@@ -90,7 +90,7 @@ for package_dir in "${PACKAGE_DIRS[@]}"; do
 		luasrc \
 		root/etc/init.d \
 		root/etc/uci-defaults \
-		root/etc/homeproxy/scripts \
+		root/etc/sbproxy/scripts \
 		root/usr/bin \
 		root/usr/libexec \
 		root/usr/share/luci \

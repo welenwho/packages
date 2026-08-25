@@ -1,0 +1,138 @@
+#!/bin/sh
+
+MIGRATION_ROOT="${SBPROXY_MIGRATION_ROOT:-}"
+case "$MIGRATION_ROOT" in
+	''|/*) ;;
+	*) printf '%s\n' 'SBProxy: migration root must be an absolute path.' >&2; exit 1 ;;
+esac
+
+DEFAULT_DIR="$MIGRATION_ROOT/usr/share/sbproxy/defaults"
+OLD_CONFIG="$MIGRATION_ROOT/etc/config/homeproxy"
+OLD_ADAPTIVE_CONFIG="$MIGRATION_ROOT/etc/config/homeproxy-adaptive"
+NEW_CONFIG="$MIGRATION_ROOT/etc/config/sbproxy"
+NEW_ADAPTIVE_CONFIG="$MIGRATION_ROOT/etc/config/sbproxy-adaptive"
+OLD_DATA="$MIGRATION_ROOT/etc/homeproxy"
+NEW_DATA="$MIGRATION_ROOT/etc/sbproxy"
+MIGRATE_FROM_LEGACY=0
+[ -e "$NEW_CONFIG" ] || [ ! -f "$OLD_CONFIG" ] || MIGRATE_FROM_LEGACY=1
+
+migrate_main_config() {
+	local source="$1" target="$2" fallback="$3" temporary
+
+	[ ! -e "$target" ] || return 0
+	mkdir -p "${target%/*}" || return 1
+	temporary="${target}.new.$$"
+	if [ -f "$source" ]; then
+		sed \
+			-e "s/^config[[:space:]][[:space:]]*homeproxy\([[:space:]]\)/config sbproxy\1/" \
+			-e "s|/etc/homeproxy|/etc/sbproxy|g" \
+			-e "s|/var/run/homeproxy|/var/run/sbproxy|g" \
+			-e "s/option user_agent 'homeproxy'/option user_agent 'sbproxy'/" \
+			"$source" > "$temporary" || return 1
+	else
+		cp -p "$fallback" "$temporary" || return 1
+	fi
+	chmod 600 "$temporary" || return 1
+	mv -f "$temporary" "$target"
+}
+
+migrate_adaptive_config() {
+	local source="$1" target="$2" fallback="$3" temporary
+
+	[ ! -e "$target" ] || return 0
+	mkdir -p "${target%/*}" || return 1
+	temporary="${target}.new.$$"
+	if [ -f "$source" ]; then
+		cp -p "$source" "$temporary" || return 1
+	else
+		cp -p "$fallback" "$temporary" || return 1
+	fi
+	chmod 600 "$temporary" || return 1
+	mv -f "$temporary" "$target"
+}
+
+copy_tree_if_missing() {
+	local source="$1" target="$2"
+
+	[ -d "$source" ] || return 0
+	[ ! -e "$target" ] || return 0
+	mkdir -p "${target%/*}" || return 1
+	cp -a "$source" "$target"
+}
+
+copy_tree_contents() {
+	local source="$1" target="$2"
+
+	[ -d "$source" ] || return 0
+	mkdir -p "$target" || return 1
+	cp -a "$source/." "$target/"
+}
+
+copy_file_if_present() {
+	local source="$1" target="$2"
+
+	[ -f "$source" ] || return 0
+	mkdir -p "${target%/*}" || return 1
+	cp -p "$source" "$target"
+}
+
+if ! migrate_main_config "$OLD_CONFIG" "$NEW_CONFIG" "$DEFAULT_DIR/sbproxy" ||
+	! migrate_adaptive_config "$OLD_ADAPTIVE_CONFIG" "$NEW_ADAPTIVE_CONFIG" "$DEFAULT_DIR/sbproxy-adaptive"; then
+	printf '%s\n' 'SBProxy: failed to create isolated configuration files.' >&2
+	exit 1
+fi
+
+if [ "$MIGRATE_FROM_LEGACY" = "1" ]; then
+	# Copy only persistent user state. Package-owned scripts, dashboard files,
+	# and geodata remain the SBProxy versions installed by this package.
+	if ! copy_tree_contents "$OLD_DATA/adaptive" "$NEW_DATA/adaptive"; then
+		printf '%s\n' "SBProxy: failed to migrate $OLD_DATA/adaptive." >&2
+		exit 1
+	fi
+	for data_dir in cache certs ruleset tailscale; do
+		if ! copy_tree_if_missing "$OLD_DATA/$data_dir" "$NEW_DATA/$data_dir"; then
+			printf '%s\n' "SBProxy: failed to migrate $OLD_DATA/$data_dir." >&2
+			exit 1
+		fi
+	done
+	for data_file in resources/direct_list.txt resources/proxy_list.txt; do
+		if ! copy_file_if_present "$OLD_DATA/$data_file" "$NEW_DATA/$data_file"; then
+			printf '%s\n' "SBProxy: failed to migrate $OLD_DATA/$data_file." >&2
+			exit 1
+		fi
+	done
+fi
+
+[ -f "$MIGRATION_ROOT/www/luci-static/resources/icons/loading.gif" ] && \
+	sed -i "s,/loading.svg,/loading.gif,g" "$MIGRATION_ROOT/www/luci-static/resources/view/sbproxy/status.js"
+
+dashboard_root="$MIGRATION_ROOT/etc/sbproxy/dashboard"
+dashboard_legacy="$dashboard_root/files"
+dashboard_version="$dashboard_root/dashboard.ver"
+dashboard_legacy_version="$MIGRATION_ROOT/etc/sbproxy/resources/dashboard.ver"
+if [ -f "$dashboard_legacy/index.html" ]; then
+	if [ ! -f "$dashboard_root/index.html" ]; then
+		dashboard_move_failed=0
+		for dashboard_file in "$dashboard_legacy"/* "$dashboard_legacy"/.[!.]* "$dashboard_legacy"/..?*; do
+			[ -e "$dashboard_file" ] || continue
+			if ! mv -f "$dashboard_file" "$dashboard_root/"; then
+				printf '%s\n' "SBProxy: failed to migrate $dashboard_file; preserving the legacy directory." >&2
+				dashboard_move_failed=1
+			fi
+		done
+		[ "$dashboard_move_failed" -ne 0 ] || rmdir "$dashboard_legacy" 2>"/dev/null"
+	else
+		rm -rf "$dashboard_legacy"
+	fi
+fi
+rm -f "$dashboard_root/.etag"
+if [ -f "$dashboard_legacy_version" ]; then
+	if [ ! -f "$dashboard_version" ]; then
+		mv -f "$dashboard_legacy_version" "$dashboard_version" || \
+			printf '%s\n' "SBProxy: failed to migrate the dashboard version file; continuing." >&2
+	else
+		rm -f "$dashboard_legacy_version"
+	fi
+fi
+
+exit 0

@@ -1,0 +1,410 @@
+#!/bin/sh
+
+# SPDX-License-Identifier: GPL-3.0-only
+
+FUNCTIONS_LIB="${SBPROXY_FUNCTIONS_LIB:-/lib/functions.sh}"
+. "$FUNCTIONS_LIB"
+
+SING_BOX_BIN="${SBPROXY_SING_BOX_BIN:-/usr/bin/sing-box}"
+STATE_FILE="${SBPROXY_TAILSCALE_MAGICDNS_STATE:-/etc/sbproxy/tailscale/magicdns_target}"
+NAT_FILE="${SBPROXY_TAILSCALE_NAT_FILE:-/var/run/sbproxy/fw4_tailscale.nft}"
+LOG_TAG="sbproxy-tailscale"
+FIREWALL_RUNTIME_CHANGED=0
+
+log_info() {
+	logger -p daemon.info -t "$LOG_TAG" "$*"
+}
+
+log_error() {
+	logger -p daemon.err -t "$LOG_TAG" "$*"
+}
+
+fail() {
+	log_error "$*"
+	exit 1
+}
+
+load_settings() {
+	local cfg="tailscale" dashboard_enabled dashboard_port dashboard_path
+
+	config_load sbproxy
+	config_get_bool ENABLED "$cfg" enabled 0
+	config_get STATE_DIRECTORY "$cfg" state_directory /etc/sbproxy/tailscale
+	config_get INTERFACE_NAME "$cfg" system_interface_name tailscale0
+	config_get DNS_PORT infra dns_port 5333
+	config_get API_PORT infra tailscale_api_port
+	config_get dashboard_port config dashboard_port
+	config_get_bool dashboard_enabled config dashboard_enabled 0
+	config_get_bool MAGIC_DNS "$cfg" magic_dns 1
+	config_get_bool ACCEPT_ROUTES "$cfg" accept_routes 0
+	config_get SUBNET_ROUTES "$cfg" subnet_routes
+	config_get ACCESS "$cfg" access
+	config_get_bool DISABLE_SNAT "$cfg" disable_snat_subnet_routes 0
+	config_get_bool ADVERTISE_EXIT_NODE "$cfg" advertise_exit_node 0
+	config_get EXIT_NODE "$cfg" exit_node
+	config_get API_SECRET config dashboard_secret
+
+	dashboard_path="/etc/sbproxy/dashboard/index.html"
+	[ "$dashboard_enabled" = "1" ] && [ -s "$dashboard_path" ] && API_PORT="$dashboard_port"
+	[ "$ACCEPT_ROUTES" = "1" ] || SUBNET_ROUTES=''
+	API_URL="http://127.0.0.1:$API_PORT"
+}
+
+validate_settings() {
+	case "$INTERFACE_NAME" in
+		''|*[!A-Za-z0-9_.-]*) return 1 ;;
+	esac
+	case "$API_PORT" in
+		''|*[!0-9]*) return 1 ;;
+	esac
+	[ "$API_PORT" -ge 1 ] 2>"/dev/null" && [ "$API_PORT" -le 65535 ] 2>"/dev/null" || return 1
+	[ "$ADVERTISE_EXIT_NODE" != "1" ] || [ "$DISABLE_SNAT" != "1" ] || return 1
+	[ "$ADVERTISE_EXIT_NODE" != "1" ] || [ -z "$EXIT_NODE" ] || return 1
+	return 0
+}
+
+api() {
+	BOX_API_URL="$API_URL" BOX_API_SECRET="$API_SECRET" "$SING_BOX_BIN" api "$@"
+}
+
+status_output() {
+	api tailscale status 2>"/dev/null"
+}
+
+uci_get() {
+	uci -q get "$1" 2>"/dev/null"
+}
+
+uci_set_if_changed() {
+	local key="$1" value="$2"
+
+	[ "$(uci_get "$key")" = "$value" ] || uci -q set "$key=$value"
+}
+
+uci_delete_if_exists() {
+	uci_get "$1" >"/dev/null" || return 0
+	uci -q delete "$1"
+}
+
+uci_list_has() {
+	uci_get "$1" | tr ' ' '\n' | grep -qxF "$2"
+}
+
+uci_replace_list() {
+	local key="$1" values="$2" value
+
+	[ "$(uci_get "$key")" = "$values" ] && return 0
+	uci_delete_if_exists "$key" || return 1
+	for value in $values; do
+		uci -q add_list "$key=$value" || return 1
+	done
+}
+
+write_if_changed() {
+	local path="$1" content="$2" temporary
+
+	mkdir -p "${path%/*}" || return 2
+	temporary="${path}.new"
+	printf '%s' "$content" > "$temporary" || return 2
+	if [ -f "$path" ] && cmp -s "$temporary" "$path"; then
+		rm -f "$temporary"
+		return 1
+	fi
+	mv -f "$temporary" "$path" || return 2
+	return 0
+}
+
+backend_state() {
+	status_output | sed -n 's/^[[:space:]]*State:[[:space:]]*//p' | head -n 1
+}
+
+auth_url() {
+	status_output | sed -n 's/^[[:space:]]*Log in:[[:space:]]*//p' | head -n 1
+}
+
+standalone_conflict() {
+	local standalone_enabled
+
+	standalone_enabled="$(uci -q get tailscale.settings.enabled)"
+	[ "$standalone_enabled" != "1" ] || return 0
+	pidof tailscaled >"/dev/null" 2>&1 && return 0
+	if [ -d "/sys/class/net/$INTERFACE_NAME" ] &&
+	   [ "$(uci -q get network.sbproxy_ts.device)" != "$INTERFACE_NAME" ]; then
+		return 0
+	fi
+	return 1
+}
+
+self_details() {
+	local first_line self_name self_ip details ips address
+
+	first_line="$(api tailscale peer list 2>"/dev/null" | head -n 1)"
+	self_name="$(printf '%s\n' "$first_line" | awk '{ print $1 }')"
+	self_ip="$(printf '%s\n' "$first_line" | awk '{ print $2 }')"
+	[ -n "$self_name" ] && [ -n "$self_ip" ] || return 1
+
+	details="$(api tailscale peer show "$self_ip" 2>"/dev/null")"
+	ips="$(printf '%s\n' "$details" | sed -n 's/^[[:space:]]*IPs:[[:space:]]*//p' | head -n 1)"
+	[ -n "$ips" ] || return 1
+
+	TS_IPV4=''
+	TS_IPV6=''
+	for address in $(printf '%s' "$ips" | tr ',' ' '); do
+		case "$address" in
+			*.*) [ -n "$TS_IPV4" ] || TS_IPV4="$address" ;;
+			*:*) [ -n "$TS_IPV6" ] || TS_IPV6="$address" ;;
+		esac
+	done
+	[ -n "$TS_IPV4" ] || return 1
+
+	TS_DNS_NAME="$self_name"
+	case "$self_name" in
+		*.*) TS_DNS_SUFFIX="${self_name#*.}" ;;
+		*) TS_DNS_SUFFIX='' ;;
+	esac
+	return 0
+}
+
+remove_magicdns_target() {
+	local target="$1" domain option index
+
+	[ -n "$target" ] || return 0
+	domain="${target#/}"
+	domain="${domain%%/*}"
+	index="$(uci show dhcp 2>"/dev/null" | sed -n "s/^dhcp\.@dnsmasq\[\([0-9][0-9]*\)\]=dnsmasq$/\1/p")"
+	for option in $index; do
+		if uci_list_has "dhcp.@dnsmasq[$option].server" "$target"; then
+			uci -q del_list "dhcp.@dnsmasq[$option].server=$target" || return 1
+		fi
+		if uci_list_has "dhcp.@dnsmasq[$option].rebind_domain" "/$domain/"; then
+			uci -q del_list "dhcp.@dnsmasq[$option].rebind_domain=/$domain/" || return 1
+		fi
+	done
+}
+
+configure_magicdns() {
+	local previous target='' index option
+
+	previous="$(cat "$STATE_FILE" 2>"/dev/null")"
+	if [ "$MAGIC_DNS" = "1" ] && [ -n "$TS_DNS_SUFFIX" ]; then
+		target="/$TS_DNS_SUFFIX/127.0.0.1#$DNS_PORT"
+	fi
+	if [ "$previous" != "$target" ]; then
+		remove_magicdns_target "$previous"
+		rm -f "$STATE_FILE"
+	fi
+	[ -n "$target" ] || return 0
+
+	index="$(uci show dhcp 2>"/dev/null" | sed -n "s/^dhcp\.@dnsmasq\[\([0-9][0-9]*\)\]=dnsmasq$/\1/p")"
+	for option in $index; do
+		uci_list_has "dhcp.@dnsmasq[$option].server" "$target" ||
+			uci -q add_list "dhcp.@dnsmasq[$option].server=$target" || return 1
+		uci_list_has "dhcp.@dnsmasq[$option].rebind_domain" "/$TS_DNS_SUFFIX/" ||
+			uci -q add_list "dhcp.@dnsmasq[$option].rebind_domain=/$TS_DNS_SUFFIX/" || return 1
+	done
+	mkdir -p "${STATE_FILE%/*}" || return 1
+	[ "$previous" = "$target" ] && [ -f "$STATE_FILE" ] ||
+		printf '%s\n' "$target" > "$STATE_FILE" || return 1
+}
+
+configure_network() {
+	local route section index=1
+
+	uci_set_if_changed network.sbproxy_ts interface || return 1
+	uci_set_if_changed network.sbproxy_ts.proto static || return 1
+	uci_set_if_changed network.sbproxy_ts.device "$INTERFACE_NAME" || return 1
+	uci_set_if_changed network.sbproxy_ts.ipaddr "$TS_IPV4" || return 1
+	uci_set_if_changed network.sbproxy_ts.netmask 255.192.0.0 || return 1
+	uci_replace_list network.sbproxy_ts.ip6addr "${TS_IPV6:+$TS_IPV6/128}" || return 1
+	if [ -n "$TS_IPV6" ]; then
+		uci_set_if_changed network.sbproxy_ts_ipv6 route || return 1
+		uci_set_if_changed network.sbproxy_ts_ipv6.interface sbproxy_ts || return 1
+		uci_set_if_changed network.sbproxy_ts_ipv6.target fd7a:115c:a1e0::/48 || return 1
+	else
+		uci_delete_if_exists network.sbproxy_ts_ipv6 || return 1
+	fi
+
+	for route in $SUBNET_ROUTES; do
+		uci_set_if_changed "network.sbproxy_ts_subnet$index" route || return 1
+		uci_set_if_changed "network.sbproxy_ts_subnet$index.interface" sbproxy_ts || return 1
+		uci_set_if_changed "network.sbproxy_ts_subnet$index.target" "$route" || return 1
+		index=$((index + 1))
+	done
+	for section in $(uci show network 2>"/dev/null" |
+		sed -n "s/^\(network\.sbproxy_ts_subnet[0-9][0-9]*\)=route$/\1/p"); do
+		route="${section#network.sbproxy_ts_subnet}"
+		[ "$route" -lt "$index" ] || uci_delete_if_exists "$section" || return 1
+	done
+}
+
+has_access() {
+	case " $ACCESS " in
+		*" $1 "*) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
+add_forwarding() {
+	uci_set_if_changed "firewall.$1" forwarding || return 1
+	uci_set_if_changed "firewall.$1.src" "$2" || return 1
+	uci_set_if_changed "firewall.$1.dest" "$3" || return 1
+}
+
+configure_firewall() {
+	local nat_content='' write_status
+
+	uci_set_if_changed firewall.sbproxy_tszone zone || return 1
+	uci_set_if_changed firewall.sbproxy_tszone.name sbproxy_tailscale || return 1
+	uci_set_if_changed firewall.sbproxy_tszone.network sbproxy_ts || return 1
+	uci_set_if_changed firewall.sbproxy_tszone.input ACCEPT || return 1
+	uci_set_if_changed firewall.sbproxy_tszone.output ACCEPT || return 1
+	uci_set_if_changed firewall.sbproxy_tszone.forward ACCEPT || return 1
+	uci_set_if_changed firewall.sbproxy_tszone.masq 0 || return 1
+	uci_set_if_changed firewall.sbproxy_tszone.mtu_fix 1 || return 1
+
+	uci_set_if_changed firewall.sbproxy_ts_nat include || return 1
+	uci_set_if_changed firewall.sbproxy_ts_nat.type nftables || return 1
+	uci_set_if_changed firewall.sbproxy_ts_nat.path "$NAT_FILE" || return 1
+	uci_set_if_changed firewall.sbproxy_ts_nat.position table-post || return 1
+	if [ "$DISABLE_SNAT" != "1" ]; then
+		nat_content="chain sbproxy_ts_postrouting {
+	type nat hook postrouting priority srcnat + 1; policy accept;
+	iifname \"$INTERFACE_NAME\" oifname != \"$INTERFACE_NAME\" masquerade comment \"!sbproxy: Tailscale forwarded traffic\"
+}
+"
+	fi
+	if write_if_changed "$NAT_FILE" "$nat_content"; then
+		write_status=0
+	else
+		write_status=$?
+	fi
+	[ "$write_status" -ne 0 ] || FIREWALL_RUNTIME_CHANGED=1
+	[ "$write_status" -lt 2 ] || return 1
+
+	if has_access ts_ac_lan; then
+		add_forwarding sbproxy_ts_ac_lan sbproxy_tailscale lan || return 1
+	else
+		uci_delete_if_exists firewall.sbproxy_ts_ac_lan || return 1
+	fi
+	if has_access ts_ac_wan; then
+		add_forwarding sbproxy_ts_ac_wan sbproxy_tailscale wan || return 1
+	else
+		uci_delete_if_exists firewall.sbproxy_ts_ac_wan || return 1
+	fi
+	if has_access lan_ac_ts; then
+		add_forwarding sbproxy_lan_ac_ts lan sbproxy_tailscale || return 1
+	else
+		uci_delete_if_exists firewall.sbproxy_lan_ac_ts || return 1
+	fi
+	if has_access wan_ac_ts; then
+		add_forwarding sbproxy_wan_ac_ts wan sbproxy_tailscale || return 1
+	else
+		uci_delete_if_exists firewall.sbproxy_wan_ac_ts || return 1
+	fi
+}
+
+commit_changes() {
+	if [ -n "$(uci changes dhcp)" ]; then
+		uci commit dhcp || return 1
+		/etc/init.d/dnsmasq reload || return 1
+	fi
+	if [ -n "$(uci changes network)" ]; then
+		uci commit network || return 1
+		/etc/init.d/network reload || return 1
+	fi
+	if [ -n "$(uci changes firewall)" ]; then
+		uci commit firewall || return 1
+		/etc/init.d/firewall reload || return 1
+	elif [ "$FIREWALL_RUNTIME_CHANGED" = "1" ]; then
+		/etc/init.d/firewall reload || return 1
+	fi
+	FIREWALL_RUNTIME_CHANGED=0
+}
+
+sync_openwrt() {
+	self_details || return 1
+	configure_magicdns || return 1
+	configure_network || return 1
+	configure_firewall || return 1
+	commit_changes
+}
+
+cleanup_openwrt() {
+	local target section write_status
+
+	target="$(cat "$STATE_FILE" 2>"/dev/null")"
+	remove_magicdns_target "$target"
+	rm -f "$STATE_FILE"
+	uci_delete_if_exists network.sbproxy_ts
+	uci_delete_if_exists network.sbproxy_ts_ipv6
+	for section in $(uci show network 2>"/dev/null" |
+		sed -n "s/^\(network\.sbproxy_ts_subnet[0-9][0-9]*\)=route$/\1/p"); do
+		uci_delete_if_exists "$section"
+	done
+	for section in sbproxy_tszone sbproxy_ts_ac_lan sbproxy_ts_ac_wan \
+		sbproxy_lan_ac_ts sbproxy_wan_ac_ts sbproxy_ts_nat; do
+		uci_delete_if_exists "firewall.$section"
+	done
+	if write_if_changed "$NAT_FILE" ''; then
+		write_status=0
+	else
+		write_status=$?
+	fi
+	[ "$write_status" -ne 0 ] || FIREWALL_RUNTIME_CHANGED=1
+	[ "$write_status" -lt 2 ] || return 1
+	commit_changes
+}
+
+watch_backend() {
+	local state url last_url=''
+
+	while [ "$ENABLED" = "1" ]; do
+		state="$(backend_state)"
+		case "$state" in
+			Running)
+				if sync_openwrt; then
+					log_info "OpenWrt integration synchronized."
+				else
+					log_error "Failed to synchronize OpenWrt integration."
+				fi
+				;;
+			NeedsLogin|NoState)
+				url="$(auth_url)"
+				if [ -n "$url" ] && [ "$url" != "$last_url" ]; then
+					log_info "Waiting for authentication: $url"
+					last_url="$url"
+				fi
+				;;
+		esac
+		sleep 30
+		load_settings
+	done
+}
+
+[ "${SBPROXY_TAILSCALE_HELPER_LIBRARY_ONLY:-0}" = "1" ] && return 0
+
+load_settings
+
+if [ "${1:-watch}" = "cleanup" ]; then
+	cleanup_openwrt || fail "Failed to clean embedded Tailscale integration."
+	exit 0
+fi
+
+validate_settings || fail "Invalid embedded Tailscale configuration."
+
+case "${1:-watch}" in
+	check)
+		standalone_conflict && fail "Independent Tailscale is enabled, running, or owns $INTERFACE_NAME."
+		;;
+	sync)
+		[ "$ENABLED" = "1" ] || fail "Embedded Tailscale is disabled."
+		[ "$(backend_state)" = "Running" ] || fail "Embedded Tailscale is not running."
+		sync_openwrt || fail "Failed to synchronize OpenWrt integration."
+		;;
+	watch)
+		[ "$ENABLED" = "1" ] || exit 0
+		standalone_conflict && fail "Independent Tailscale conflicts with the embedded backend."
+		watch_backend
+		;;
+	*) fail "Unknown action: $1" ;;
+esac
