@@ -11,6 +11,12 @@ ACL="$PACKAGE_ROOT/root/usr/share/rpcd/acl.d/luci-app-sbproxy.json"
 MENU="$PACKAGE_ROOT/root/usr/share/luci/menu.d/luci-app-sbproxy.json"
 CONFIG="$PACKAGE_ROOT/root/usr/share/sbproxy/defaults/sbproxy"
 MIGRATION="$PACKAGE_ROOT/root/etc/uci-defaults/00-luci-sbproxy-migrate"
+MAKEFILE="$PACKAGE_ROOT/Makefile"
+
+pkg_version="$(sed -n 's/^PKG_VERSION:=//p' "$MAKEFILE")"
+pkg_release="$(sed -n 's/^PKG_RELEASE:=//p' "$MAKEFILE")"
+versioned_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${pkg_version}-r${pkg_release}.js"
+versioned_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${pkg_version}-r${pkg_release}.js"
 
 grep -Fq '"admin/vpn/sbproxy"' "$MENU"
 grep -Fq 'PKG_NAME:=luci-app-sbproxy' "$PACKAGE_ROOT/Makefile"
@@ -30,9 +36,9 @@ grep -Fq "'require sbproxy as sb';" \
 	"$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/node.js"
 grep -Fq "'require sbproxy as sb';" \
 	"$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/server.js"
-test "$(readlink "$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-20260825-r1.js")" = \
+test "$(readlink "$versioned_adaptive")" = \
 	'sbproxy-adaptive.js'
-test "$(readlink "$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-20260825-r1.js")" = \
+test "$(readlink "$versioned_client")" = \
 	'client.js'
 grep -Fq "type: 'tailscale'" "$GENERATOR"
 grep -Fq "system_interface: true" "$GENERATOR"

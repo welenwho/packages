@@ -69,6 +69,15 @@ jobs:
         id: resources
         run: .github/scripts/update-sbproxy-geodata.sh
 
+      - name: 递增 SBProxy 软件包修订号
+        run: |
+          if [[ -n "$(git status --porcelain -- \
+            luci-app-sbproxy/root/etc/sbproxy/resources \
+            luci-app-sbproxy/root/etc/sbproxy/dashboard)" ]]; then
+            .github/scripts/bump-sbproxy-release.sh
+            .github/scripts/generate-readme.sh
+          fi
+
       - name: 提交数据更新
         id: package_commit
         env:
@@ -79,8 +88,8 @@ jobs:
           ci_commit_and_push \
             "$PACKAGE_BRANCH" \
             "chore: 更新 SBProxy 数据至 $RESOURCE_VERSION" \
-            luci-app-sbproxy/root/etc/sbproxy/resources \
-            luci-app-sbproxy/root/etc/sbproxy/dashboard
+            README.md \
+            luci-app-sbproxy
 
   build:
     name: 编译并发布 SBProxy APK
