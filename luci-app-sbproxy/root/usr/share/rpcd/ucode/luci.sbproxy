@@ -265,9 +265,11 @@ const methods = {
 			const sbpuci = cursor();
 			sbpuci.load('sbproxy');
 			const enabled = sbpuci.get('sbproxy', 'tailscale', 'enabled') === '1';
+			const standalone_installed = !!lstat('/etc/init.d/tailscale');
 			if (!enabled)
 				return {
 					enabled: false,
+					standalone_installed,
 					running: false,
 					backend_state: 'Disabled',
 					network_name: null,
@@ -281,6 +283,7 @@ const methods = {
 			if (!command)
 				return {
 					enabled,
+					standalone_installed,
 					running: false,
 					backend_state: null,
 					network_name: null,
@@ -309,6 +312,7 @@ const methods = {
 			}
 			return {
 				enabled,
+				standalone_installed,
 				running: enabled && result.code === 0 && status.backend_state === 'Running',
 				backend_state: status.backend_state,
 				network_name: status.network_name,

@@ -16,7 +16,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r4 as adaptive';
+'require sbproxy-adaptive-1-0-0-r5 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -570,8 +570,9 @@ return view.extend({
 		ss.tab('relay', _('Peer Relay'));
 		ss.tab('authentication', _('Authentication'));
 		ss.tab('advanced', _('Extra Settings'));
-		const standaloneTailscaleEnabled = uci.get('tailscale', 'settings', 'enabled') === '1';
 		const tailscaleStatus = data[5] || {};
+		const standaloneTailscaleEnabled = tailscaleStatus.standalone_installed === true &&
+			uci.get('tailscale', 'settings', 'enabled') === '1';
 		const configuredExitNode = uci.get(data[0], 'tailscale', 'exit_node') || '';
 		const configuredPeerRoutes = L.toArray(uci.get(data[0], 'tailscale', 'subnet_routes'));
 		const configuredAdvertiseRoutes = L.toArray(uci.get(data[0], 'tailscale', 'advertise_routes'));

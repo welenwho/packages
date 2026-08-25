@@ -37,7 +37,7 @@ EOF
 
 cat > "$TEST_ROOT/bin/pidof" <<-'EOF'
 	#!/bin/sh
-	exit 1
+	[ "${MOCK_STANDALONE_RUNNING:-0}" = 1 ]
 EOF
 
 cat > "$TEST_ROOT/bin/logger" <<-'EOF'
@@ -49,14 +49,29 @@ chmod 755 "$TEST_ROOT/bin/uci" "$TEST_ROOT/bin/pidof" "$TEST_ROOT/bin/logger"
 
 export PATH="$TEST_ROOT/bin:$PATH"
 export SBPROXY_FUNCTIONS_LIB="$TEST_ROOT/functions.sh"
+export SBPROXY_TAILSCALE_STANDALONE_INIT="$TEST_ROOT/tailscale.init"
 
 MOCK_STANDALONE_ENABLED=0 \
 	"$PACKAGE_ROOT/root/usr/sbin/sbproxy_tailscale_helper" check
 
+# A configuration preserved by sysupgrade must not block SBProxy after the
+# independent package and its init script have been removed.
+MOCK_STANDALONE_ENABLED=1 \
+	"$PACKAGE_ROOT/root/usr/sbin/sbproxy_tailscale_helper" check
+
+: > "$TEST_ROOT/tailscale.init"
+chmod 755 "$TEST_ROOT/tailscale.init"
 if MOCK_STANDALONE_ENABLED=1 \
 	"$PACKAGE_ROOT/root/usr/sbin/sbproxy_tailscale_helper" check; then
 	echo 'Conflict check unexpectedly succeeded with independent Tailscale enabled' >&2
 	exit 1
 fi
 
-echo 'Tailscale helper check test passed: clean state succeeds and independent service conflicts'
+rm -f "$TEST_ROOT/tailscale.init"
+if MOCK_STANDALONE_ENABLED=0 MOCK_STANDALONE_RUNNING=1 \
+	"$PACKAGE_ROOT/root/usr/sbin/sbproxy_tailscale_helper" check; then
+	echo 'Conflict check unexpectedly succeeded while tailscaled is running' >&2
+	exit 1
+fi
+
+echo 'Tailscale helper check test passed: stale config is ignored and installed or running services conflict'

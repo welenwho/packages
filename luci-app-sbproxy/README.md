@@ -32,12 +32,12 @@ service is running.
 
 ## Tailscale backends
 
-SBProxy does not replace `luci-app-tailscale` in this phase. The two backends use
-different state and OpenWrt object names, but they are mutually exclusive at runtime.
-Disable and stop the independent Tailscale service before enabling the embedded
-backend. SBProxy refuses to start embedded Tailscale when `tailscaled` is running,
-the independent service is enabled, or the configured interface is already owned by
-another service.
+This repository uses the embedded sing-box backend and no longer ships
+`luci-app-tailscale`. Existing independent installations remain mutually exclusive
+with the embedded backend. Disable and stop the independent Tailscale service before
+enabling it in SBProxy. Compatibility checks ignore a stale `/etc/config/tailscale`
+after the independent package has been removed, but still block startup when its init
+script is enabled or `tailscaled` is running.
 
 | Capability | Embedded sing-box backend | Independent tailscaled backend |
 | --- | --- | --- |
@@ -55,8 +55,8 @@ another service.
 | Posture reporting and native Tailscale web client | No | Yes |
 | Tailscale update checks, automatic core update, WireGuard batch tuning | No | Yes |
 
-The missing items have no corresponding sing-box Tailscale endpoint option. Keep the
-independent backend when any of them is required.
+The missing items have no corresponding sing-box Tailscale endpoint option. Install
+and maintain an external independent backend when any of them is required.
 
 ## Routing and firewall behavior
 

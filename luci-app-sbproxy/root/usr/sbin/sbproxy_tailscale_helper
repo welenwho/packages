@@ -10,6 +10,7 @@ IP_BIN="${SBPROXY_IP_BIN:-/sbin/ip}"
 STATE_FILE="${SBPROXY_TAILSCALE_MAGICDNS_STATE:-/etc/sbproxy/tailscale/magicdns_target}"
 ROUTE_STATE_FILE="${SBPROXY_TAILSCALE_ROUTE_STATE:-/var/run/sbproxy/tailscale_routes}"
 NAT_FILE="${SBPROXY_TAILSCALE_NAT_FILE:-/var/run/sbproxy/fw4_tailscale.nft}"
+STANDALONE_INIT="${SBPROXY_TAILSCALE_STANDALONE_INIT:-/etc/init.d/tailscale}"
 LOG_TAG="sbproxy-tailscale"
 FIREWALL_RUNTIME_CHANGED=0
 
@@ -127,8 +128,10 @@ auth_url() {
 standalone_conflict() {
 	local standalone_enabled
 
-	standalone_enabled="$(uci -q get tailscale.settings.enabled)"
-	[ "$standalone_enabled" != "1" ] || return 0
+	if [ -x "$STANDALONE_INIT" ]; then
+		standalone_enabled="$(uci -q get tailscale.settings.enabled)"
+		[ "$standalone_enabled" != "1" ] || return 0
+	fi
 	pidof tailscaled >"/dev/null" 2>&1 && return 0
 	return 1
 }
