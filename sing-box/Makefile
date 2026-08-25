@@ -148,6 +148,10 @@ else
   ))
 endif
 
+# x/net/http2 uses a stdlib-backed wrapper by default on Go 1.27, which omits
+# the private connPool symbol referenced by sing-box's v2ray HTTP transport.
+GO_PKG_TAGS:=http2legacy,$(GO_PKG_TAGS)
+
 define Package/sing-box/conffiles
 /etc/config/sing-box
 /etc/sing-box/
