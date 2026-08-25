@@ -5,6 +5,7 @@ set -eu
 PACKAGE_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 CLIENT="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client.js"
 GENERATOR="$PACKAGE_ROOT/root/etc/sbproxy/scripts/generate_client.uc"
+INIT="$PACKAGE_ROOT/root/etc/init.d/sbproxy"
 HELPER="$PACKAGE_ROOT/root/usr/sbin/sbproxy_tailscale_helper"
 RPC="$PACKAGE_ROOT/root/usr/share/rpcd/ucode/luci.sbproxy"
 ACL="$PACKAGE_ROOT/root/usr/share/rpcd/acl.d/luci-app-sbproxy.json"
@@ -43,6 +44,8 @@ test "$(readlink "$versioned_adaptive")" = \
 test "$(readlink "$versioned_client")" = \
 	'client.js'
 grep -Fq "type: 'tailscale'" "$GENERATOR"
+grep -A12 "const tailscale_endpoint = tailscale_enabled" "$GENERATOR" | grep -Fq "domain_resolver: {"
+grep -A14 "const tailscale_endpoint = tailscale_enabled" "$GENERATOR" | grep -Fq "server: 'default-dns'"
 grep -Fq "system_interface: true" "$GENERATOR"
 grep -Fq "inbound: tailscale_endpoint_tag" "$GENERATOR"
 grep -Fq "invert: true" "$GENERATOR"
@@ -55,7 +58,18 @@ grep -Fq 'firewall.sbproxy_tszone.masq 0' "$HELPER"
 grep -Fq 'iifname \"$INTERFACE_NAME\" oifname != \"$INTERFACE_NAME\" masquerade' "$HELPER"
 grep -Fq 'FIREWALL_RUNTIME_CHANGED' "$HELPER"
 grep -Fq 'uci_set_if_changed' "$HELPER"
-grep -Fq "return { enabled: false, running: false, code: 0, output: 'Disabled' }" "$RPC"
+grep -Fq 'standalone_conflict && fail "Independent Tailscale is enabled, running, or owns $INTERFACE_NAME."' "$HELPER"
+grep -A2 '^[[:space:]]*check)' "$HELPER" | grep -Fq 'exit 0'
+grep -Fq "backend_state: 'Disabled'" "$RPC"
+grep -Fq "parseTailscaleExitNodes" "$RPC"
+grep -Fq "[ 'tailscale', 'exit-node', 'list' ]" "$RPC"
+grep -Fq 'local routing_mode proxy_mode tailscale_enabled' "$INIT"
+grep -Fq '[ "$outbound_node" = "nil" ] || proxy_client_requested=1' "$INIT"
+grep -Fq '[ "$tailscale_enabled" = "0" ]; then' "$INIT"
+grep -Fq '[ "$outbound_node" != "nil" ] || [ "$tailscale_enabled" = "1" ]; then' "$INIT"
+grep -Fq '} else if (tailscale_enabled) {' "$GENERATOR"
+grep -A6 '} else if (tailscale_enabled) {' "$GENERATOR" | grep -Fq 'config.route.default_domain_resolver = {'
+grep -Fq "config.route.final = 'direct-out';" "$GENERATOR"
 
 if grep -Fq 'set firewall.sbproxy_tszone.masq=' "$HELPER"; then
 	echo 'Embedded Tailscale must not enable zone-wide masquerading' >&2

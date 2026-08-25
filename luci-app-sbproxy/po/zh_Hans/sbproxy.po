@@ -22,22 +22,18 @@ msgstr "%s 毫秒"
 msgid "%s nodes removed"
 msgstr "移除了 %s 个节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:374
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:394
 msgid "/etc/sbproxy/certs/..., /etc/acme/..., /etc/ssl/..."
 msgstr "/etc/sbproxy/certs/...，/etc/acme/...，/etc/ssl/..."
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:646
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1088
 msgid "4 or 6. Not limited if empty."
 msgstr "4 或 6。留空不限制。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:812
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1291
-msgid ""
-"<code>%s</code> will be temporarily overwritten to <code>%s</code> after 50 "
-"triggers in 30s if not enabled."
-msgstr ""
-"<code>%s</code> 在未启用的情况下，50 次触发后会在 30 秒内临时覆盖为 "
-"<code>%s</code>。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1254
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1733
+msgid "<code>%s</code> will be temporarily overwritten to <code>%s</code> after 50 triggers in 30s if not enabled."
+msgstr "<code>%s</code> 在未启用的情况下，50 次触发后会在 30 秒内临时覆盖为 <code>%s</code>。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1526
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1545
@@ -46,15 +42,19 @@ msgstr ""
 msgid "<strong>Save your configuration before uploading files!</strong>"
 msgstr "<strong>上传文件前请先保存配置！</strong>"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:236
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:256
 msgid "A proxy outbound is required."
 msgstr "必须选择一个代理出站。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:347
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:502
 msgid "A random available port is assigned on first installation."
 msgstr "首次安装时会随机分配一个可用端口。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:353
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:740
+msgid "ACL tags"
+msgstr "ACL 标签"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:508
 msgid "API secret"
 msgstr "API 密钥"
 
@@ -66,7 +66,15 @@ msgstr "API 令牌"
 msgid "Accept any if empty."
 msgstr "留空则不校验。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1481
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:659
+msgid "Accept routes"
+msgstr "接受路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:735
+msgid "Accept search domain"
+msgstr "接受搜索域"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1923
 msgid "Access Control"
 msgstr "访问控制"
 
@@ -78,25 +86,33 @@ msgstr "访问密钥 ID"
 msgid "Access key secret"
 msgstr "访问密钥 Secret"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:129
+msgid "Account"
+msgstr "账户"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:120
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:706
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1194
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1148
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1636
 msgid "Action"
 msgstr "操作"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:198
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:335
 msgid "AdGuard Public DNS (DoH)"
 msgstr "AdGuard 公共DNS (DoH)"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:191
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:195
 msgid "Adaptive Routing"
 msgstr "自适应路由"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1104
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:201
+msgid "Adaptive routing observes only traffic using the final default path. It learns proxy exceptions when the default is direct, and direct exceptions when the default is proxy. Manual routing rules keep priority."
+msgstr "自适应路由只观察最终使用默认路径的流量。默认直连时学习代理例外，默认代理时学习直连例外；手工路由规则保持更高优先级。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1546
 msgid "Add a DNS rule"
 msgstr "新增 DNS 规则"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:981
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1423
 msgid "Add a DNS server"
 msgstr "新增 DNS 服务器"
 
@@ -104,15 +120,15 @@ msgstr "新增 DNS 服务器"
 msgid "Add a node"
 msgstr "新增节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:440
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:871
 msgid "Add a routing node"
 msgstr "新增路由节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:613
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1055
 msgid "Add a routing rule"
 msgstr "新增路由规则"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1401
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1843
 msgid "Add a rule set"
 msgstr "新增规则集"
 
@@ -124,30 +140,50 @@ msgstr "新增服务器"
 msgid "Added at"
 msgstr "加入时间"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1023
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1465
 msgid "Additional headers to be sent to the DNS server."
 msgstr "发送到 DNS 服务器的附加标头。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1005
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:429
+msgid "Additional proxy ports"
+msgstr "额外代理端口"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1447
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:894
 msgid "Address"
 msgstr "地址"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:675
+msgid "Advertise exit node"
+msgstr "发布为出口节点"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:670
+msgid "Advertise subnets"
+msgstr "发布子网"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:618
 msgid "AliDNS"
 msgstr "AliDNS"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:236
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:373
 msgid "AliDNS Public DNS (DoH)"
 msgstr "阿里 公共DNS (DoH)"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:274
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:411
 msgid "All ports"
 msgstr "所有端口"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:714
+msgid "Allow LAN access with exit node"
+msgstr "使用出口节点时允许访问局域网"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:155
 msgid "Allow access from the Internet."
 msgstr "允许来自互联网的访问。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:235
+msgid "Allow direct exceptions in global mode"
+msgstr "允许全局模式产生直连例外"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1480
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1854
@@ -159,8 +195,7 @@ msgid "Allow insecure connection at TLS client."
 msgstr "允许 TLS 客户端侧的不安全连接。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1855
-msgid ""
-"Allow insecure connection by default when adding nodes from subscriptions."
+msgid "Allow insecure connection by default when adding nodes from subscriptions."
 msgstr "从订阅添加节点时，默认允许不安全连接。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1312
@@ -190,7 +225,7 @@ msgstr "备用 TLS 端口"
 msgid "An error occurred during updating subscriptions: %s."
 msgstr "更新订阅时发生错误：%s。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1308
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1750
 msgid "Answer"
 msgstr "应答"
 
@@ -203,16 +238,11 @@ msgstr "AnyTLS"
 msgid "AnyTLS padding scheme in array."
 msgstr "AnyTLS 填充方案。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:848
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:963
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1275
-msgid ""
-"Append a <code>edns0-subnet</code> OPT extra record with the specified IP "
-"prefix to every query by default.<br/>If value is an IP address instead of "
-"prefix, <code>/32</code> or <code>/128</code> will be appended automatically."
-msgstr ""
-"将带有指定 IP 前缀的 <code>edns0-subnet</code> OPT 记录附加到每个查询。如果值"
-"是 IP 地址而不是前缀，则会自动添加 <code>/32</code> 或 <code>/128</code>。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1290
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1405
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1717
+msgid "Append a <code>edns0-subnet</code> OPT extra record with the specified IP prefix to every query by default.<br/>If value is an IP address instead of prefix, <code>/32</code> or <code>/128</code> will be appended automatically."
+msgstr "将带有指定 IP 前缀的 <code>edns0-subnet</code> OPT 记录附加到每个查询。如果值是 IP 地址而不是前缀，则会自动添加 <code>/32</code> 或 <code>/128</code>。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1512
 msgid "Append self-signed certificate"
@@ -231,6 +261,18 @@ msgstr "应用"
 msgid "Are you sure to allow insecure?"
 msgstr "确定要允许不安全连接吗？"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:93
+msgid "Are you sure you want to log out of Tailscale on this device?"
+msgstr "确定要在此设备上退出 Tailscale 吗？"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:641
+msgid "Auth key"
+msgstr "认证密钥"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:646
+msgid "Auth key file"
+msgstr "认证密钥文件"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:339
 msgid "Auth timeout"
 msgstr "认证超时"
@@ -238,6 +280,10 @@ msgstr "认证超时"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1204
 msgid "Authenticated length"
 msgstr "认证长度"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:536
+msgid "Authentication"
+msgstr "认证"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:996
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:254
@@ -257,9 +303,17 @@ msgstr "自动更新"
 msgid "Auto update subscriptions and resources."
 msgstr "自动更新订阅和资源。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:465
+msgid "Auto-exclude Tailscale routes"
+msgstr "自动排除 Tailscale 路由"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1140
 msgid "BBR"
 msgstr "BBR"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:127
+msgid "Backend State"
+msgstr "后端状态"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:487
 msgid "Backend execution failed"
@@ -274,7 +328,7 @@ msgstr "百度"
 msgid "Base64"
 msgstr "Base64"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:333
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:488
 msgid "Based on Google/gVisor."
 msgstr "基于 Google/gVisor。"
 
@@ -282,23 +336,22 @@ msgstr "基于 Google/gVisor。"
 msgid "Bilibili"
 msgstr "哔哩哔哩"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1422
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1864
 msgid "Binary file"
 msgstr "二进制文件"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:488
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1494
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:919
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1936
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:852
 msgid "Bind interface"
 msgstr "绑定接口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1495
-msgid ""
-"Bind outbound traffic to specific interface. Leave empty to auto detect."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1937
+msgid "Bind outbound traffic to specific interface. Leave empty to auto detect."
 msgstr "绑定出站流量至指定端口。留空自动检测。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:654
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1154
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1096
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1596
 msgid "BitTorrent"
 msgstr "BitTorrent"
 
@@ -306,23 +359,27 @@ msgstr "BitTorrent"
 msgid "Blacklist mode"
 msgstr "黑名单模式"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:649
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:677
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1140
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1150
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1091
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1119
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1582
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1592
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:847
 msgid "Both"
 msgstr "全部"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:383
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:430
+msgid "Built-in common ports: %s. Add only ports or ranges that are not already listed."
+msgstr "内置常用端口：%s。只需添加列表中尚未包含的端口或端口范围。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:814
 msgid "Bypass CN traffic"
 msgstr "绕过中国流量"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:266
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:403
 msgid "Bypass mainland China"
 msgstr "大陆白名单"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:384
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:815
 msgid "Bypass mainland China traffic using sing-box routing rules."
 msgstr "使用 sing-box 路由规则绕过中国大陆流量。"
 
@@ -340,12 +397,16 @@ msgstr "CUBIC"
 msgid "Cancel"
 msgstr "取消"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:265
+msgid "Candidate trigger"
+msgstr "候选触发条件"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1517
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:734
 msgid "Certificate path"
 msgstr "证书路径"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:231
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:368
 msgid "China DNS server"
 msgstr "国内 DNS 服务器"
 
@@ -361,7 +422,11 @@ msgstr "国内 IPv6 列表"
 msgid "China domain rule set"
 msgstr "国内域名规则集"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:666
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:410
+msgid "Choose all ports, common ports, or enter a comma-separated custom list. A custom list replaces the common ports."
+msgstr "选择全部端口、常用端口，或输入以逗号分隔的自定义列表。自定义列表将替代常用端口。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1108
 msgid "Chromium / Cronet"
 msgstr "Chromium / Cronet"
 
@@ -370,7 +435,7 @@ msgstr "Chromium / Cronet"
 msgid "Cipher suites"
 msgstr "密码套件"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:200
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:337
 msgid "Cisco Public DNS (DoH)"
 msgstr "Cisco 公共DNS (DoH)"
 
@@ -382,7 +447,7 @@ msgstr "清空日志"
 msgid "Clear"
 msgstr "清空"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:171
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:175
 msgid "Clear all"
 msgstr "清空全部"
 
@@ -390,7 +455,7 @@ msgstr "清空全部"
 msgid "Clear learned rules"
 msgstr "清空已学习规则"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:664
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1106
 msgid "Client"
 msgstr "客户端"
 
@@ -406,36 +471,48 @@ msgstr "客户端版本"
 msgid "Cloudflare"
 msgstr "Cloudflare"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:195
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:332
 msgid "Cloudflare Public DNS (DoH)"
 msgstr "Cloudflare 公共DNS (DoH)"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:142
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:262
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:125
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:342
 msgid "Collecting data..."
 msgstr "正在收集数据中..."
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:275
-msgid "Common ports only (bypass P2P traffic)"
-msgstr "仅常用端口（绕过 P2P 流量）"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:412
+msgid "Common ports + additional ports"
+msgstr "常用端口 + 额外端口"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:241
+msgid "Comparison proxy outbound"
+msgstr "对比代理出站"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1136
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:330
 msgid "Congestion control algorithm"
 msgstr "拥塞控制算法"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:103
+msgid "Connected"
+msgstr "已连接"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:160
 msgid "Connection Status"
 msgstr "连接状态"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:283
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:320
 msgid "Connection polling interval (seconds)"
 msgstr "连接轮询间隔（秒）"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:57
 msgid "Connectivity"
 msgstr "通断"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:624
+msgid "Control server"
+msgstr "控制服务器"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1805
 msgid "Cron expression"
@@ -445,31 +522,32 @@ msgstr "定时任务表达式"
 msgid "Cron expression online generator"
 msgstr "cron表达式在线生成"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:267
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:404
 msgid "Custom routing"
 msgstr "自定义路由"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:655
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1097
 msgid "DNS"
 msgstr "DNS"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1104
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1546
 msgid "DNS Rule"
 msgstr "DNS 规则"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1095
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1537
 msgid "DNS Rules"
 msgstr "DNS 规则"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:981
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1423
 msgid "DNS Server"
 msgstr "DNS 服务器"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:972
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1414
 msgid "DNS Servers"
 msgstr "DNS 服务器"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:921
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:533
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1363
 msgid "DNS Settings"
 msgstr "DNS 设置"
 
@@ -477,18 +555,18 @@ msgstr "DNS 设置"
 msgid "DNS provider"
 msgstr "DNS 提供商"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:840
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:957
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1265
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1282
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1399
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1707
 msgid "DNS query timeout"
 msgstr "DNS 查询超时"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:192
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:786
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:329
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1228
 msgid "DNS server"
 msgstr "DNS 服务器"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1226
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1668
 msgid "DNS server used to obtain the response before response matching."
 msgstr "在匹配响应前用于获取 DNS 响应的服务器。"
 
@@ -496,16 +574,16 @@ msgstr "在匹配响应前用于获取 DNS 响应的服务器。"
 msgid "DNS-01 challenge"
 msgstr "DNS-01 质询"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:199
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:336
 msgid "DNS.SB Public DNS (DoH)"
 msgstr "DNS.SB 公共DNS (DoH)"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:656
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1155
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1098
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1597
 msgid "DTLS"
 msgstr "DTLS"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:149
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:269
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:184
 msgid "Dashboard"
 msgstr "仪表盘"
@@ -515,11 +593,11 @@ msgid "Debug"
 msgstr "调试"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:24
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:468
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:640
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:792
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1131
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1462
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:899
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1082
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1234
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1573
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1904
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1148
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1490
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1498
@@ -528,43 +606,51 @@ msgstr "调试"
 msgid "Default"
 msgstr "默认"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:417
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:469
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:793
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:936
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1043
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1211
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1231
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:848
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:900
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1235
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1378
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1485
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1653
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1673
 msgid "Default DNS (issued by WAN)"
 msgstr "默认 DNS（由 WAN 下发）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:931
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1373
 msgid "Default DNS server"
 msgstr "默认 DNS 服务器"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:412
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:843
 msgid "Default DNS server for resolving domain name in the server address."
 msgstr "用于解析服务器地址中的域名的默认 DNS 服务器。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:926
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1368
 msgid "Default DNS strategy"
 msgstr "默认 DNS 解析策略"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:392
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:823
 msgid "Default outbound"
 msgstr "默认出站"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:411
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:842
 msgid "Default outbound DNS"
 msgstr "默认出站 DNS"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:393
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:824
 msgid "Default outbound for connections not matched by any routing rules."
 msgstr "用于未被任何路由规则匹配的连接的默认出站。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1861
 msgid "Default packet encoding"
 msgstr "默认包封装格式"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:301
+msgid "Default path latency threshold (ms)"
+msgstr "默认路径延迟阈值（毫秒）"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:160
+msgid "Default path: %s; learned target: %s"
+msgstr "默认路径：%s；学习目标：%s"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:584
 msgid "Default server name"
@@ -579,54 +665,53 @@ msgstr "删除"
 msgid "Delete learned rule"
 msgstr "删除已学习规则"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:300
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:309
-msgid ""
-"Destinations excluded from TUN automatic redirect and handled by system "
-"routing. Applies to all routing modes."
-msgstr ""
-"从 TUN 自动重定向中排除并交由系统路由处理的目标地址。适用于所有路由模式。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:448
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:457
+msgid "Destinations excluded from TUN automatic redirect and handled by system routing. Applies to all routing modes."
+msgstr "从 TUN 自动重定向中排除并交由系统路由处理的目标地址。适用于所有路由模式。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:202
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:209
 msgid "Detection"
 msgstr "探测"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:159
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:163
 msgid "Detection paused due to router load."
 msgstr "路由器负载较高，已暂停探测。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:562
+msgid "Device name"
+msgstr "设备名称"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:113
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:399
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:501
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:721
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1081
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1463
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:161
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:162
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:830
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:932
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1163
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1523
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1905
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:874
 msgid "Direct"
 msgstr "直连"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1587
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:2029
 msgid "Direct Domain List"
 msgstr "直连域名列表"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1506
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1545
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1948
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1987
 msgid "Direct IPv4 addresses"
 msgstr "直连 IPv4 地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1549
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1991
 msgid "Direct IPv6 addresses"
 msgstr "直连 IPv6 地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1503
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1945
 msgid "Direct MAC addresses"
 msgstr "直连 MAC 地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:268
-msgid "Direct latency threshold (ms)"
-msgstr "直连延迟阈值（毫秒）"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:153
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:274
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:990
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1003
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1555
@@ -636,17 +721,17 @@ msgstr "直连延迟阈值（毫秒）"
 msgid "Disable"
 msgstr "禁用"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:398
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:829
 msgid "Disable (the service)"
 msgstr "禁用（服务）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:824
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:948
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1243
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1266
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1390
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1685
 msgid "Disable DNS cache"
 msgstr "禁用 DNS 缓存"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:825
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1267
 msgid "Disable DNS cache in this query."
 msgstr "在本次查询中禁用 DNS 缓存。"
 
@@ -654,29 +739,45 @@ msgstr "在本次查询中禁用 DNS 缓存。"
 msgid "Disable HTTP challenge"
 msgstr "禁用 HTTP 质询"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:771
+msgid "Disable SFTP"
+msgstr "禁用 SFTP"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:686
+msgid "Disable SNAT for traffic forwarded from Tailscale. LAN devices must have a return route to the Tailnet address ranges."
+msgstr "禁用从 Tailscale 转发流量的 SNAT。局域网设备必须具有返回 Tailnet 地址范围的路由。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:766
+msgid "Disable SSH PTY"
+msgstr "禁用 SSH PTY"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:776
+msgid "Disable SSH forwarding"
+msgstr "禁用 SSH 转发"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:652
 msgid "Disable TLS ALPN challenge"
 msgstr "禁用 TLS-ALPN 质询"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:747
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1189
 msgid "Disable UDP domain unmapping"
 msgstr "禁用 UDP 域名反向映射"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1244
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1686
 msgid "Disable cache and save cache in this query."
 msgstr "在本次查询中禁用缓存。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:950
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1392
 msgid "Disable cache expire"
 msgstr "缓存永不过期"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:829
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1250
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1271
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1692
 msgid "Disable optimistic DNS cache"
 msgstr "禁用乐观 DNS 缓存"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:830
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1251
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1272
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1693
 msgid "Disable optimistic DNS caching in this query."
 msgstr "在本次查询中禁用乐观 DNS 缓存。"
 
@@ -685,60 +786,64 @@ msgstr "在本次查询中禁用乐观 DNS 缓存。"
 msgid "Disable path MTU discovery"
 msgstr "禁用路径 MTU 发现"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:558
+msgid "Disable the independent Tailscale service before enabling the embedded backend."
+msgstr "启用嵌入式后端前，请先禁用独立 Tailscale 服务。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:123
+msgid "Disabled"
+msgstr "已禁用"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1043
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:297
-msgid ""
-"Disables Path MTU Discovery (RFC 8899). Packets will then be at most 1252 "
-"(IPv4) / 1232 (IPv6) bytes in size."
-msgstr ""
-"禁用路径 MTU 发现（RFC 8899）。数据包的大小最多为 1252（IPv4）/ 1232（IPv6）"
-"字节。"
+msgid "Disables Path MTU Discovery (RFC 8899). Packets will then be at most 1252 (IPv4) / 1232 (IPv6) bytes in size."
+msgstr "禁用路径 MTU 发现（RFC 8899）。数据包的大小最多为 1252（IPv4）/ 1232（IPv6）字节。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:102
 msgid "Domain"
 msgstr "域名"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:863
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1332
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1305
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1774
 msgid "Domain keyword"
 msgstr "域名关键词"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:867
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1336
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1309
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1778
 msgid "Domain regex"
 msgstr "域名正则表达式"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:462
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1036
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:893
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1478
 msgid "Domain resolver"
 msgstr "域名解析器"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:387
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:481
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1068
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:818
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:912
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1510
 msgid "Domain strategy"
 msgstr "域名解析策略"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:818
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1260
 msgid "Domain strategy for resolving the domain names."
 msgstr "目标域名的解析策略。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:859
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1328
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1301
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1770
 msgid "Domain suffix"
 msgstr "域名后缀"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:854
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1323
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1296
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1765
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:578
 msgid "Domains"
 msgstr "域名"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:811
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1253
 msgid "Don't drop packets"
 msgstr "不丢弃数据包"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1290
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1732
 msgid "Don't drop requests"
 msgstr "不丢弃请求"
 
@@ -752,50 +857,35 @@ msgstr "下载带宽"
 msgid "Download bandwidth in Mbps."
 msgstr "下载带宽（单位：Mbps）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:807
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:813
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1249
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1255
 msgid "Drop packets"
 msgstr "丢弃数据包"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1285
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1292
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1727
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1734
 msgid "Drop requests"
 msgstr "丢弃请求"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1845
-msgid ""
-"Drop/keep nodes that contain the specific keywords. <a target=\"_blank\" "
-"href=\"https://www.toolbox365.cn/tools/regex/\">Regex</a> is supported."
-msgstr ""
-"丢弃/保留包含指定关键词的节点。支持<a target=\"_blank\" href=\"https://www."
-"toolbox365.cn/tools/regex/\">正则表达式</a>。"
+msgid "Drop/keep nodes that contain the specific keywords. <a target=\"_blank\" href=\"https://www.toolbox365.cn/tools/regex/\">Regex</a> is supported."
+msgstr "丢弃/保留包含指定关键词的节点。支持<a target=\"_blank\" href=\"https://www.toolbox365.cn/tools/regex/\">正则表达式</a>。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1837
 msgid "Drop/keep specific nodes from subscriptions."
 msgstr "从订阅中丢弃/保留指定节点。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:224
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:231
 msgid "Dry-run"
 msgstr "试运行"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:669
-msgid ""
-"EAB (External Account Binding) contains information necessary to bind or map "
-"an ACME account to some other account known by the CA.<br/>External account "
-"bindings are \"used to associate an ACME account with an existing account in "
-"a non-ACME system, such as a CA customer database."
-msgstr ""
-"EAB（外部账户绑定）包含将 ACME 账户绑定或映射到 CA 已知的其他账户所需的信息。"
-"<br/>外部账户绑定“用于将 ACME 账户与非 ACME 系统中的现有账户相关联，例如 CA "
-"客户数据库”。"
+msgid "EAB (External Account Binding) contains information necessary to bind or map an ACME account to some other account known by the CA.<br/>External account bindings are \"used to associate an ACME account with an existing account in a non-ACME system, such as a CA customer database."
+msgstr "EAB（外部账户绑定）包含将 ACME 账户绑定或映射到 CA 已知的其他账户所需的信息。<br/>外部账户绑定“用于将 ACME 账户与非 ACME 系统中的现有账户相关联，例如 CA 客户数据库”。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1534
-msgid ""
-"ECH (Encrypted Client Hello) is a TLS extension that allows a client to "
-"encrypt the first part of its ClientHello message."
-msgstr ""
-"ECH（Encrypted Client Hello）是一个 TLS 扩展，它允许客户端加密其 ClientHello "
-"消息的第一部分。"
+msgid "ECH (Encrypted Client Hello) is a TLS extension that allows a client to encrypt the first part of its ClientHello message."
+msgstr "ECH（Encrypted Client Hello）是一个 TLS 扩展，它允许客户端加密其 ClientHello 消息的第一部分。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1549
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:813
@@ -810,9 +900,9 @@ msgstr "ECH 配置路径"
 msgid "ECH key"
 msgstr "ECH 密钥"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:847
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:962
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1274
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1289
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1404
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1716
 msgid "EDNS Client subnet"
 msgstr "EDNS 客户端子网"
 
@@ -838,12 +928,12 @@ msgstr "编辑节点"
 msgid "Email"
 msgstr "电子邮件"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:220
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:449
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:627
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:990
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1118
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1410
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:227
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:880
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1069
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1432
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1560
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1852
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:131
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:149
 msgid "Enable"
@@ -851,13 +941,8 @@ msgstr "启用"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1160
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:347
-msgid ""
-"Enable 0-RTT QUIC connection handshake on the client side. This is not "
-"impacting much on the performance, as the protocol is fully multiplexed.<br/"
-">Disabling this is highly recommended, as it is vulnerable to replay attacks."
-msgstr ""
-"在客户端启用 0-RTT QUIC 连接握手。由于协议是完全复用的，这对性能影响不大。"
-"<br/>强烈建议禁用此功能，因为它容易受到重放攻击。"
+msgid "Enable 0-RTT QUIC connection handshake on the client side. This is not impacting much on the performance, as the protocol is fully multiplexed.<br/>Disabling this is highly recommended, as it is vulnerable to replay attacks."
+msgstr "在客户端启用 0-RTT QUIC 连接握手。由于协议是完全复用的，这对性能影响不大。<br/>强烈建议禁用此功能，因为它容易受到重放攻击。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1159
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:346
@@ -887,22 +972,29 @@ msgstr "启用 TCP Brutal 拥塞控制算法。"
 msgid "Enable UDP fragmentation."
 msgstr "启用 UDP 分片。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:342
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:497
 msgid "Enable dashboard"
 msgstr "启用仪表盘"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:548
+msgid "Enable embedded Tailscale"
+msgstr "启用嵌入式 Tailscale"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1418
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:483
 msgid "Enable padding"
 msgstr "启用填充"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:745
+msgid "Enable peer relay"
+msgstr "启用对等中继"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:824
 msgid "Enable tcp fast open for listener."
 msgstr "为监听器启用 TCP 快速打开。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1612
-msgid ""
-"Enable the SUoT protocol, requires server support. Conflict with multiplex."
+msgid "Enable the SUoT protocol, requires server support. Conflict with multiplex."
 msgstr "启用 SUoT 协议，需要服务端支持。与多路复用冲突。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1050
@@ -911,53 +1003,76 @@ msgstr "启用 SUoT 协议，需要服务端支持。与多路复用冲突。"
 msgid "Encrypt method"
 msgstr "加密方式"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:567
+msgid "Enter a Tailscale IP address, machine name, or MagicDNS name."
+msgstr "输入 Tailscale IP 地址、设备名称或 MagicDNS 名称。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:582
+msgid "Enter a peer test target first."
+msgstr "请先输入对等节点测试目标。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:654
+msgid "Ephemeral node"
+msgstr "临时节点"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:499
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:305
 msgid "Error"
 msgstr "错误"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1196
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1638
 msgid "Evaluate"
 msgstr "预查询"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1187
-msgid ""
-"Evaluate the query with the selected server before matching response "
-"addresses or IP rule sets."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1629
+msgid "Evaluate the query with the selected server before matching response addresses or IP rule sets."
 msgstr "在匹配响应地址或 IP 规则集前，先使用所选服务器查询 DNS 响应。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1225
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1667
 msgid "Evaluation server"
 msgstr "预查询服务器"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:251
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:281
 msgid "Excluded domain suffixes"
 msgstr "排除的域名后缀"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:332
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:366
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:374
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:392
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:401
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:406
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:415
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:424
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:130
+msgid "Exit Node in Use"
+msgstr "正在使用的出口节点"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:352
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:386
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:394
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:412
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:421
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:426
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:209
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:221
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:225
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:244
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:255
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:259
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:282
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:539
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:553
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:556
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1438
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1443
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1446
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1580
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1611
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:435
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:444
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:446
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:297
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:346
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:358
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:362
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:381
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:392
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:396
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:419
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:437
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:572
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:596
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:604
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:635
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:637
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:651
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:791
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:974
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:995
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:998
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1880
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1885
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1888
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:2022
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:2053
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:934
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1571
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1768
@@ -981,7 +1096,11 @@ msgstr "外部账户绑定"
 msgid "External account key ID"
 msgstr "外部账户密钥标识符"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1318
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:537
+msgid "Extra Settings"
+msgstr "高级设置"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1760
 msgid "Extra records"
 msgstr "附加记录"
 
@@ -1001,13 +1120,17 @@ msgstr "删除已学习规则失败。"
 msgid "Failed to generate %s, error: %s."
 msgstr "生成 %s 失败，错误：%s。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:46
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:47
 msgid "Failed to save domain list."
 msgstr "保存域名列表失败。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:356
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:376
 msgid "Failed to upload %s, error: %s."
 msgstr "上传 %s 失败，错误：%s。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:267
+msgid "Failures only"
+msgstr "仅连接失败"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:306
 msgid "Fatal"
@@ -1021,7 +1144,7 @@ msgstr "过滤关键词"
 msgid "Filter nodes"
 msgstr "过滤节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:667
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1109
 msgid "Firefox / uquic firefox"
 msgstr "Firefox / uquic firefox"
 
@@ -1038,24 +1161,31 @@ msgstr "首次出现"
 msgid "Flow"
 msgstr "流控"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:463
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:894
 msgid "For resolving domain name in the server address."
 msgstr "用于解析服务器地址中的域名。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1421
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1863
 msgid "Format"
 msgstr "格式"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:767
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:729
+msgid "Forward MagicDNS"
+msgstr "转发 MagicDNS"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:730
+msgid "Forward Tailnet DNS names through the sing-box Tailscale DNS transport without replacing OpenWrt system DNS."
+msgstr "通过 sing-box Tailscale DNS 传输转发 Tailnet 域名，而不替换 OpenWrt 系统 DNS。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1209
 msgid "Fragment TLS handshake into multiple TLS records."
 msgstr "将 TLS 握手分片为多个 TLS 记录。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:773
-msgid ""
-"Fragment TLS handshakes. Due to poor performance, try <code>%s</code> first."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1215
+msgid "Fragment TLS handshakes. Due to poor performance, try <code>%s</code> first."
 msgstr "分片 TLS 握手。由于性能较差，请先尝试 <code>%s</code>。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:779
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1221
 msgid "Fragment fallback delay"
 msgstr "分片回退延迟"
 
@@ -1063,7 +1193,8 @@ msgstr "分片回退延迟"
 msgid "GET"
 msgstr "GET"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:199
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:206
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:531
 msgid "General Settings"
 msgstr "常规设置"
 
@@ -1077,7 +1208,7 @@ msgstr "生成"
 msgid "GitHub"
 msgstr "GitHub"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:268
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:405
 msgid "Global"
 msgstr "全局"
 
@@ -1093,16 +1224,16 @@ msgstr "全局填充"
 msgid "Google"
 msgstr "Google"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:196
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:333
 msgid "Google Public DNS (DoH)"
 msgstr "Google 公共DNS (DoH)"
 
 #: luci-app-sbproxy/root/usr/share/rpcd/acl.d/luci-app-sbproxy.json:3
-msgid "Grant access to sbproxy configuration"
+msgid "Grant access to SBProxy configuration"
 msgstr "授予访问 SBProxy 配置的权限"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:657
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1156
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1099
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1598
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:876
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1215
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:160
@@ -1110,17 +1241,15 @@ msgstr "授予访问 SBProxy 配置的权限"
 msgid "HTTP"
 msgstr "HTTP"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1000
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1442
 msgid "HTTP/3"
 msgstr "HTTP/3"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:308
-msgid ""
-"HTTP/3 server behavior when authentication fails.<br/>A 404 page will be "
-"returned if empty."
+msgid "HTTP/3 server behavior when authentication fails.<br/>A 404 page will be returned if empty."
 msgstr "身份验证失败时的 HTTP/3 服务器响应。留空时返回 404 页面。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:999
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1441
 msgid "HTTPS"
 msgstr "HTTPS"
 
@@ -1137,7 +1266,7 @@ msgstr "握手服务器地址"
 msgid "Handshake server port"
 msgstr "握手服务器端口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1022
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1464
 msgid "Headers"
 msgstr "标头"
 
@@ -1145,20 +1274,6 @@ msgstr "标头"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:352
 msgid "Heartbeat interval"
 msgstr "心跳间隔"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:64
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:66
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:115
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:411
-#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:3
-msgid "SBProxy"
-msgstr "SBProxy"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:41
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:43
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:112
-msgid "SBProxy Server"
-msgstr "SBProxy 服务端"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:972
 msgid "Hop interval"
@@ -1185,15 +1300,13 @@ msgstr "主机密钥"
 msgid "Host key algorithms"
 msgstr "主机密钥算法"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:618
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1109
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1060
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1551
 msgid "Host/IP Fields"
 msgstr "主机/IP 字段"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:340
-msgid ""
-"How long the server should wait for the client to send the authentication "
-"command (in seconds)."
+msgid "How long the server should wait for the client to send the authentication command (in seconds)."
 msgstr "服务器等待客户端发送认证命令的时间（单位：秒）。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:878
@@ -1206,29 +1319,29 @@ msgstr "Hysteria"
 msgid "Hysteria2"
 msgstr "Hysteria2"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:879
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1348
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1321
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1790
 msgid "IP CIDR"
 msgstr "IP CIDR"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:645
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1137
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1087
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1579
 msgid "IP version"
 msgstr "IP 版本"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:100
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:647
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1138
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1089
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1580
 msgid "IPv4"
 msgstr "IPv4"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1507
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1546
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1949
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1988
 msgid "IPv4 addresses in this option are forced to use global direct routing."
 msgstr "该选项中的 IPv4 地址将强制走全局直连。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1516
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1526
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1958
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1968
 msgid "IPv4 addresses in this option are forced to use global proxy routing."
 msgstr "该选项中的 IPv4 地址将强制走全局代理。"
 
@@ -1237,16 +1350,16 @@ msgid "IPv4 only"
 msgstr "仅 IPv4"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:101
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:648
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1139
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1090
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1581
 msgid "IPv6"
 msgstr "IPv6"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1550
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1992
 msgid "IPv6 addresses in this option are forced to use global direct routing."
 msgstr "该选项中的 IPv6 地址将强制走全局直连。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1533
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1975
 msgid "IPv6 addresses in this option are forced to use global proxy routing."
 msgstr "该选项中的 IPv6 地址将强制走全局代理。"
 
@@ -1254,7 +1367,7 @@ msgstr "该选项中的 IPv6 地址将强制走全局代理。"
 msgid "IPv6 only"
 msgstr "仅 IPv6"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:338
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:493
 msgid "IPv6 support"
 msgstr "IPv6 支持"
 
@@ -1266,50 +1379,35 @@ msgstr "空闲会话检查间隔"
 msgid "Idle session check timeout"
 msgstr "空闲会话检查超时"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:588
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1030
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1285
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:432
 msgid "Idle timeout"
 msgstr "空闲超时"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:754
-msgid ""
-"If enabled, attempts to connect UDP connection to the destination instead of "
-"listen."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1196
+msgid "If enabled, attempts to connect UDP connection to the destination instead of listen."
 msgstr "如果启用，尝试主动连接到目标的 UDP 而不是监听。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:748
-msgid ""
-"If enabled, for UDP proxy requests addressed to a domain, the original "
-"packet address will be sent in the response instead of the mapped domain."
-msgstr ""
-"如果启用，对于发送到域名的 UDP 代理请求，响应中将发送原始数据包地址而不是映射"
-"的域名。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1190
+msgid "If enabled, for UDP proxy requests addressed to a domain, the original packet address will be sent in the response instead of the mapped domain."
+msgstr "如果启用，对于发送到域名的 UDP 代理请求，响应中将发送原始数据包地址而不是映射的域名。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1257
-msgid ""
-"If enabled, the client transport sends keepalive pings even with no active "
-"connections."
+msgid "If enabled, the client transport sends keepalive pings even with no active connections."
 msgstr "如果启用，客户端传输即使没有活动连接也会发送 keepalive ping。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:388
-msgid ""
-"If set, the requested domain name will be resolved to IP before routing."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:819
+msgid "If set, the requested domain name will be resolved to IP before routing."
 msgstr "如果设置，请求的域名将在路由前被解析为 IP 地址。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1242
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:401
-msgid ""
-"If the transport doesn't see any activity after a duration of this time (in "
-"seconds), it pings the client to check if the connection is still active."
-msgstr ""
-"如果传输在此时间段（单位：秒）后没有看到任何活动，它会向客户端发送 ping 请求"
-"以检查连接是否仍然活动。"
+msgid "If the transport doesn't see any activity after a duration of this time (in seconds), it pings the client to check if the connection is still active."
+msgstr "如果传输在此时间段（单位：秒）后没有看到任何活动，它会向客户端发送 ping 请求以检查连接是否仍然活动。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1513
-msgid ""
-"If you have the root certificate, use this option instead of allowing "
-"insecure."
+msgid "If you have the root certificate, use this option instead of allowing insecure."
 msgstr "如果你拥有根证书，使用此选项而不是允许不安全连接。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:302
@@ -1326,7 +1424,7 @@ msgstr "导入"
 msgid "Import share links"
 msgstr "导入分享链接"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:377
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:808
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:838
 msgid "In seconds."
 msgstr "单位：秒。"
@@ -1336,31 +1434,41 @@ msgid "In seconds. Disabled by default."
 msgstr "单位：秒。默认禁用。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:958
-msgid ""
-"In the check, at least the first <code>n</code> idle sessions are kept open."
+msgid "In the check, at least the first <code>n</code> idle sessions are kept open."
 msgstr "在检查中，至少保持前 <code>n</code> 个空闲会话处于打开状态。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:951
-msgid ""
-"In the check, close sessions that have been idle for longer than this, in "
-"seconds."
+msgid "In the check, close sessions that have been idle for longer than this, in seconds."
 msgstr "在检查中，关闭空闲时间超过此值的会话（单位：秒）。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:301
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:981
+msgid "Include all current and future nodes from the selected subscriptions."
+msgstr "包含所选订阅当前及后续新增的全部节点。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:303
 msgid "Info"
 msgstr "信息"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1487
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:665
+msgid "Install explicit OpenWrt routes through the embedded Tailscale interface."
+msgstr "通过嵌入式 Tailscale 接口安装明确指定的 OpenWrt 路由。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1929
 msgid "Interface Control"
 msgstr "接口管控"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:185
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:595
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:607
+msgid "Interface MTU"
+msgstr "接口 MTU"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:322
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1037
 msgid "Interrupt existing connections"
 msgstr "中断现有连接"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:186
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:596
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:323
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1038
 msgid "Interrupt existing connections when the selected outbound has changed."
 msgstr "当选择的出站发生变化时中断现有连接。"
 
@@ -1370,12 +1478,10 @@ msgstr "空闲会话检查间隔（单位：秒）。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1166
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:353
-msgid ""
-"Interval for sending heartbeat packets for keeping the connection alive (in "
-"seconds)."
+msgid "Interval for sending heartbeat packets for keeping the connection alive (in seconds)."
 msgstr "发送心跳包以保持连接存活的时间间隔（单位：秒）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:131
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:246
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:493
 msgid "Invalid node"
 msgstr "无效节点"
@@ -1384,13 +1490,13 @@ msgstr "无效节点"
 msgid "Invalid response"
 msgstr "无效响应"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:702
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1190
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1144
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1632
 msgid "Invert"
 msgstr "反转"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:703
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1191
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1145
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1633
 msgid "Invert match result."
 msgstr "反转匹配结果。"
 
@@ -1398,19 +1504,31 @@ msgstr "反转匹配结果。"
 msgid "JD"
 msgstr "京东"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:466
+msgid "Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when SBProxy reloads; default routes are ignored so exit-node traffic can still use SBProxy rules."
+msgstr "让活动的 Tailnet 地址与对等子网继续走 tailscale0。SBProxy 重载时会发现新增的 Tailscale 路由；默认路由会被忽略，因此出口节点流量仍可使用 SBProxy 分流规则。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:715
+msgid "Keep direct access to local LAN subnets while using an exit node."
+msgstr "使用出口节点时保留对本地 LAN 子网的直接访问。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:753
 msgid "Key path"
 msgstr "密钥路径"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1501
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1943
 msgid "LAN IP Policy"
 msgstr "LAN 口策略"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:444
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:622
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:985
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1113
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1405
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:724
+msgid "LAN access Tailscale"
+msgstr "本地局域网访问虚拟局域网"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:875
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1064
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1427
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1555
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1847
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:867
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:143
 msgid "Label"
@@ -1425,20 +1543,20 @@ msgstr "最后出现"
 msgid "Latency"
 msgstr "延迟"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:200
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:207
 msgid "Learned Rules"
 msgstr "已学习规则"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:625
+msgid "Leave blank for the official Tailscale control plane, or enter a Headscale URL."
+msgstr "留空使用官方 Tailscale 控制平面，也可以输入 Headscale URL。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1181
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:368
-msgid ""
-"Legacy protocol support (VMess MD5 Authentication) is provided for "
-"compatibility purposes only, use of alterId > 1 is not recommended."
-msgstr ""
-"提供旧协议支持（VMess MD5 身份验证）仅出于兼容性目的，不建议使用 alterId > "
-"1。"
+msgid "Legacy protocol support (VMess MD5 Authentication) is provided for compatibility purposes only, use of alterId > 1 is not recommended."
+msgstr "提供旧协议支持（VMess MD5 身份验证）仅出于兼容性目的，不建议使用 alterId > 1。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:335
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:490
 msgid "Less compatibility and sometimes better performance."
 msgstr "有时性能更好。"
 
@@ -1447,29 +1565,23 @@ msgid "Let's Encrypt"
 msgstr "Let's Encrypt"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1335
-msgid ""
-"List of IP (v4 or v6) addresses prefixes to be assigned to the interface."
+msgid "List of IP (v4 or v6) addresses prefixes to be assigned to the interface."
 msgstr "分配给接口的 IP（v4 或 v6）地址前缀列表。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:164
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:532
-msgid "List of nodes to test."
-msgstr "要测试的节点列表。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1476
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:544
 msgid "List of supported application level protocols, in order of preference."
 msgstr "支持的应用层协议列表，按优先级排序。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1309
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1751
 msgid "List of text DNS record to respond as answers."
 msgstr "要响应的 DNS 记录列表。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1319
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1761
 msgid "List of text DNS record to respond as extra records."
 msgstr "要响应的附加 DNS 记录列表。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1314
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1756
 msgid "List of text DNS record to respond as name servers."
 msgstr "作为域名服务器（NS）应答的 DNS 记录列表。"
 
@@ -1477,11 +1589,11 @@ msgstr "作为域名服务器（NS）应答的 DNS 记录列表。"
 msgid "Listen address"
 msgstr "监听地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1489
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1931
 msgid "Listen interfaces"
 msgstr "监听接口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:346
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:501
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:181
 msgid "Listen port"
 msgstr "监听端口"
@@ -1490,7 +1602,7 @@ msgstr "监听端口"
 msgid "Loading"
 msgstr "加载中"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1416
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1858
 msgid "Local"
 msgstr "本地"
 
@@ -1506,11 +1618,19 @@ msgstr "日志文件不存在。"
 msgid "Log is empty."
 msgstr "日志为空。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1504
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:91
+msgid "Log out"
+msgstr "退出登录"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:98
+msgid "Logout failed."
+msgstr "退出登录失败。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1946
 msgid "MAC addresses in this option are forced to use global direct routing."
 msgstr "该选项中的 MAC 地址将强制走全局直连。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1510
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1952
 msgid "MAC addresses in this option are forced to use global proxy routing."
 msgstr "该选项中的 MAC 地址将强制走全局代理。"
 
@@ -1518,120 +1638,124 @@ msgstr "该选项中的 MAC 地址将强制走全局代理。"
 msgid "MTU"
 msgstr "MTU"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:152
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:273
 msgid "Main node"
 msgstr "主节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:699
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1141
 msgid "Make IP CIDR in rule set used to match the source IP."
 msgstr "使规则集中的 IP CIDR 用于匹配源 IP。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1183
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1625
 msgid "Make IP CIDR in rule sets match the source IP."
 msgstr "使规则集中的 IP CIDR 匹配源 IP。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:285
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:963
+msgid "Manually selected nodes to test."
+msgstr "手动选择要测速的节点。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:307
 msgid "Masquerade"
 msgstr "伪装"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1186
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1628
 msgid "Match DNS response"
 msgstr "匹配 DNS 响应"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1349
-msgid ""
-"Match IP CIDR with query response. Current rule will be skipped if not match."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1791
+msgid "Match IP CIDR with query response. Current rule will be skipped if not match."
 msgstr "使用查询响应匹配 IP CIDR。如果不匹配，则跳过当前规则。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:880
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1322
 msgid "Match IP CIDR."
 msgstr "匹配 IP CIDR。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:860
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1329
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1302
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1771
 msgid "Match domain suffix."
 msgstr "匹配域名后缀。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:864
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1333
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1306
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1775
 msgid "Match domain using keyword."
 msgstr "使用关键词匹配域名。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:868
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1337
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1310
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1779
 msgid "Match domain using regular expression."
 msgstr "使用正则表达式匹配域名。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:855
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1324
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1297
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1766
 msgid "Match full domain."
 msgstr "匹配完整域名。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:903
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1373
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1345
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1815
 msgid "Match port range. Format as START:/:END/START:END."
 msgstr "匹配端口范围。格式为 START:/:END/START:END。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:898
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1368
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1340
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1810
 msgid "Match port."
 msgstr "匹配端口。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:884
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1353
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1326
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1795
 msgid "Match private IP"
 msgstr "匹配私有 IP"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1354
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1796
 msgid "Match private IP with query response."
 msgstr "使用查询响应匹配私有 IP。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:876
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1345
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1318
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1787
 msgid "Match private source IP"
 msgstr "匹配私有源 IP"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:908
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1378
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1350
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1820
 msgid "Match process name."
 msgstr "匹配进程名。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:916
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1386
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1358
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1828
 msgid "Match process path using regular expression."
 msgstr "使用正则表达式匹配进程路径。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:912
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1382
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1354
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1824
 msgid "Match process path."
 msgstr "匹配进程路径。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1144
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1586
 msgid "Match query type."
 msgstr "匹配请求类型。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:684
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1168
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1126
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1610
 msgid "Match rule set."
 msgstr "匹配规则集。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:872
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1341
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1314
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1783
 msgid "Match source IP CIDR."
 msgstr "匹配源 IP CIDR。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:893
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1363
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1335
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1805
 msgid "Match source port range. Format as START:/:END/START:END."
 msgstr "匹配源端口范围。格式为 START:/:END/START:END。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:888
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1358
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1330
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1800
 msgid "Match source port."
 msgstr "匹配源端口。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:680
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1164
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1122
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1606
 msgid "Match user name."
 msgstr "匹配用户名。"
 
@@ -1664,7 +1788,7 @@ msgstr "最大上传速度（Mbps）。"
 msgid "Maximum TLS version"
 msgstr "最大 TLS 版本"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:258
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:289
 msgid "Maximum bytes during slow window (bytes)"
 msgstr "慢连接窗口内的最大传输量（字节）"
 
@@ -1673,30 +1797,26 @@ msgstr "慢连接窗口内的最大传输量（字节）"
 msgid "Maximum connections"
 msgstr "最大连接数"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:246
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:276
 msgid "Maximum learned IP rules"
 msgstr "已学习 IP 规则上限"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:241
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:271
 msgid "Maximum learned rules"
 msgstr "已学习规则上限"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1411
-msgid ""
-"Maximum multiplexed streams in a connection before opening a new connection."
-"<br/>Conflict with <code>%s</code> and <code>%s</code>."
-msgstr ""
-"在打开新连接之前，连接中的最大多路复用流数量。与 <code>%s</code> 和 "
-"<code>%s</code> 冲突。"
+msgid "Maximum multiplexed streams in a connection before opening a new connection.<br/>Conflict with <code>%s</code> and <code>%s</code>."
+msgstr "在打开新连接之前，连接中的最大多路复用流数量。与 <code>%s</code> 和 <code>%s</code> 冲突。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1410
 msgid "Maximum streams"
 msgstr "最大流数量"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:805
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:813
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1283
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1292
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1247
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1255
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1725
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1734
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1279
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:428
 msgid "Method"
@@ -1711,20 +1831,19 @@ msgstr "最低 TLS 版本"
 msgid "Minimum idle sessions"
 msgstr "最小空闲会话数"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:278
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:315
 msgid "Minimum improvement percentage"
 msgstr "最低改善百分比"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:273
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:310
 msgid "Minimum latency improvement (ms)"
 msgstr "最低延迟改善（毫秒）"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1405
-msgid ""
-"Minimum multiplexed streams in a connection before opening a new connection."
+msgid "Minimum multiplexed streams in a connection before opening a new connection."
 msgstr "在打开新连接之前，连接中的最小多路复用流数量。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:263
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:295
 msgid "Minimum observations"
 msgstr "最少观测次数"
 
@@ -1735,20 +1854,19 @@ msgstr "最小流数量"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:75
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1806
-msgid ""
-"Minutes (0-59), hours (0-23), days (1-31), months (1-12), weekdays (0-6)."
+msgid "Minutes (0-59), hours (0-23), days (1-31), months (1-12), weekdays (0-6)."
 msgstr "分（0-59）、时（0-23）、日（1-31）、月（1-12）、周（0-6）。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:166
 msgid "Mixed"
 msgstr "混合"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:331
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:486
 msgid "Mixed <code>System</code> TCP stack and <code>gVisor</code> UDP stack."
 msgstr "混合 <code>System</code> TCP 栈和 <code>gVisor</code> UDP 栈。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:632
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1123
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1074
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1565
 msgid "Mode"
 msgstr "模式"
 
@@ -1762,7 +1880,7 @@ msgid "Multiplex protocol."
 msgstr "多路复用协议。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:146
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:66
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:149
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:43
 msgid "NOT RUNNING"
 msgstr "未运行"
@@ -1771,7 +1889,7 @@ msgstr "未运行"
 msgid "NOTE: Save current settings before updating subscriptions."
 msgstr "注意：更新订阅前先保存当前配置。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1313
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1755
 msgid "NS"
 msgstr "NS"
 
@@ -1787,8 +1905,8 @@ msgstr "原生"
 msgid "NaïveProxy"
 msgstr "NaïveProxy"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:674
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1147
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1116
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1589
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:980
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:844
 msgid "Network"
@@ -1826,7 +1944,7 @@ msgstr "暂无目标记录。"
 msgid "No valid share link found."
 msgstr "找不到有效分享链接。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:454
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:885
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:738
 msgid "Node"
 msgstr "节点"
@@ -1839,7 +1957,9 @@ msgstr "节点设置"
 msgid "Nodes"
 msgstr "节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1042
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:131
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:698
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1484
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1069
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1175
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1213
@@ -1849,6 +1969,14 @@ msgstr "节点"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:377
 msgid "None"
 msgstr "无"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:118
+msgid "Not logged in"
+msgstr "未登录"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:123
+msgid "Not running"
+msgstr "未运行"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:505
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:518
@@ -1869,55 +1997,63 @@ msgstr "混淆类型"
 msgid "Observations"
 msgstr "观测次数"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1490
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1932
 msgid "Only process traffic from specific interfaces. Leave empty for all."
 msgstr "只处理来自指定接口的流量。留空表示全部。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:359
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:514
 msgid "Open dashboard"
 msgstr "打开仪表盘"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:953
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:113
+msgid "Open login page"
+msgstr "打开登录页面"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:721
+msgid "OpenWrt forwarding"
+msgstr "OpenWrt 转发"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1395
 msgid "Optimistic DNS cache"
 msgstr "乐观 DNS 缓存"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:617
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1108
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1059
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1550
 msgid "Other Fields"
 msgstr "其他字段"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:495
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:715
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1075
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1456
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:926
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1157
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1517
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1898
 msgid "Outbound"
 msgstr "出站"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:455
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:886
 msgid "Outbound node"
 msgstr "出站节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:733
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1175
 msgid "Override address"
 msgstr "覆盖地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:740
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1182
 msgid "Override port"
 msgstr "覆盖端口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:841
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1283
 msgid "Override the DNS query timeout for this lookup, in seconds."
 msgstr "覆盖本次解析的 DNS 查询超时时间（秒）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1266
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1708
 msgid "Override the DNS query timeout for this rule, in seconds."
 msgstr "覆盖此规则的 DNS 查询超时时间（秒）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:734
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1176
 msgid "Override the connection destination address."
 msgstr "覆盖目标连接地址。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:741
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1183
 msgid "Override the connection destination port."
 msgstr "覆盖目标连接端口。"
 
@@ -1942,8 +2078,8 @@ msgstr "崩溃"
 msgid "Password"
 msgstr "密码"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1015
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1427
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1457
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1869
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1274
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1307
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:423
@@ -1951,29 +2087,57 @@ msgstr "密码"
 msgid "Path"
 msgstr "路径"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:305
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:342
 msgid "Pause at 1-minute load average"
 msgstr "1 分钟平均负载达到此值时暂停"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:535
+msgid "Peer Relay"
+msgstr "对等中继"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:575
+msgid "Peer connectivity"
+msgstr "对等节点连通性"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:587
+msgid "Peer is reachable."
+msgstr "对等节点可以访问。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1349
 msgid "Peer public key"
 msgstr "对端公钥"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:201
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:750
+msgid "Peer relay UDP port"
+msgstr "对等中继 UDP 端口"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:587
+msgid "Peer test failed."
+msgstr "对等节点测试失败。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:566
+msgid "Peer test target"
+msgstr "对等节点测试目标"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:208
 msgid "Pending Candidates"
 msgstr "待探测候选"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:203
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:210
 msgid "Performance"
 msgstr "性能"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:968
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1410
 msgid "Persist the complete DNS cache in the cache file."
 msgstr "将完整的 DNS 缓存持久保存到缓存文件。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1374
 msgid "Persistent keepalive interval"
 msgstr "持久 keepalive 间隔"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:576
+msgid "Ping peer"
+msgstr "测试对等节点"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1293
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:440
@@ -1992,19 +2156,19 @@ msgstr "插件参数"
 msgid "Polls: %d"
 msgstr "轮询：%d"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:897
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1010
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1367
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1339
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1452
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1809
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:899
 msgid "Port"
 msgstr "端口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:284
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:421
 msgid "Port %s already exists!"
 msgstr "端口 %s 已存在！"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:619
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1110
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1061
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1552
 msgid "Port Fields"
 msgstr "端口字段"
 
@@ -2012,8 +2176,8 @@ msgstr "端口字段"
 msgid "Port hopping interval in seconds."
 msgstr "端口跳跃间隔（单位：秒）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:902
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1372
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1344
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1814
 msgid "Port range"
 msgstr "端口范围"
 
@@ -2021,7 +2185,7 @@ msgstr "端口范围"
 msgid "Pre-shared key"
 msgstr "预共享密钥"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1200
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1642
 msgid "Predefined"
 msgstr "预定义"
 
@@ -2032,6 +2196,10 @@ msgstr "优先 IPv4"
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:26
 msgid "Prefer IPv6"
 msgstr "优先 IPv6"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:685
+msgid "Preserve subnet source addresses"
+msgstr "保留子网源地址"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1116
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1341
@@ -2047,15 +2215,15 @@ msgstr "私钥口令"
 msgid "Probe failed"
 msgstr "探测失败"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:288
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:325
 msgid "Probe interval (seconds)"
 msgstr "探测间隔（秒）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:298
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:335
 msgid "Probe samples"
 msgstr "探测样本数"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:293
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:330
 msgid "Probe timeout (ms)"
 msgstr "探测超时（毫秒）"
 
@@ -2063,28 +2231,28 @@ msgstr "探测超时（毫秒）"
 msgid "Probes: %d"
 msgstr "探测：%d"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:620
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1111
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1062
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1553
 msgid "Process Fields"
 msgstr "进程字段"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:907
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1377
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1349
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1819
 msgid "Process name"
 msgstr "进程名"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:911
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1381
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1353
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1823
 msgid "Process path"
 msgstr "进程路径"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:915
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1385
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1357
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1827
 msgid "Process path (regex)"
 msgstr "进程路径（正则表达式）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:652
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1152
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1094
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1594
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1389
 msgid "Protocol"
 msgstr "协议"
@@ -2094,43 +2262,39 @@ msgid "Protocol parameter. Enable length block encryption."
 msgstr "协议参数。启用长度块加密。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1198
-msgid ""
-"Protocol parameter. Will waste traffic randomly if enabled (enabled by "
-"default in v2ray and cannot be disabled)."
+msgid "Protocol parameter. Will waste traffic randomly if enabled (enabled by default in v2ray and cannot be disabled)."
 msgstr "协议参数。如启用会随机浪费流量（在 v2ray 中默认启用并且无法禁用）。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:114
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:161
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:162
 msgid "Proxy"
 msgstr "代理"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1557
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1999
 msgid "Proxy Domain List"
 msgstr "代理域名列表"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1515
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1525
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1957
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1967
 msgid "Proxy IPv4 addresses"
 msgstr "代理 IPv4 地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1532
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1974
 msgid "Proxy IPv6 addresses"
 msgstr "代理 IPv6 地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1509
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1951
 msgid "Proxy MAC addresses"
 msgstr "代理 MAC 地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:292
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:440
 msgid "Proxy mode"
 msgstr "代理模式"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:228
-msgid "Proxy outbound"
-msgstr "代理出站"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:658
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1001
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1157
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1100
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1443
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1599
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1150
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1217
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:381
@@ -2156,20 +2320,20 @@ msgstr "QUIC 最大双向并发流"
 msgid "QUIC stream receive window"
 msgstr "QUIC 流接收窗口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:197
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:334
 msgid "Quad9 Public DNS (DoH)"
 msgstr "Quad9 公共DNS (DoH)"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1143
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1585
 msgid "Query type"
 msgstr "查询类型"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1296
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1738
 msgid "RCode"
 msgstr "RCode"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:659
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1158
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1101
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1600
 msgid "RDP"
 msgstr "RDP"
 
@@ -2197,7 +2361,7 @@ msgid "RPC failed"
 msgstr "RPC 失败"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:146
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:64
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:147
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:41
 msgid "RUNNING"
 msgstr "运行中"
@@ -2206,11 +2370,11 @@ msgstr "运行中"
 msgid "Random version will be used if empty."
 msgstr "如留空，则使用随机版本。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:523
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:954
 msgid "Recursive outbound detected!"
 msgstr "检测到递归出站！"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1061
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1503
 msgid "Recursive resolver detected!"
 msgstr "检测到递归解析器！"
 
@@ -2222,13 +2386,13 @@ msgstr "每 %s 秒刷新。"
 msgid "Region ID"
 msgstr "区域 ID"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:400
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:709
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1199
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:831
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1151
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1641
 msgid "Reject"
 msgstr "拒绝"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1417
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1859
 msgid "Remote"
 msgstr "远程"
 
@@ -2248,23 +2412,27 @@ msgstr "确定移除所有自动学习的目标？"
 msgid "Remove all nodes from subscriptions"
 msgstr "移除所有订阅节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1284
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1726
 msgid "Reply with REFUSED"
 msgstr "回复 REFUSED"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:806
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1248
 msgid "Reply with TCP RST / ICMP port unreachable"
 msgstr "回复 TCP RST / ICMP 端口不可达"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:236
+msgid "Required before adaptive routing can create direct exceptions in global proxy mode."
+msgstr "必须明确开启后，自适应路由才能在全局代理模式下产生直连例外。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1363
 msgid "Reserved field bytes"
 msgstr "保留字段字节"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:710
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1152
 msgid "Resolve"
 msgstr "解析"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:817
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1259
 msgid "Resolve strategy"
 msgstr "解析策略"
 
@@ -2273,12 +2441,10 @@ msgid "Resource Management"
 msgstr "资源管理"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:243
-msgid ""
-"Resources were updated, but SBProxy failed to reload. Check the log for "
-"details."
+msgid "Resources were updated, but SBProxy failed to reload. Check the log for details."
 msgstr "资源已更新，但 SBProxy 重载失败，请查看日志了解详情。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1197
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1639
 msgid "Respond"
 msgstr "返回响应"
 
@@ -2290,72 +2456,91 @@ msgstr "复用地址"
 msgid "Reuse listener address."
 msgstr "复用监听地址。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:834
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1257
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1276
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1699
 msgid "Rewrite TTL"
 msgstr "重写 TTL"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:835
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1258
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1277
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1700
 msgid "Rewrite TTL in DNS responses."
 msgstr "在 DNS 响应中重写 TTL。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:707
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1195
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1149
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1637
 msgid "Route"
 msgstr "路由"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:708
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1198
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1150
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1640
 msgid "Route options"
 msgstr "路由选项"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:440
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:871
 msgid "Routing Node"
 msgstr "路由节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:431
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:862
 msgid "Routing Nodes"
 msgstr "路由节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:613
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1055
 msgid "Routing Rule"
 msgstr "路由规则"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:604
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1046
 msgid "Routing Rules"
 msgstr "路由规则"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:148
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:268
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:532
 msgid "Routing Settings"
 msgstr "路由设置"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:265
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:402
 msgid "Routing mode"
 msgstr "路由模式"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:272
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:409
 msgid "Routing ports"
 msgstr "路由端口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1392
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1401
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1834
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1843
 msgid "Rule Set"
 msgstr "规则集"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:683
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1167
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1125
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1609
 msgid "Rule set"
 msgstr "规则集"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:698
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1182
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1140
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1624
 msgid "Rule set IP CIDR as source IP"
 msgstr "将规则集 IP CIDR 作为源 IP"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1434
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1876
 msgid "Rule set URL"
 msgstr "规则集 URL"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:549
+msgid "Runs Tailscale inside the SBProxy sing-box process. It can run without a proxy node; the independent Tailscale service must be disabled first."
+msgstr "在 SBProxy 的 sing-box 进程中运行 Tailscale。无需代理节点也可独立运行；必须先禁用独立 Tailscale 服务。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:147
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:149
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:229
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:411
+#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:3
+msgid "SBProxy"
+msgstr "SBProxy"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:41
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:43
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:112
+msgid "SBProxy Server"
+msgstr "SBProxy 服务端"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:883
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:168
@@ -2378,14 +2563,14 @@ msgstr "SOCKS4A"
 msgid "SOCKS5"
 msgstr "SOCKS5"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:660
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1159
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1102
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1601
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:884
 msgid "SSH"
 msgstr "SSH"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:661
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1160
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1103
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1602
 msgid "STUN"
 msgstr "STUN"
 
@@ -2393,7 +2578,7 @@ msgstr "STUN"
 msgid "SUoT version"
 msgstr "SUoT 版本"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:669
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1111
 msgid "Safari / Apple Network API"
 msgstr "Safari / Apple Network API"
 
@@ -2410,15 +2595,23 @@ msgstr "保存当前设置"
 msgid "Save subscriptions settings"
 msgstr "保存订阅设置"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:229
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:534
+msgid "Security"
+msgstr "安全"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:697
+msgid "Select an online Tailscale exit node."
+msgstr "选择一个在线的 Tailscale 出口节点。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:243
 msgid "Select an outbound"
 msgstr "选择一个出站"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:954
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1396
 msgid "Serve expired DNS entries while refreshing them in the background."
 msgstr "刷新期间提供已过期的 DNS 条目。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1205
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1647
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:139
 msgid "Server"
 msgstr "服务器"
@@ -2429,9 +2622,7 @@ msgid "Server Settings"
 msgstr "服务器设置"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:585
-msgid ""
-"Server name to use when choosing a certificate if the ClientHello's "
-"ServerName field is empty."
+msgid "Server name to use when choosing a certificate if the ClientHello's ServerName field is empty."
 msgstr "当 ClientHello 的 ServerName 字段为空时，选择证书所使用的服务器名称。"
 
 #: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:38
@@ -2451,22 +2642,22 @@ msgstr "ShadowTLS 版本"
 msgid "Shadowsocks"
 msgstr "Shadowsocks"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:253
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:283
 msgid "Slow connection window (seconds)"
 msgstr "慢连接判定窗口（秒）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:665
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:266
+msgid "Slow connections or failures"
+msgstr "慢连接或连接失败"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1107
 msgid "Sniffed client type (QUIC client type or SSH client name)."
 msgstr "嗅探到的客户端类型（QUIC 客户端类型或 SSH 客户端名称）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:653
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1153
-msgid ""
-"Sniffed protocol, see <a target=\"_blank\" href=\"https://sing-box.sagernet."
-"org/configuration/route/sniff/\">Sniff</a> for details."
-msgstr ""
-"嗅探协议，具体参见 <a target=\"_blank\" href=\"https://sing-box.sagernet.org/"
-"configuration/route/sniff/\">Sniff</a>。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1095
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1595
+msgid "Sniffed protocol, see <a target=\"_blank\" href=\"https://sing-box.sagernet.org/configuration/route/sniff/\">Sniff</a> for details."
+msgstr "嗅探协议，具体参见 <a target=\"_blank\" href=\"https://sing-box.sagernet.org/configuration/route/sniff/\">Sniff</a>。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:261
 msgid "Some resources failed to update. Check the log for details."
@@ -2476,70 +2667,61 @@ msgstr "部分资源更新失败，请查看日志了解详情。"
 msgid "Source"
 msgstr "来源"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:871
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1340
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1313
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1782
 msgid "Source IP CIDR"
 msgstr "源 IP CIDR"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1423
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1865
 msgid "Source file"
 msgstr "源文件"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:887
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1357
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1329
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1799
 msgid "Source port"
 msgstr "源端口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:892
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1362
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1334
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1804
 msgid "Source port range"
 msgstr "源端口范围"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:787
-msgid ""
-"Specifies DNS server tag to use instead of selecting through DNS routing."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1229
+msgid "Specifies DNS server tag to use instead of selecting through DNS routing."
 msgstr "指定使用的 DNS 服务器，而不是通过 DNS 规则选择。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1234
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1286
-msgid ""
-"Specifies the period of time (in seconds) after which a health check will be "
-"performed using a ping frame if no frames have been received on the "
-"connection.<br/>Please note that a ping response is considered a received "
-"frame, so if there is no other traffic on the connection, the health check "
-"will be executed every interval."
-msgstr ""
-"如果连接上没有收到任何帧，指定一段时间（单位：秒）后将使用 PING 帧执行健康检"
-"查。<br/>需要注意的是，PING 响应被视为已接收的帧，因此如果连接上没有其他流"
-"量，则健康检查将在每个间隔执行一次。"
+msgid "Specifies the period of time (in seconds) after which a health check will be performed using a ping frame if no frames have been received on the connection.<br/>Please note that a ping response is considered a received frame, so if there is no other traffic on the connection, the health check will be executed every interval."
+msgstr "如果连接上没有收到任何帧，指定一段时间（单位：秒）后将使用 PING 帧执行健康检查。<br/>需要注意的是，PING 响应被视为已接收的帧，因此如果连接上没有其他流量，则健康检查将在每个间隔执行一次。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:398
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:433
-msgid ""
-"Specifies the time (in seconds) until idle clients should be closed with a "
-"GOAWAY frame. PING frames are not considered as activity."
-msgstr ""
-"指定闲置客户端应在多长时间（单位：秒）内使用 GOAWAY 帧关闭。PING 帧不被视为活"
-"动。"
+msgid "Specifies the time (in seconds) until idle clients should be closed with a GOAWAY frame. PING frames are not considered as activity."
+msgstr "指定闲置客户端应在多长时间（单位：秒）内使用 GOAWAY 帧关闭。PING 帧不被视为活动。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1238
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1294
-msgid ""
-"Specifies the timeout duration (in seconds) after sending a PING frame, "
-"within which a response must be received.<br/>If a response to the PING "
-"frame is not received within the specified timeout duration, the connection "
-"will be closed."
-msgstr ""
-"指定发送 PING 帧后，在指定的超时时间（单位：秒）内必须接收到响应。<br/>如果在"
-"指定的超时时间内没有收到 PING 帧的响应，则连接将关闭。"
+msgid "Specifies the timeout duration (in seconds) after sending a PING frame, within which a response must be received.<br/>If a response to the PING frame is not received within the specified timeout duration, the connection will be closed."
+msgstr "指定发送 PING 帧后，在指定的超时时间（单位：秒）内必须接收到响应。<br/>如果在指定的超时时间内没有收到 PING 帧的响应，则连接将关闭。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:273
-msgid ""
-"Specify target ports to be proxied. Multiple ports must be separated by "
-"commas."
-msgstr "指定需要被代理的目标端口。多个端口必须用逗号隔开。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:591
+msgid "State directory"
+msgstr "状态目录"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:967
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:664
+msgid "Static peer routes"
+msgstr "静态对等节点路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:756
+msgid "Static relay endpoints"
+msgstr "静态中继端点"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:530
+msgid "Status"
+msgstr "状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1409
 msgid "Store DNS cache"
 msgstr "保存 DNS 缓存"
 
@@ -2551,6 +2733,11 @@ msgstr "字符串"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1788
 msgid "Sub (%s)"
 msgstr "订阅（%s）"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:682
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:693
+msgid "Subnet source address preservation cannot be enabled while advertising an exit node."
+msgstr "发布为出口节点时不能启用子网源地址保留。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1819
 msgid "Subscription URLs"
@@ -2579,31 +2766,30 @@ msgstr "建议时间"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1692
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1820
-msgid ""
-"Support Hysteria, Shadowsocks, Trojan, v2rayN (VMess), and XTLS (VLESS) "
-"online configuration delivery standard."
-msgstr ""
-"支持 Hysteria、Shadowsocks、Trojan、v2rayN（VMess）和 XTLS（VLESS）在线配置交"
-"付标准。"
+msgid "Support Hysteria, Shadowsocks, Trojan, v2rayN (VMess), and XTLS (VLESS) online configuration delivery standard."
+msgstr "支持 Hysteria、Shadowsocks、Trojan、v2rayN（VMess）和 XTLS（VLESS）在线配置交付标准。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:193
-msgid ""
-"Support UDP, TCP, DoH, DoQ, DoT. TCP protocol will be used if not specified."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:330
+msgid "Support UDP, TCP, DoH, DoQ, DoT. TCP protocol will be used if not specified."
 msgstr "支持 UDP、TCP、DoH、DoQ、DoT。如未指定则使用 TCP 协议。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:418
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:470
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:794
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:937
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1044
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1212
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1232
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:849
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:901
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1236
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1379
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1486
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1654
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1674
 msgid "System DNS"
 msgstr "系统 DNS"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:675
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:997
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1148
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:599
+msgid "System interface"
+msgstr "系统接口"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1117
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1439
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1590
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:845
 msgid "TCP"
 msgstr "TCP"
@@ -2622,17 +2808,17 @@ msgstr "TCP 快速打开"
 msgid "TCP multi-path"
 msgstr "TCP 多路径"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:317
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:472
 msgid "TCP/IP stack"
 msgstr "TCP/IP 协议栈"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:318
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:473
 msgid "TCP/IP stack."
 msgstr "TCP/IP 协议栈。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:662
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:998
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1161
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1104
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1440
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1603
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1441
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:508
 msgid "TLS"
@@ -2643,13 +2829,13 @@ msgstr "TLS"
 msgid "TLS ALPN"
 msgstr "TLS ALPN"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1028
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1470
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1470
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:538
 msgid "TLS SNI"
 msgstr "TLS SNI"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:772
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1214
 msgid "TLS fragment"
 msgstr "TLS 分片"
 
@@ -2658,12 +2844,12 @@ msgstr "TLS 分片"
 msgid "TLS is not enforced. If TLS is not configured, plain HTTP 1.1 is used."
 msgstr "不强制执行 TLS。如未配置 TLS，将使用纯 HTTP 1.1。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:766
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:774
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1208
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1216
 msgid "TLS record fragment"
 msgstr "TLS 记录分片"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:294
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:442
 msgid "TProxy TCP/UDP"
 msgstr "TProxy TCP/UDP"
 
@@ -2672,58 +2858,83 @@ msgstr "TProxy TCP/UDP"
 msgid "TUIC"
 msgstr "TUIC"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:293
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:441
 msgid "TUN TCP/UDP"
 msgstr "TUN TCP/UDP"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:299
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:447
 msgid "TUN route exclusion IPv4 addresses"
 msgstr "TUN 路由排除 IPv4 地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:308
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:456
 msgid "TUN route exclusion IPv6 addresses"
 msgstr "TUN 路由排除 IPv6 地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:296
-msgid ""
-"TUN uses sing-box automatic routing and redirect on Linux; TProxy uses "
-"native TCP/UDP transparent proxying."
-msgstr ""
-"TUN 在 Linux 上使用 sing-box 自动路由与自动重定向；TProxy 使用原生 TCP/UDP 透"
-"明代理。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:444
+msgid "TUN uses sing-box automatic routing and redirect on Linux; TProxy uses native TCP/UDP transparent proxying."
+msgstr "TUN 在 Linux 上使用 sing-box 自动路由与自动重定向；TProxy 使用原生 TCP/UDP 透明代理。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1076
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1518
 msgid "Tag of an outbound for connecting to the dns server."
 msgstr "用于连接到 DNS 服务器的出站标签。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1037
-msgid ""
-"Tag of another DNS server used to resolve a domain name in the server "
-"address."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1479
+msgid "Tag of another DNS server used to resolve a domain name in the server address."
 msgstr "用于解析服务器地址中域名的另一个 DNS 服务器标签。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1457
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1899
 msgid "Tag of the outbound to download rule set."
 msgstr "用于下载规则集的出站标签。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1206
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1648
 msgid "Tag of the target dns server."
 msgstr "目标 DNS 服务器标签。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:716
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1158
 msgid "Tag of the target outbound."
 msgstr "目标出站标签。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:781
+msgid "Taildrop"
+msgstr "Taildrop"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:786
+msgid "Taildrop directory"
+msgstr "Taildrop 目录"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:128
+msgid "Tailnet"
+msgstr "Tailnet"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:270
+msgid "Tailscale"
+msgstr "Tailscale"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:761
+msgid "Tailscale SSH"
+msgstr "Tailscale SSH"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:722
+msgid "Tailscale access LAN"
+msgstr "虚拟局域网访问本地局域网"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:723
+msgid "Tailscale access WAN"
+msgstr "虚拟局域网访问本地广域网"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:98
+msgid "Tailscale logged out."
+msgstr "已退出 Tailscale。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:111
 msgid "Target"
 msgstr "目标"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:303
-msgid ""
-"Tell the client to use the BBR flow control algorithm instead of Hysteria CC."
+msgid "Tell the client to use the BBR flow control algorithm instead of Hysteria CC."
 msgstr "让客户端使用 BBR 流控算法。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:235
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:372
 msgid "Tencent Public DNS (DoH)"
 msgstr "腾讯 公共DNS (DoH)"
 
@@ -2732,7 +2943,7 @@ msgstr "腾讯 公共DNS (DoH)"
 msgid "Test"
 msgstr "测试"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:545
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:987
 msgid "Test URL"
 msgstr "测试 URL"
 
@@ -2745,17 +2956,17 @@ msgstr "全部测试"
 msgid "Test current list"
 msgstr "测试当前列表"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:171
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:565
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:308
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1007
 msgid "Test interval"
 msgstr "测试间隔"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:573
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1015
 msgid "Test interval must be less or equal than idle timeout."
 msgstr "测试间隔时间必须小于或等于空闲超时时间。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:178
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:581
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:315
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1023
 msgid "Test tolerance"
 msgstr "测试容差"
 
@@ -2776,7 +2987,7 @@ msgstr "测试中..."
 msgid "The ACME CA provider to use."
 msgstr "使用的 ACME CA 颁发机构。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:927
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1369
 msgid "The DNS strategy for resolving the domain name in the address."
 msgstr "用于解析地址中域名的 DNS 策略。"
 
@@ -2790,102 +3001,68 @@ msgstr "用于接收数据的 QUIC 连接级流控制窗口。"
 msgid "The QUIC stream-level flow control window for receiving data."
 msgstr "用于接收数据的 QUIC 流级流控制窗口。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:546
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:988
 msgid "The URL to test."
 msgstr "用于测试的 URL。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1006
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1448
 msgid "The address of the dns server."
 msgstr "DNS 服务器的地址。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:657
-msgid ""
-"The alternate port to use for the ACME HTTP challenge; if non-empty, this "
-"port will be used instead of 80 to spin up a listener for the HTTP challenge."
-msgstr ""
-"用于 ACME HTTP 质询的备用端口；如果非空，将使用此端口而不是 80 来启动 HTTP 质"
-"询的监听器。"
+msgid "The alternate port to use for the ACME HTTP challenge; if non-empty, this port will be used instead of 80 to spin up a listener for the HTTP challenge."
+msgstr "用于 ACME HTTP 质询的备用端口；如果非空，将使用此端口而不是 80 来启动 HTTP 质询的监听器。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:663
-msgid ""
-"The alternate port to use for the ACME TLS-ALPN challenge; the system must "
-"forward 443 to this port for challenge to succeed."
-msgstr ""
-"用于 ACME TLS-ALPN 质询的备用端口；系统必须将 443 转发到此端口以使质询成功。"
+msgid "The alternate port to use for the ACME TLS-ALPN challenge; the system must forward 443 to this port for challenge to succeed."
+msgstr "用于 ACME TLS-ALPN 质询的备用端口；系统必须将 443 转发到此端口以使质询成功。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:305
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:314
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:453
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:462
 msgid "The default route cannot be excluded from TUN redirect."
 msgstr "不能从 TUN 重定向中排除默认路由。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:633
-msgid ""
-"The default rule uses the following matching logic:<br/><code>(domain || "
-"domain_suffix || domain_keyword || domain_regex || ip_cidr || "
-"ip_is_private)</code> &&<br/><code>(port || port_range)</code> &&<br/"
-"><code>(source_ip_cidr || source_ip_is_private)</code> &&<br/"
-"><code>(source_port || source_port_range)</code> &&<br/><code>other fields</"
-"code>.<br/>Additionally, included rule sets can be considered merged rather "
-"than as a single rule sub-item."
-msgstr ""
-"默认规则使用以下匹配逻辑：<br/><code>(domain || domain_suffix || "
-"domain_keyword || domain_regex || ip_cidr || ip_is_private)</code> &&<br/"
-"><code>(port || port_range)</code> &&<br/><code>(source_ip_cidr || "
-"source_ip_is_private)</code> &&<br/><code>(source_port || "
-"source_port_range)</code> &&<br/><code>其他字段</code>。此外，包含的所有规则"
-"集会被合并而不是独立生效。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1075
+msgid "The default rule uses the following matching logic:<br/><code>(domain || domain_suffix || domain_keyword || domain_regex || ip_cidr || ip_is_private)</code> &&<br/><code>(port || port_range)</code> &&<br/><code>(source_ip_cidr || source_ip_is_private)</code> &&<br/><code>(source_port || source_port_range)</code> &&<br/><code>other fields</code>.<br/>Additionally, included rule sets can be considered merged rather than as a single rule sub-item."
+msgstr "默认规则使用以下匹配逻辑：<br/><code>(domain || domain_suffix || domain_keyword || domain_regex || ip_cidr || ip_is_private)</code> &&<br/><code>(port || port_range)</code> &&<br/><code>(source_ip_cidr || source_ip_is_private)</code> &&<br/><code>(source_port || source_port_range)</code> &&<br/><code>其他字段</code>。此外，包含的所有规则集会被合并而不是独立生效。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1124
-msgid ""
-"The default rule uses the following matching logic:<br/><code>(domain || "
-"domain_suffix || domain_keyword || domain_regex)</code> &&<br/><code>(port "
-"|| port_range)</code> &&<br/><code>(source_ip_cidr || source_ip_is_private)</"
-"code> &&<br/><code>(source_port || source_port_range)</code> &&<br/"
-"><code>other fields</code>.<br/>Additionally, included rule sets can be "
-"considered merged rather than as a single rule sub-item."
-msgstr ""
-"默认规则使用以下匹配逻辑：<br/><code>(domain || domain_suffix || "
-"domain_keyword || domain_regex)</code> &&<br/><code>(port || port_range)</"
-"code> &&<br/><code>(source_ip_cidr || source_ip_is_private)</code> &&<br/"
-"><code>(source_port || source_port_range)</code> &&<br/><code>其他字段</"
-"code>。此外，包含的所有规则集会被合并而不是独立生效。"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1566
+msgid "The default rule uses the following matching logic:<br/><code>(domain || domain_suffix || domain_keyword || domain_regex)</code> &&<br/><code>(port || port_range)</code> &&<br/><code>(source_ip_cidr || source_ip_is_private)</code> &&<br/><code>(source_port || source_port_range)</code> &&<br/><code>other fields</code>.<br/>Additionally, included rule sets can be considered merged rather than as a single rule sub-item."
+msgstr "默认规则使用以下匹配逻辑：<br/><code>(domain || domain_suffix || domain_keyword || domain_regex)</code> &&<br/><code>(port || port_range)</code> &&<br/><code>(source_ip_cidr || source_ip_is_private)</code> &&<br/><code>(source_port || source_port_range)</code> &&<br/><code>其他字段</code>。此外，包含的所有规则集会被合并而不是独立生效。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:958
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1400
 msgid "The default timeout for DNS queries, in seconds."
 msgstr "DNS 查询的默认超时时间（秒）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:232
-msgid ""
-"The dns server for resolving China domains. Support UDP, TCP, DoH, DoQ, DoT."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:369
+msgid "The dns server for resolving China domains. Support UDP, TCP, DoH, DoQ, DoT."
 msgstr "用于解析国内域名的 DNS 服务器。支持 UDP、TCP、DoH、DoQ、DoT。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:482
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1069
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:913
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1511
 msgid "The domain strategy for resolving the domain name in the address."
 msgstr "用于解析 DNS 服务器地址中域名的策略。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1505
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:565
-msgid ""
-"The elliptic curves that will be used in an ECDHE handshake, in preference "
-"order. If empty, the default will be used."
+msgid "The elliptic curves that will be used in an ECDHE handshake, in preference order. If empty, the default will be used."
 msgstr "将在 ECDHE 握手中使用的椭圆曲线，按优先顺序排列。留空使用默认值。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:591
-msgid ""
-"The email address to use when creating or selecting an existing ACME server "
-"account."
+msgid "The email address to use when creating or selecting an existing ACME server account."
 msgstr "创建或选择现有 ACME 服务器账户时使用的电子邮件地址。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:780
-msgid ""
-"The fallback value in milliseconds used when TLS segmentation cannot "
-"automatically determine the wait time."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1222
+msgid "The fallback value in milliseconds used when TLS segmentation cannot automatically determine the wait time."
 msgstr "当 TLS 分段无法自动确定等待时间时使用的回退值（单位：毫秒）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:589
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1031
 msgid "The idle timeout in seconds."
 msgstr "空闲超时时间（单位：秒）。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:556
+msgid "The installed sing-box build does not include Tailscale support."
+msgstr "已安装的 sing-box 版本未包含 Tailscale 支持。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1497
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:557
@@ -2893,9 +3070,7 @@ msgid "The maximum TLS version that is acceptable."
 msgstr "可接受的最高 TLS 版本。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:289
-msgid ""
-"The maximum number of QUIC concurrent bidirectional streams that a peer is "
-"allowed to open."
+msgid "The maximum number of QUIC concurrent bidirectional streams that a peer is allowed to open."
 msgstr "允许对等点打开的 QUIC 并发双向流的最大数量。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:718
@@ -2907,24 +3082,22 @@ msgstr "服务器和客户端之间的最大时间差。"
 msgid "The minimum TLS version that is acceptable."
 msgstr "可接受的最低 TLS 版本。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:116
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:230
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:113
 msgid "The modern ImmortalWrt proxy platform for ARM64/AMD64. — AI Edition"
 msgstr "为 ARM64/AMD64 设计的现代 ImmortalWrt 代理平台。—— AI Edition"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:489
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:920
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:853
 msgid "The network interface to bind to."
 msgstr "绑定到的网络接口。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1016
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1458
 msgid "The path of the DNS server."
 msgstr "DNS 服务器的路径。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1539
-msgid ""
-"The path to the ECH config, in PEM format. If empty, load from DNS will be "
-"attempted."
+msgid "The path to the ECH config, in PEM format. If empty, load from DNS will be attempted."
 msgstr "PEM 格式的 ECH 配置路径。如果为空，将尝试从 DNS 加载。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1518
@@ -2935,11 +3108,11 @@ msgstr "服务端证书路径，需要 PEM 格式。"
 msgid "The port must be unique."
 msgstr "必须是唯一端口。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1011
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1453
 msgid "The port of the DNS server."
 msgstr "DNS 服务器的端口。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1297
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1739
 msgid "The response code."
 msgstr "响应代码。"
 
@@ -2951,49 +3124,35 @@ msgstr "服务端私钥，需要 PEM 格式。"
 msgid "The server public key, in PEM format."
 msgstr "服务端公钥，需要 PEM 格式。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:496
-msgid ""
-"The tag of the upstream outbound.<br/>Other dial fields will be ignored when "
-"enabled."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:927
+msgid "The tag of the upstream outbound.<br/>Other dial fields will be ignored when enabled."
 msgstr "上游出站的标签。<br/>启用时，其他拨号字段将被忽略。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:172
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:566
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:309
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1008
 msgid "The test interval in seconds."
 msgstr "测试间隔时间（单位：秒）。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:179
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:582
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:316
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1024
 msgid "The test tolerance in milliseconds."
 msgstr "测试容差时间（单位：毫秒）。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1245
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:441
-msgid ""
-"The timeout (in seconds) that after performing a keepalive check, the client "
-"will wait for activity. If no activity is detected, the connection will be "
-"closed."
-msgstr ""
-"经过一段时间（单位：秒）之后，客户端将执行 keepalive 检查并等待活动。如果没有"
-"检测到任何活动，则会关闭连接。"
+msgid "The timeout (in seconds) that after performing a keepalive check, the client will wait for activity. If no activity is detected, the connection will be closed."
+msgstr "经过一段时间（单位：秒）之后，客户端将执行 keepalive 检查并等待活动。如果没有检测到任何活动，则会关闭连接。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1483
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1857
-msgid ""
-"This is <strong>DANGEROUS</strong>, your traffic is almost like "
-"<strong>PLAIN TEXT</strong>! Use at your own risk!"
-msgstr ""
-"这是危险行为，您的流量将几乎等同于<strong>明文</strong>！使用风险自负！"
+msgid "This is <strong>DANGEROUS</strong>, your traffic is almost like <strong>PLAIN TEXT</strong>! Use at your own risk!"
+msgstr "这是危险行为，您的流量将几乎等同于<strong>明文</strong>！使用风险自负！"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1155
-msgid ""
-"This is the TUIC port of the UDP over TCP protocol, designed to provide a "
-"QUIC stream based UDP relay mode that TUIC does not provide."
-msgstr ""
-"这是 TUIC 的 UDP over TCP 协议端口，旨在提供 TUIC 原本不支持的基于 QUIC 流的 "
-"UDP 中继模式。"
+msgid "This is the TUIC port of the UDP over TCP protocol, designed to provide a QUIC stream based UDP relay mode that TUIC does not provide."
+msgstr "这是 TUIC 的 UDP over TCP 协议端口，旨在提供 TUIC 原本不支持的基于 QUIC 流的 UDP 中继模式。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:234
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:371
 msgid "ThreatBook Public DNS (DoH)"
 msgstr "微步 公共DNS (DoH)"
 
@@ -3005,18 +3164,13 @@ msgstr "超时"
 msgid "Timeout"
 msgstr "超时"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:760
-msgid ""
-"Timeout for UDP connections.<br/>Setting a larger value than the inbound UDP "
-"timeout will have no effect."
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1202
+msgid "Timeout for UDP connections.<br/>Setting a larger value than the inbound UDP timeout will have no effect."
 msgstr "UDP 连接超时时间。<br/>设置大于入站 UDP 超时的值不会生效。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:467
-msgid ""
-"To be compatible with Xray-core, set this to <code>Sec-WebSocket-Protocol</"
-"code>."
-msgstr ""
-"要与 Xray-core 兼容，请将其设置为 <code>Sec-WebSocket-Protocol</code>。"
+msgid "To be compatible with Xray-core, set this to <code>Sec-WebSocket-Protocol</code>."
+msgstr "要与 Xray-core 兼容，请将其设置为 <code>Sec-WebSocket-Protocol</code>。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:301
 msgid "Trace"
@@ -3037,21 +3191,22 @@ msgid "Trojan"
 msgstr "Trojan"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:112
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:995
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1415
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1437
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1857
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:873
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:158
 msgid "Type"
 msgstr "类型"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:676
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:996
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1149
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1118
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1438
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1591
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:846
 msgid "UDP"
 msgstr "UDP"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:376
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:794
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:807
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:837
 msgid "UDP NAT expiration time"
 msgstr "UDP NAT 过期时间"
@@ -3073,11 +3228,15 @@ msgstr "UDP over stream"
 msgid "UDP packet relay mode."
 msgstr "UDP 包中继模式。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:613
+msgid "UDP port"
+msgstr "UDP 端口"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1146
 msgid "UDP relay mode"
 msgstr "UDP 中继模式"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:759
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1201
 msgid "UDP timeout"
 msgstr "UDP 超时"
 
@@ -3085,32 +3244,22 @@ msgstr "UDP 超时"
 msgid "URL"
 msgstr "网址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:154
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:456
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:275
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:887
 msgid "URLTest"
 msgstr "URLTest"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:163
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:531
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:284
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:962
 msgid "URLTest nodes"
 msgstr "URLTest 节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:163
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:531
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:300
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:980
 msgid "URLTest subscriptions"
 msgstr "URLTest 订阅"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:163
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:531
-msgid "Manually selected nodes to test."
-msgstr "手动选择要测速的节点。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:163
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:531
-msgid "Include all current and future nodes from the selected subscriptions."
-msgstr "包含所选订阅当前及后续新增的全部节点。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:133
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:248
 msgid "URLTest: %s"
 msgstr "URLTest: %s"
 
@@ -3118,6 +3267,10 @@ msgstr "URLTest: %s"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:322
 msgid "UUID"
 msgstr "UUID"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:619
+msgid "Underlay interface"
+msgstr "底层接口"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:265
 msgid "Unknown error."
@@ -3148,11 +3301,11 @@ msgstr "正在更新中。"
 msgid "Update failed."
 msgstr "更新失败。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1474
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1916
 msgid "Update interval"
 msgstr "更新间隔"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1475
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1917
 msgid "Update interval of rule set."
 msgstr "规则集更新间隔。"
 
@@ -3202,19 +3355,25 @@ msgstr "上传..."
 msgid "Use ACME TLS certificate issuer."
 msgstr "使用 ACME TLS 证书颁发机构。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:696
+msgid "Use exit node"
+msgstr "使用出口节点"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:242
+msgid "Used as the learned target only when the custom routing default outbound is Direct."
+msgstr "仅在自定义路由的默认出站为直连时，作为学习规则的目标路径。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1471
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:539
-msgid ""
-"Used to verify the hostname on the returned certificates unless insecure is "
-"given."
+msgid "Used to verify the hostname on the returned certificates unless insecure is given."
 msgstr "用于验证返回证书上的主机名。如允许不安全连接，此配置无效。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1029
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1471
 msgid "Used to verify the hostname on the returned certificates."
 msgstr "用于验证返回证书上的主机名。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:679
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1163
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1121
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1605
 msgid "User"
 msgstr "用户"
 
@@ -3241,14 +3400,30 @@ msgstr "VMess"
 msgid "Version"
 msgstr "版本"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:194
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:233
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:331
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:370
 msgid "WAN DNS (read from interface)"
 msgstr "WAN DNS（从接口获取）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1523
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1965
 msgid "WAN IP Policy"
 msgstr "WAN 口策略"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:725
+msgid "WAN access Tailscale"
+msgstr "本地广域网访问虚拟局域网"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:114
+msgid "Waiting for login URL"
+msgstr "正在等待登录链接"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:117
+msgid "Waiting for machine approval"
+msgstr "正在等待设备审批"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:136
+msgid "Waiting for the embedded backend..."
+msgstr "正在等待嵌入式后端……"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:304
 msgid "Warn"
@@ -3292,7 +3467,7 @@ msgstr "XUDP (Xray-core)"
 msgid "YouTube"
 msgstr "YouTube"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:354
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:374
 msgid "Your %s was successfully uploaded. Size: %sB."
 msgstr "您的 %s 已成功上传。大小：%sB。"
 
@@ -3300,12 +3475,18 @@ msgstr "您的 %s 已成功上传。大小：%sB。"
 msgid "ZeroSSL"
 msgstr "ZeroSSL"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:596
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:651
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:791
+msgid "absolute path"
+msgstr "绝对路径"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1530
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:750
 msgid "certificate"
 msgstr "证书"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:753
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1195
 msgid "connect UDP connections"
 msgstr "主动连接 UDP"
 
@@ -3327,24 +3508,29 @@ msgstr "gRPC 允许无活动连接"
 msgid "gRPC service name"
 msgstr "gRPC 服务名称"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:401
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:424
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:209
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:244
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:539
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1438
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:421
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:444
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:297
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:346
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:381
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:974
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1880
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:934
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1571
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:218
 msgid "non-empty value"
 msgstr "非空值"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:708
+msgid "offline or unavailable"
+msgstr "离线或不可用"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1326
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1863
 msgid "packet addr (v2ray-core v5+)"
 msgstr "packet addr (v2ray-core v5+)"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:668
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1110
 msgid "quic-go / uquic chrome"
 msgstr "quic-go / uquic chrome"
 
@@ -3356,7 +3542,7 @@ msgstr "sing-box 客户端"
 msgid "sing-box Server"
 msgstr "sing-box 服务端"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:358
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:513
 msgid "sing-box dashboard"
 msgstr "sing-box 仪表盘"
 
@@ -3365,19 +3551,16 @@ msgid "uTLS fingerprint"
 msgstr "uTLS 指纹"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1554
-msgid ""
-"uTLS is a fork of \"crypto/tls\", which provides ClientHello fingerprinting "
-"resistance."
-msgstr ""
-"uTLS 是 \"crypto/tls\" 的一个分支，拥有抵抗 ClientHello 指纹识别的能力。"
+msgid "uTLS is a fork of \"crypto/tls\", which provides ClientHello fingerprinting resistance."
+msgstr "uTLS 是 \"crypto/tls\" 的一个分支，拥有抵抗 ClientHello 指纹识别的能力。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:332
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:352
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1768
 msgid "unique UCI identifier"
 msgstr "唯一 UCI 标识符"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:406
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:415
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:426
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:435
 msgid "unique value"
 msgstr "唯一值"
 
@@ -3395,103 +3578,68 @@ msgstr "v2"
 msgid "v3"
 msgstr "v3"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:221
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:225
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:255
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:259
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:358
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:362
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:392
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:396
 msgid "valid DNS server address"
 msgstr "有效 DNS 服务器地址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:553
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:556
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1443
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1446
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:635
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:637
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:995
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:998
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1885
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1888
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1826
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1829
 msgid "valid URL"
 msgstr "有效网址"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:426
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:446
 msgid "valid UUID"
 msgstr "有效 UUID"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:366
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:386
 msgid "valid base64 key with %d characters"
 msgstr "包含 %d 个字符的有效 base64 密钥"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1580
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1611
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:572
+msgid "valid host name or IP address"
+msgstr "有效的主机名或 IP 地址"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:2022
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:2053
 msgid "valid hostname"
 msgstr "有效主机名"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:392
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:604
+msgid "valid interface name"
+msgstr "有效的接口名称"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:412
 msgid "valid port range (port1:port2)"
 msgstr "有效端口范围（port1:port2）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:282
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:419
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:437
 msgid "valid port value"
 msgstr "有效端口值"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
-msgid "Auto-exclude Tailscale routes"
-msgstr "自动排除 Tailscale 路由"
+#~ msgid "Common ports only (bypass P2P traffic)"
+#~ msgstr "仅常用端口（绕过 P2P 流量）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
-msgid "Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when SBProxy reloads; default routes are ignored so exit-node traffic can still use SBProxy rules."
-msgstr "让活动的 Tailnet 地址与对等子网继续走 tailscale0。SBProxy 重载时会发现新增的 Tailscale 路由；默认路由会被忽略，因此出口节点流量仍可使用 SBProxy 分流规则。"
+#~ msgid "Direct latency threshold (ms)"
+#~ msgstr "直连延迟阈值（毫秒）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
-msgid "Choose all ports, common ports, or enter a comma-separated custom list. A custom list replaces the common ports."
-msgstr "选择全部端口、常用端口，或输入以逗号分隔的自定义列表。自定义列表将替代常用端口。"
+#~ msgid "Grant access to sbproxy configuration"
+#~ msgstr "授予访问 SBProxy 配置的权限"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
-msgid "Common ports + additional ports"
-msgstr "常用端口 + 额外端口"
+#~ msgid "List of nodes to test."
+#~ msgstr "要测试的节点列表。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
-msgid "Additional proxy ports"
-msgstr "额外代理端口"
+#~ msgid "Proxy outbound"
+#~ msgstr "代理出站"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
-msgid "Built-in common ports: %s. Add only ports or ranges that are not already listed."
-msgstr "内置常用端口：%s。只需添加列表中尚未包含的端口或端口范围。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Default path: %s; learned target: %s"
-msgstr "默认路径：%s；学习目标：%s"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Adaptive routing observes only traffic using the final default path. It learns proxy exceptions when the default is direct, and direct exceptions when the default is proxy. Manual routing rules keep priority."
-msgstr "自适应路由只观察最终使用默认路径的流量。默认直连时学习代理例外，默认代理时学习直连例外；手工路由规则保持更高优先级。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Allow direct exceptions in global mode"
-msgstr "允许全局模式产生直连例外"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Required before adaptive routing can create direct exceptions in global proxy mode."
-msgstr "必须明确开启后，自适应路由才能在全局代理模式下产生直连例外。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Comparison proxy outbound"
-msgstr "对比代理出站"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Used as the learned target only when the custom routing default outbound is Direct."
-msgstr "仅在自定义路由的默认出站为直连时，作为学习规则的目标路径。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Candidate trigger"
-msgstr "候选触发条件"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Slow connections or failures"
-msgstr "慢连接或连接失败"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Failures only"
-msgstr "仅连接失败"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js
-msgid "Default path latency threshold (ms)"
-msgstr "默认路径延迟阈值（毫秒）"
+#~ msgid "Specify target ports to be proxied. Multiple ports must be separated by commas."
+#~ msgstr "指定需要被代理的目标端口。多个端口必须用逗号隔开。"

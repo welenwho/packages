@@ -395,6 +395,7 @@ validate_settings || fail "Invalid embedded Tailscale configuration."
 case "${1:-watch}" in
 	check)
 		standalone_conflict && fail "Independent Tailscale is enabled, running, or owns $INTERFACE_NAME."
+		exit 0
 		;;
 	sync)
 		[ "$ENABLED" = "1" ] || fail "Embedded Tailscale is disabled."

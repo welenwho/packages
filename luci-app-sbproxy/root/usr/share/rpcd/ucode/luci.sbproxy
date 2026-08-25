@@ -56,6 +56,52 @@ function tailscaleAPICommand(arguments) {
 	return command;
 }
 
+function parseTailscaleStatus(output) {
+	let status = {
+		backend_state: null,
+		network_name: null,
+		auth_url: null
+	};
+
+	for (let line in split(output || '', '\n')) {
+		let parsed = match(line, /^\s*State:\s*(\S.*)$/);
+		if (parsed) {
+			status.backend_state = trim(parsed[1]);
+			continue;
+		}
+		parsed = match(line, /^\s*Network:\s*(\S.*)$/);
+		if (parsed) {
+			status.network_name = trim(parsed[1]);
+			continue;
+		}
+		parsed = match(line, /^\s*Log in:\s*(https?:\/\/\S+)\s*$/);
+		if (parsed)
+			status.auth_url = parsed[1];
+	}
+
+	return status;
+}
+
+function parseTailscaleExitNodes(output) {
+	let nodes = [];
+	for (let line in split(output || '', '\n')) {
+		const fields = split(trim(line), '\t');
+		if (length(fields) < 4)
+			continue;
+		const name = trim(fields[0]);
+		const address = trim(fields[1]);
+		if (!name || !address)
+			continue;
+		push(nodes, {
+			name,
+			address,
+			online: lc(trim(fields[2])) === 'yes',
+			selected: lc(trim(fields[3])) === 'selected'
+		});
+	}
+	return nodes;
+}
+
 const RESOURCES = {
 	china_ip4: {
 		source: 'https://cdn.jsdelivr.net/gh/Loyalsoldier/surge-rules@release/cncidr.txt',
@@ -197,14 +243,46 @@ const methods = {
 			sbpuci.load('sbproxy');
 			const enabled = sbpuci.get('sbproxy', 'tailscale', 'enabled') === '1';
 			if (!enabled)
-				return { enabled: false, running: false, code: 0, output: 'Disabled' };
+				return {
+					enabled: false,
+					running: false,
+					backend_state: 'Disabled',
+					network_name: null,
+					auth_url: null,
+					exit_nodes: [],
+					code: 0,
+					output: 'Disabled'
+				};
 			const command = tailscaleAPICommand([ 'tailscale', 'status' ]);
 			if (!command)
-				return { enabled, running: false, code: 1, output: 'API port is unavailable.' };
+				return {
+					enabled,
+					running: false,
+					backend_state: null,
+					network_name: null,
+					auth_url: null,
+					exit_nodes: [],
+					code: 1,
+					output: 'API port is unavailable.'
+				};
 			const result = runCommand(command);
+			const status = parseTailscaleStatus(result.output);
+			let exit_nodes = [];
+			if (result.code === 0) {
+				const exit_command = tailscaleAPICommand([ 'tailscale', 'exit-node', 'list' ]);
+				if (exit_command) {
+					const exit_result = runCommand(exit_command);
+					if (exit_result.code === 0)
+						exit_nodes = parseTailscaleExitNodes(exit_result.output);
+				}
+			}
 			return {
 				enabled,
-				running: enabled && result.code === 0 && match(result.output, /State:\s*Running/),
+				running: enabled && result.code === 0 && status.backend_state === 'Running',
+				backend_state: status.backend_state,
+				network_name: status.network_name,
+				auth_url: status.auth_url,
+				exit_nodes,
 				code: result.code,
 				output: result.output
 			};

@@ -231,6 +231,10 @@ const tailscale_endpoint = tailscale_enabled ? {
 		SB_DIR + '/tailscale',
 	auth_key: tailscale_auth_key,
 	control_url: uci.get(uciconfig, ucitailscale, 'control_url'),
+	domain_resolver: {
+		server: 'default-dns',
+		strategy: (ipv6_support !== '1') ? 'prefer_ipv4' : null
+	},
 	ephemeral: strToBool(uci.get(uciconfig, ucitailscale, 'ephemeral')),
 	hostname: uci.get(uciconfig, ucitailscale, 'hostname'),
 	accept_routes: strToBool(uci.get(uciconfig, ucitailscale, 'accept_routes')),
@@ -1386,6 +1390,10 @@ if (!isEmpty(main_node)) {
 			path: adaptive_rules_path
 		});
 } else if (tailscale_enabled) {
+	config.route.default_domain_resolver = {
+		server: 'default-dns',
+		strategy: (ipv6_support !== '1') ? 'prefer_ipv4' : null
+	};
 	add_tailscale_exit_node_rule(config.route.rules);
 	config.route.final = 'direct-out';
 }

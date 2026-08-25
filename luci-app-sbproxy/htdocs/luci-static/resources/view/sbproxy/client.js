@@ -16,7 +16,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r2 as adaptive';
+'require sbproxy-adaptive-1-0-0-r3 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -75,29 +75,67 @@ const callTailscalePing = rpc.declare({
 	expect: { '': {} }
 });
 
-function renderTailscaleStatus(status) {
-	let output = (status?.output || '').trim();
-	if (!output)
-		output = status?.enabled ? _('Waiting for the embedded backend...') : _('Disabled');
+function tailscaleStatusRow(label, value) {
+	return E('tr', { 'class': 'tr' }, [
+		E('td', { 'class': 'td left', 'width': '32%' }, label),
+		E('td', { 'class': 'td left' }, value || '-')
+	]);
+}
 
-	const pre = E('pre', { 'style': 'max-height:16rem;overflow:auto;white-space:pre-wrap' });
-	const lines = output.split('\n');
-	lines.forEach((line, index) => {
-		const login = line.match(/^(\s*Log in:\s*)(https?:\/\/\S+)\s*$/);
-		if (login) {
-			pre.appendChild(document.createTextNode(login[1]));
-			pre.appendChild(E('a', {
-				'href': login[2],
+function renderTailscaleAccount(status) {
+	const backendState = status?.backend_state;
+	if (backendState === 'Running') {
+		const button = E('button', {
+			'type': 'button',
+			'class': 'btn cbi-button cbi-button-negative'
+		}, _('Log out'));
+		button.onclick = async function() {
+			if (!confirm(_('Are you sure you want to log out of Tailscale on this device?')))
+				return;
+			button.disabled = true;
+			const result = await callTailscaleLogout();
+			ui.addNotification(null, E('p', {}, [
+				result.code === 0 ? _('Tailscale logged out.') : (result.output || _('Logout failed.'))
+			]), result.code === 0 ? 'info' : 'error');
+			button.disabled = false;
+		};
+		return E('div', {}, [
+			E('span', { 'style': 'color:green;margin-right:1rem' }, _('Connected')),
+			button
+		]);
+	}
+	if (backendState === 'NeedsLogin') {
+		return status?.auth_url && /^https?:\/\//i.test(status.auth_url)
+			? E('a', {
+				'href': status.auth_url,
 				'target': '_blank',
 				'rel': 'noreferrer noopener'
-			}, login[2]));
-		} else {
-			pre.appendChild(document.createTextNode(line));
-		}
-		if (index + 1 < lines.length)
-			pre.appendChild(document.createTextNode('\n'));
-	});
-	return pre;
+			}, _('Open login page'))
+			: E('span', { 'style': 'color:orange' }, _('Waiting for login URL'));
+	}
+	if (backendState === 'NeedsMachineAuth')
+		return E('span', { 'style': 'color:orange' }, _('Waiting for machine approval'));
+	return _('Not logged in');
+}
+
+function renderTailscaleStatus(status) {
+	const backendState = status?.backend_state ||
+		(status?.enabled ? _('Not running') : _('Disabled'));
+	const selectedExitNode = (status?.exit_nodes || []).find(node => node.selected);
+	const content = [
+		E('table', { 'class': 'table' }, [
+			tailscaleStatusRow(_('Backend State'), backendState),
+			tailscaleStatusRow(_('Tailnet'), status?.network_name),
+			tailscaleStatusRow(_('Account'), renderTailscaleAccount(status)),
+			tailscaleStatusRow(_('Exit Node in Use'), selectedExitNode ?
+				`${selectedExitNode.name} (${selectedExitNode.address})` : _('None'))
+		])
+	];
+	if (status?.enabled && status?.code !== 0) {
+		content.push(E('div', { 'class': 'alert-message warning' },
+			(status.output || _('Waiting for the embedded backend...')).trim()));
+	}
+	return E('div', {}, content);
 }
 
 function renderStatus(isRunning, version, currentNode) {
@@ -488,16 +526,27 @@ return view.extend({
 		o = s.taboption('tailscale', form.SectionValue, '_tailscale', form.NamedSection,
 			'tailscale', 'sbproxy');
 		ss = o.subsection;
+		ss.hidetitle = true;
+		ss.tab('status', _('Status'));
+		ss.tab('general', _('General Settings'));
+		ss.tab('routing', _('Routing Settings'));
+		ss.tab('dns', _('DNS Settings'));
+		ss.tab('security', _('Security'));
+		ss.tab('relay', _('Peer Relay'));
+		ss.tab('authentication', _('Authentication'));
+		ss.tab('advanced', _('Extra Settings'));
 		const standaloneTailscaleEnabled = uci.get('tailscale', 'settings', 'enabled') === '1';
 		const tailscaleStatus = data[5] || {};
+		const configuredExitNode = uci.get(data[0], 'tailscale', 'exit_node') || '';
 
-			so = ss.option(form.DummyValue, '_status', _('Status'));
-			so.renderWidget = function() {
-				return E('div', { 'id': 'tailscale_status' }, renderTailscaleStatus(tailscaleStatus));
-			};
+		so = ss.taboption('status', form.DummyValue, '_status');
+		so.render = function() {
+			return E('div', { 'id': 'tailscale_status', 'class': 'cbi-section' },
+				renderTailscaleStatus(tailscaleStatus));
+		};
 
-		so = ss.option(form.Flag, 'enabled', _('Enable embedded Tailscale'),
-			_('Runs Tailscale inside the SBProxy sing-box process. The independent Tailscale service must be disabled first.'));
+		so = ss.taboption('general', form.Flag, 'enabled', _('Enable embedded Tailscale'),
+			_('Runs Tailscale inside the SBProxy sing-box process. It can run without a proxy node; the independent Tailscale service must be disabled first.'));
 		so.default = so.disabled;
 		so.rmempty = false;
 		so.validate = function(sectionId, value) {
@@ -510,43 +559,36 @@ return view.extend({
 			return true;
 		};
 
-			so = ss.option(form.Button, '_logout', _('Account'));
-		so.inputtitle = _('Log out');
-		so.inputstyle = 'remove';
+		so = ss.taboption('general', form.Value, 'hostname', _('Device name'));
 		so.depends('enabled', '1');
-		so.onclick = async function() {
-			const result = await callTailscaleLogout();
-			ui.addNotification(null, E('p', {}, [
-				result.code === 0 ? _('Tailscale logged out.') : (result.output || _('Logout failed.'))
-				]), result.code === 0 ? 'info' : 'error');
-			};
+		so.rmempty = true;
 
-			so = ss.option(form.Value, '_ping_target', _('Peer test target'),
-				_('Enter a Tailscale IP address, machine name, or MagicDNS name.'));
-			so.depends('enabled', '1');
-			so.rmempty = true;
-			so.validate = function(sectionId, value) {
-				return !value || /^[A-Za-z0-9_.:-]+$/.test(value) ? true :
-					_('Expecting: %s').format(_('valid host name or IP address'));
-			};
+		so = ss.taboption('advanced', form.Value, '_ping_target', _('Peer test target'),
+			_('Enter a Tailscale IP address, machine name, or MagicDNS name.'));
+		so.depends('enabled', '1');
+		so.rmempty = true;
+		so.validate = function(sectionId, value) {
+			return !value || /^[A-Za-z0-9_.:-]+$/.test(value) ? true :
+				_('Expecting: %s').format(_('valid host name or IP address'));
+		};
 
-			so = ss.option(form.Button, '_ping', _('Peer connectivity'));
-			so.inputtitle = _('Ping peer');
-			so.inputstyle = 'action';
-			so.depends('enabled', '1');
-			so.onclick = async function(sectionId) {
-				const target = this.section.formvalue(sectionId, '_ping_target');
-				if (!target) {
-					ui.addNotification(null, E('p', {}, _('Enter a peer test target first.')), 'warning');
-					return;
-				}
-				const result = await callTailscalePing(target);
-				ui.addNotification(null, E('pre', { 'style': 'white-space:pre-wrap' },
-					(result.output || (result.code === 0 ? _('Peer is reachable.') : _('Peer test failed.'))).trim()),
-					result.code === 0 ? 'info' : 'error');
-			};
+		so = ss.taboption('advanced', form.Button, '_ping', _('Peer connectivity'));
+		so.inputtitle = _('Ping peer');
+		so.inputstyle = 'action';
+		so.depends('enabled', '1');
+		so.onclick = async function(sectionId) {
+			const target = this.section.formvalue(sectionId, '_ping_target');
+			if (!target) {
+				ui.addNotification(null, E('p', {}, _('Enter a peer test target first.')), 'warning');
+				return;
+			}
+			const result = await callTailscalePing(target);
+			ui.addNotification(null, E('pre', { 'style': 'white-space:pre-wrap' },
+				(result.output || (result.code === 0 ? _('Peer is reachable.') : _('Peer test failed.'))).trim()),
+				result.code === 0 ? 'info' : 'error');
+		};
 
-		so = ss.option(form.Value, 'state_directory', _('State directory'));
+		so = ss.taboption('advanced', form.Value, 'state_directory', _('State directory'));
 		so.default = '/etc/sbproxy/tailscale';
 		so.depends('enabled', '1');
 		so.rmempty = false;
@@ -554,7 +596,7 @@ return view.extend({
 			return value?.startsWith('/') ? true : _('Expecting: %s').format(_('absolute path'));
 		};
 
-		so = ss.option(form.Value, 'system_interface_name', _('System interface'));
+		so = ss.taboption('advanced', form.Value, 'system_interface_name', _('System interface'));
 		so.default = 'tailscale0';
 		so.depends('enabled', '1');
 		so.rmempty = false;
@@ -562,28 +604,24 @@ return view.extend({
 			return /^[A-Za-z0-9_.-]+$/.test(value || '') ? true : _('Expecting: %s').format(_('valid interface name'));
 		};
 
-		so = ss.option(form.Value, 'system_interface_mtu', _('Interface MTU'));
+		so = ss.taboption('advanced', form.Value, 'system_interface_mtu', _('Interface MTU'));
 		so.default = '1280';
 		so.datatype = 'range(1280,9000)';
 		so.depends('enabled', '1');
 		so.rmempty = false;
 
-		so = ss.option(form.Value, 'listen_port', _('UDP port'));
+		so = ss.taboption('advanced', form.Value, 'listen_port', _('UDP port'));
 		so.default = '41641';
 		so.datatype = 'port';
 		so.depends('enabled', '1');
 		so.rmempty = false;
 
-		so = ss.option(form.Value, 'hostname', _('Device name'));
-		so.depends('enabled', '1');
-		so.rmempty = true;
-
-		so = ss.option(widgets.DeviceSelect, 'bind_interface', _('Underlay interface'));
+		so = ss.taboption('advanced', widgets.DeviceSelect, 'bind_interface', _('Underlay interface'));
 		so.multiple = false;
 		so.noaliases = true;
 		so.depends('enabled', '1');
 
-		so = ss.option(form.Value, 'control_url', _('Control server'),
+		so = ss.taboption('authentication', form.Value, 'control_url', _('Control server'),
 			_('Leave blank for the official Tailscale control plane, or enter a Headscale URL.'));
 		so.placeholder = 'https://controlplane.tailscale.com';
 		so.depends('enabled', '1');
@@ -600,12 +638,12 @@ return view.extend({
 			}
 		};
 
-		so = ss.option(form.Value, 'auth_key', _('Auth key'));
+		so = ss.taboption('authentication', form.Value, 'auth_key', _('Auth key'));
 		so.password = true;
 		so.depends('enabled', '1');
 		so.rmempty = true;
 
-		so = ss.option(form.Value, 'auth_key_file', _('Auth key file'));
+		so = ss.taboption('authentication', form.Value, 'auth_key_file', _('Auth key file'));
 		so.placeholder = '/etc/sbproxy/tailscale/auth.key';
 		so.depends('enabled', '1');
 		so.rmempty = true;
@@ -613,59 +651,73 @@ return view.extend({
 			return !value || value.startsWith('/') ? true : _('Expecting: %s').format(_('absolute path'));
 		};
 
-		so = ss.option(form.Flag, 'ephemeral', _('Ephemeral node'));
+		so = ss.taboption('authentication', form.Flag, 'ephemeral', _('Ephemeral node'));
 		so.default = so.disabled;
 		so.depends('enabled', '1');
 		so.rmempty = false;
 
-		so = ss.option(form.Flag, 'accept_routes', _('Accept routes'));
+		so = ss.taboption('routing', form.Flag, 'accept_routes', _('Accept routes'));
 		so.default = so.disabled;
 		so.depends('enabled', '1');
 		so.rmempty = false;
 
-		so = ss.option(form.DynamicList, 'subnet_routes', _('Static peer routes'),
+		so = ss.taboption('routing', form.DynamicList, 'subnet_routes', _('Static peer routes'),
 			_('Install explicit OpenWrt routes through the embedded Tailscale interface.'));
 		so.datatype = 'or(cidr4,cidr6)';
 		so.depends({ enabled: '1', accept_routes: '1' });
 		so.rmempty = true;
 
-		so = ss.option(form.DynamicList, 'advertise_routes', _('Advertise subnets'));
+		so = ss.taboption('routing', form.DynamicList, 'advertise_routes', _('Advertise subnets'));
 		so.datatype = 'or(cidr4,cidr6)';
 		so.depends('enabled', '1');
 		so.rmempty = true;
 
-			so = ss.option(form.Flag, 'advertise_exit_node', _('Advertise exit node'));
+		so = ss.taboption('routing', form.Flag, 'advertise_exit_node', _('Advertise exit node'));
 		so.default = so.disabled;
-			so.depends('enabled', '1');
-			so.rmempty = false;
-			so.validate = function(sectionId, value) {
-				const preserveSource = this.section.formvalue(sectionId, 'disable_snat_subnet_routes');
-				return value !== '1' || preserveSource !== '1' ? true :
-					_('Subnet source address preservation cannot be enabled while advertising an exit node.');
-			};
+		so.depends('enabled', '1');
+		so.rmempty = false;
+		so.validate = function(sectionId, value) {
+			const preserveSource = this.section.formvalue(sectionId, 'disable_snat_subnet_routes');
+			return value !== '1' || preserveSource !== '1' ? true :
+				_('Subnet source address preservation cannot be enabled while advertising an exit node.');
+		};
 
-			so = ss.option(form.Flag, 'disable_snat_subnet_routes', _('Preserve subnet source addresses'),
-				_('Disable SNAT for traffic forwarded from Tailscale. LAN devices must have a return route to the Tailnet address ranges.'));
-			so.default = so.disabled;
-			so.depends('enabled', '1');
-			so.rmempty = false;
-			so.validate = function(sectionId, value) {
-				const advertiseExitNode = this.section.formvalue(sectionId, 'advertise_exit_node');
-				return value !== '1' || advertiseExitNode !== '1' ? true :
-					_('Subnet source address preservation cannot be enabled while advertising an exit node.');
-			};
+		so = ss.taboption('routing', form.Flag, 'disable_snat_subnet_routes', _('Preserve subnet source addresses'),
+			_('Disable SNAT for traffic forwarded from Tailscale. LAN devices must have a return route to the Tailnet address ranges.'));
+		so.default = so.disabled;
+		so.depends('enabled', '1');
+		so.rmempty = false;
+		so.validate = function(sectionId, value) {
+			const advertiseExitNode = this.section.formvalue(sectionId, 'advertise_exit_node');
+			return value !== '1' || advertiseExitNode !== '1' ? true :
+				_('Subnet source address preservation cannot be enabled while advertising an exit node.');
+		};
 
-		so = ss.option(form.Value, 'exit_node', _('Use exit node'),
-			_('Enter a Tailscale IP, machine name, or stable node ID.'));
+		so = ss.taboption('routing', form.ListValue, 'exit_node', _('Use exit node'),
+			_('Select an online Tailscale exit node.'));
+		so.value('', _('None'));
+		let exitNodeValues = [];
+		for (const node of (tailscaleStatus.exit_nodes || [])) {
+			if (!node.address || (!node.online && !node.selected) || exitNodeValues.includes(node.address))
+				continue;
+			exitNodeValues.push(node.address);
+			so.value(node.address, `${node.name || node.address} (${node.address})`);
+		}
+		if (configuredExitNode && !exitNodeValues.includes(configuredExitNode)) {
+			exitNodeValues.push(configuredExitNode);
+			so.value(configuredExitNode, `${configuredExitNode} (${_('offline or unavailable')})`);
+		}
 		so.depends({ enabled: '1', advertise_exit_node: '0' });
+		so.default = '';
 		so.rmempty = true;
 
-		so = ss.option(form.Flag, 'exit_node_allow_lan_access', _('Allow LAN access with exit node'));
+		so = ss.taboption('routing', form.Flag, 'exit_node_allow_lan_access', _('Allow LAN access with exit node'),
+			_('Keep direct access to local LAN subnets while using an exit node.'));
 		so.default = so.disabled;
-		so.depends({ enabled: '1', advertise_exit_node: '0' });
+		so.depends({ enabled: '1', advertise_exit_node: '0', exit_node: /.+/ });
 		so.rmempty = false;
 
-		so = ss.option(form.MultiValue, 'access', _('OpenWrt forwarding'));
+		so = ss.taboption('routing', form.MultiValue, 'access', _('OpenWrt forwarding'));
 		so.value('ts_ac_lan', _('Tailscale access LAN'));
 		so.value('ts_ac_wan', _('Tailscale access WAN'));
 		so.value('lan_ac_ts', _('LAN access Tailscale'));
@@ -673,64 +725,64 @@ return view.extend({
 		so.depends('enabled', '1');
 		so.rmempty = true;
 
-		so = ss.option(form.Flag, 'magic_dns', _('Forward MagicDNS'),
+		so = ss.taboption('dns', form.Flag, 'magic_dns', _('Forward MagicDNS'),
 			_('Forward Tailnet DNS names through the sing-box Tailscale DNS transport without replacing OpenWrt system DNS.'));
 		so.default = so.enabled;
 		so.depends('enabled', '1');
 		so.rmempty = false;
 
-		so = ss.option(form.Flag, 'accept_search_domain', _('Accept search domain'));
+		so = ss.taboption('dns', form.Flag, 'accept_search_domain', _('Accept search domain'));
 		so.default = so.enabled;
 		so.depends({ enabled: '1', magic_dns: '1' });
 		so.rmempty = false;
 
-		so = ss.option(form.DynamicList, 'advertise_tags', _('ACL tags'));
+		so = ss.taboption('authentication', form.DynamicList, 'advertise_tags', _('ACL tags'));
 		so.placeholder = 'tag:router';
 		so.depends('enabled', '1');
 		so.rmempty = true;
 
-		so = ss.option(form.Flag, 'relay_server_enabled', _('Enable peer relay'));
+		so = ss.taboption('relay', form.Flag, 'relay_server_enabled', _('Enable peer relay'));
 		so.default = so.disabled;
 		so.depends('enabled', '1');
 		so.rmempty = false;
 
-		so = ss.option(form.Value, 'relay_server_port', _('Peer relay UDP port'));
+		so = ss.taboption('relay', form.Value, 'relay_server_port', _('Peer relay UDP port'));
 		so.default = '0';
 		so.datatype = 'range(0,65535)';
 		so.depends({ enabled: '1', relay_server_enabled: '1' });
 		so.rmempty = false;
 
-		so = ss.option(form.DynamicList, 'relay_server_static_endpoints', _('Static relay endpoints'));
+		so = ss.taboption('relay', form.DynamicList, 'relay_server_static_endpoints', _('Static relay endpoints'));
 		so.placeholder = '192.0.2.1:40000';
 		so.depends({ enabled: '1', relay_server_enabled: '1' });
 		so.rmempty = true;
 
-			so = ss.option(form.Flag, 'ssh_server', _('Tailscale SSH'));
-		so.default = so.disabled;
-			so.depends('enabled', '1');
-			so.rmempty = false;
-
-			so = ss.option(form.Flag, 'ssh_disable_pty', _('Disable SSH PTY'));
-			so.default = so.disabled;
-			so.depends({ enabled: '1', ssh_server: '1' });
-			so.rmempty = false;
-
-			so = ss.option(form.Flag, 'ssh_disable_sftp', _('Disable SFTP'));
-			so.default = so.disabled;
-			so.depends({ enabled: '1', ssh_server: '1' });
-			so.rmempty = false;
-
-			so = ss.option(form.Flag, 'ssh_disable_forwarding', _('Disable SSH forwarding'));
-			so.default = so.disabled;
-			so.depends({ enabled: '1', ssh_server: '1' });
-			so.rmempty = false;
-
-		so = ss.option(form.Flag, 'taildrop_enabled', _('Taildrop'));
+		so = ss.taboption('security', form.Flag, 'ssh_server', _('Tailscale SSH'));
 		so.default = so.disabled;
 		so.depends('enabled', '1');
 		so.rmempty = false;
 
-		so = ss.option(form.Value, 'taildrop_directory', _('Taildrop directory'));
+		so = ss.taboption('security', form.Flag, 'ssh_disable_pty', _('Disable SSH PTY'));
+		so.default = so.disabled;
+		so.depends({ enabled: '1', ssh_server: '1' });
+		so.rmempty = false;
+
+		so = ss.taboption('security', form.Flag, 'ssh_disable_sftp', _('Disable SFTP'));
+		so.default = so.disabled;
+		so.depends({ enabled: '1', ssh_server: '1' });
+		so.rmempty = false;
+
+		so = ss.taboption('security', form.Flag, 'ssh_disable_forwarding', _('Disable SSH forwarding'));
+		so.default = so.disabled;
+		so.depends({ enabled: '1', ssh_server: '1' });
+		so.rmempty = false;
+
+		so = ss.taboption('security', form.Flag, 'taildrop_enabled', _('Taildrop'));
+		so.default = so.disabled;
+		so.depends('enabled', '1');
+		so.rmempty = false;
+
+		so = ss.taboption('security', form.Value, 'taildrop_directory', _('Taildrop directory'));
 		so.default = '/etc/sbproxy/tailscale/Taildrop';
 		so.depends({ enabled: '1', taildrop_enabled: '1' });
 		so.rmempty = false;
@@ -738,7 +790,7 @@ return view.extend({
 			return value?.startsWith('/') ? true : _('Expecting: %s').format(_('absolute path'));
 		};
 
-		so = ss.option(form.Value, 'udp_timeout', _('UDP NAT expiration time'));
+		so = ss.taboption('advanced', form.Value, 'udp_timeout', _('UDP NAT expiration time'));
 		so.default = '300';
 		so.datatype = 'uinteger';
 		so.depends('enabled', '1');
