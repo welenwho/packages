@@ -16,7 +16,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r8 as adaptive';
+'require sbproxy-adaptive-1-0-0-r9 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -132,7 +132,7 @@ function renderTailscaleRouteDiscovery(status) {
 	return '-';
 }
 
-function renderTailscaleAccount(status) {
+function renderTailscaleAccountControl(status) {
 	const backendState = status?.backend_state;
 	if (backendState === 'Running') {
 		const button = E('button', {
@@ -148,6 +148,8 @@ function renderTailscaleAccount(status) {
 				result.code === 0 ? _('Tailscale logged out.') : (result.output || _('Logout failed.'))
 			]), result.code === 0 ? 'info' : 'error');
 			button.disabled = false;
+			if (result.code === 0)
+				window.setTimeout(() => window.location.reload(), 500);
 		};
 		return E('div', {}, [
 			E('span', { 'style': 'color:green;margin-right:1rem' }, _('Connected')),
@@ -168,18 +170,34 @@ function renderTailscaleAccount(status) {
 	return _('Not logged in');
 }
 
+function formatTailscaleBackendState(status) {
+	const backendState = status?.backend_state;
+	if (!backendState)
+		return status?.enabled ? _('Not running') : _('Disabled');
+	switch (backendState) {
+	case 'Running':
+		return _('Connected');
+	case 'NeedsLogin':
+	case 'NoState':
+		return _('Not logged in');
+	case 'NeedsMachineAuth':
+		return _('Waiting for machine approval');
+	case 'Disabled':
+		return _('Disabled');
+	default:
+		return backendState;
+	}
+}
+
 function renderTailscaleStatus(status) {
-	const backendState = status?.backend_state ||
-		(status?.enabled ? _('Not running') : _('Disabled'));
 	const selectedExitNode = (status?.exit_nodes || []).find(node => node.selected);
 	const interfaceStatus = status?.interface || {};
 	const interfaceState = interfaceStatus.present ?
-		(interfaceStatus.up ? _('Up') : _('Present but down')) : _('Unavailable');
+		(interfaceStatus.up ? _('Available') : _('Present but down')) : _('Unavailable');
 	const content = [
 		E('table', { 'class': 'table' }, [
-			tailscaleStatusRow(_('Backend State'), backendState),
+			tailscaleStatusRow(_('Backend State'), formatTailscaleBackendState(status)),
 			tailscaleStatusRow(_('Tailnet'), status?.network_name),
-			tailscaleStatusRow(_('Account'), renderTailscaleAccount(status)),
 			tailscaleStatusRow(_('Exit Node in Use'), selectedExitNode ?
 				`${selectedExitNode.name} (${selectedExitNode.address})` : _('None')),
 			tailscaleStatusRow(_('System interface'), interfaceStatus.name),
@@ -589,7 +607,6 @@ return view.extend({
 			'tailscale', 'sbproxy');
 		ss = o.subsection;
 		ss.hidetitle = true;
-		ss.tab('status', _('Status'));
 		ss.tab('general', _('General Settings'));
 		ss.tab('routing', _('Routing Settings'));
 		ss.tab('dns', _('DNS Settings'));
@@ -597,6 +614,7 @@ return view.extend({
 		ss.tab('relay', _('Peer Relay'));
 		ss.tab('authentication', _('Authentication'));
 		ss.tab('advanced', _('Extra Settings'));
+		ss.tab('status', _('Status'));
 		const tailscaleStatus = data[5] || {};
 		const standaloneTailscaleEnabled = tailscaleStatus.standalone_installed === true &&
 			uci.get('tailscale', 'settings', 'enabled') === '1';
@@ -604,12 +622,6 @@ return view.extend({
 		const configuredPeerRoutes = L.toArray(uci.get(data[0], 'tailscale', 'subnet_routes'));
 		const configuredAdvertiseRoutes = L.toArray(uci.get(data[0], 'tailscale', 'advertise_routes'));
 		const localAdvertiseSubnets = data[6] || [];
-
-		so = ss.taboption('status', form.DummyValue, '_status');
-		so.render = function() {
-			return E('div', { 'id': 'tailscale_status', 'class': 'cbi-section' },
-				renderTailscaleStatus(tailscaleStatus));
-		};
 
 		so = ss.taboption('general', form.Flag, 'enabled', _('Enable embedded Tailscale'),
 			_('Runs Tailscale inside the SBProxy sing-box process. It can run without a proxy node; the independent Tailscale service must be disabled first.'));
@@ -623,6 +635,12 @@ return view.extend({
 			if (standaloneTailscaleEnabled)
 				return _('Disable the independent Tailscale service before enabling the embedded backend.');
 			return true;
+		};
+
+		so = ss.taboption('general', form.DummyValue, '_account', _('Account'));
+		so.depends('enabled', '1');
+		so.renderWidget = function() {
+			return renderTailscaleAccountControl(tailscaleStatus);
 		};
 
 		so = ss.taboption('general', form.Value, 'hostname', _('Device name'));
@@ -884,6 +902,12 @@ return view.extend({
 		so.datatype = 'uinteger';
 		so.depends('enabled', '1');
 		so.rmempty = false;
+
+		so = ss.taboption('status', form.DummyValue, '_status');
+		so.render = function() {
+			return E('div', { 'id': 'tailscale_status', 'class': 'cbi-section' },
+				renderTailscaleStatus(tailscaleStatus));
+		};
 		/* Embedded Tailscale end */
 
 		/* Custom routing settings start */

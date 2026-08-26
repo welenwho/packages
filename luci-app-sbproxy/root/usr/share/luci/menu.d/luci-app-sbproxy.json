@@ -15,7 +15,7 @@
 		"order": 10,
 		"action": {
 			"type": "view",
-				"path": "sbproxy/client-1-0-0-r8"
+				"path": "sbproxy/client-1-0-0-r9"
 		}
 	},
 	"admin/vpn/sbproxy/node": {

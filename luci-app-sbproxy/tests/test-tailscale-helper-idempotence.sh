@@ -201,6 +201,19 @@ grep -Fq 'network.sbproxy_ts.ip6addr=fd7a:115c:a1e0::f337:673a/128' "$TEST_ROOT/
 configure_network
 test "$(wc -l < "$TEST_ROOT/uci.set-count" | tr -d ' ')" -eq "$network_count"
 
+cat >> "$TEST_ROOT/uci.db" <<-'EOF'
+	dropbear.main=dropbear
+	dropbear.main.DirectInterface=lan
+	dropbear.@dropbear[1]=dropbear
+	dropbear.@dropbear[1].DirectInterface=tailscale
+EOF
+configure_dropbear
+dropbear_count="$(wc -l < "$TEST_ROOT/uci.set-count" | tr -d ' ')"
+grep -Fq 'dropbear.main.DirectInterface=lan' "$TEST_ROOT/uci.db"
+grep -Fq 'dropbear.@dropbear[1].DirectInterface=sbproxy_ts' "$TEST_ROOT/uci.db"
+configure_dropbear
+test "$(wc -l < "$TEST_ROOT/uci.set-count" | tr -d ' ')" -eq "$dropbear_count"
+
 configure_route_policy
 test "$(wc -l < "$TEST_ROOT/ip.rule-add-count" | tr -d ' ')" -eq 5
 grep -Fq -- '-4|5260|lookup-to|100.64.0.0/10' "$TEST_ROOT/ip.rules"
@@ -249,4 +262,4 @@ test "$third_count" -eq "$first_count"
 test "$FIREWALL_RUNTIME_CHANGED" -eq 1
 test ! -s "$NAT_FILE"
 
-echo 'Tailscale helper test passed: interface ownership, selected routes, conflicts, exit nodes, and idempotence are safe'
+echo 'Tailscale helper test passed: interface ownership, service migration, selected routes, conflicts, exit nodes, and idempotence are safe'

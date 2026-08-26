@@ -458,6 +458,16 @@ configure_network() {
 	done
 }
 
+configure_dropbear() {
+	local section
+
+	for section in $(uci show dropbear 2>"/dev/null" |
+		sed -n 's/^\(dropbear\.[^=]*\)=dropbear$/\1/p'); do
+		[ "$(uci_get "$section.DirectInterface")" != "tailscale" ] ||
+			uci_set_if_changed "$section.DirectInterface" sbproxy_ts || return 1
+	done
+}
+
 notify_network_status() {
 	[ -x "$NETIFD_PROTO" ] || return 1
 	"$NETIFD_PROTO" notify sbproxy_ts "$INTERFACE_NAME" "$TS_IPV4" "$TS_IPV6" 1
@@ -545,6 +555,10 @@ commit_changes() {
 	elif [ "$FIREWALL_RUNTIME_CHANGED" = "1" ]; then
 		/etc/init.d/firewall reload || return 1
 	fi
+	if [ -n "$(uci changes dropbear)" ]; then
+		uci commit dropbear || return 1
+		/etc/init.d/dropbear restart || return 1
+	fi
 	FIREWALL_RUNTIME_CHANGED=0
 }
 
@@ -552,6 +566,7 @@ sync_openwrt() {
 	self_details || return 1
 	configure_magicdns || return 1
 	configure_network || return 1
+	configure_dropbear || return 1
 	configure_route_policy || return 1
 	configure_firewall || return 1
 	commit_changes || return 1
