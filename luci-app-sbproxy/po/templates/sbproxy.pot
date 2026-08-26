@@ -1575,6 +1575,10 @@ msgstr ""
 msgid "Keep direct access to local LAN subnets while using an exit node."
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:468
+msgid "Keep tailscale0 unless another Tailscale-compatible device name is explicitly required."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:753
 msgid "Key path"
 msgstr ""
@@ -3762,6 +3766,10 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:575
 msgid "sing-box dashboard"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:215
+msgid "tailscale0 is the standard Tailscale kernel device; sbproxy_ts is the OpenWrt logical interface used by netifd and firewall integration."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1553

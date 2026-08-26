@@ -1521,6 +1521,10 @@ msgstr "让活动的 Tailnet 地址与对等子网继续走 tailscale0。SBProxy
 msgid "Keep direct access to local LAN subnets while using an exit node."
 msgstr "使用出口节点时保留对本地 LAN 子网的直接访问。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:468
+msgid "Keep tailscale0 unless another Tailscale-compatible device name is explicitly required."
+msgstr "除非明确需要其他兼容 Tailscale 的设备名称，否则请保留 tailscale0。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:753
 msgid "Key path"
 msgstr "密钥路径"
@@ -3618,6 +3622,10 @@ msgstr "sing-box 服务端"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:575
 msgid "sing-box dashboard"
 msgstr "sing-box 仪表盘"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:215
+msgid "tailscale0 is the standard Tailscale kernel device; sbproxy_ts is the OpenWrt logical interface used by netifd and firewall integration."
+msgstr "tailscale0 是标准的 Tailscale 内核设备；sbproxy_ts 是供 netifd 和防火墙集成使用的 OpenWrt 逻辑接口。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1553
 msgid "uTLS fingerprint"

@@ -4,6 +4,7 @@ set -eu
 
 PACKAGE_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 CLIENT="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client.js"
+TAILSCALE="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale.js"
 GENERATOR="$PACKAGE_ROOT/root/etc/sbproxy/scripts/generate_client.uc"
 INIT="$PACKAGE_ROOT/root/etc/init.d/sbproxy"
 HELPER="$PACKAGE_ROOT/root/usr/sbin/sbproxy_tailscale_helper"
@@ -22,6 +23,7 @@ cache_version="$(printf '%s\n' "$pkg_version" | sed 's/[^A-Za-z0-9_-]/-/g')"
 cache_key="${cache_version}-r${pkg_release}"
 versioned_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${cache_key}.js"
 versioned_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${cache_key}.js"
+versioned_tailscale="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale-${cache_key}.js"
 
 grep -Fq '"admin/vpn/sbproxy"' "$MENU"
 grep -Fq 'PKG_NAME:=luci-app-sbproxy' "$PACKAGE_ROOT/Makefile"
@@ -38,6 +40,7 @@ for view in "$PACKAGE_ROOT"/htdocs/luci-static/resources/view/sbproxy/*.js; do
 done
 grep -Fq "'require sbproxy as sb';" \
 	"$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client.js"
+grep -Fq "'require sbproxy as sb';" "$TAILSCALE"
 grep -Fq "'require sbproxy as sb';" \
 	"$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/node.js"
 grep -Fq "'require sbproxy as sb';" \
@@ -46,6 +49,10 @@ test "$(readlink "$versioned_adaptive")" = \
 	'sbproxy-adaptive.js'
 test "$(readlink "$versioned_client")" = \
 	'client.js'
+test "$(readlink "$versioned_tailscale")" = \
+	'tailscale.js'
+grep -Fq '"admin/vpn/sbproxy/tailscale"' "$MENU"
+grep -Fq "\"path\": \"sbproxy/tailscale-${cache_key}\"" "$MENU"
 grep -Fq "type: 'tailscale'" "$GENERATOR"
 grep -A12 "const tailscale_endpoint = tailscale_enabled" "$GENERATOR" | grep -Fq "domain_resolver: {"
 grep -A14 "const tailscale_endpoint = tailscale_enabled" "$GENERATOR" | grep -Fq "server: 'default-dns'"
@@ -54,15 +61,15 @@ grep -Fq "accept_routes: strToBool(uci.get(uciconfig, ucitailscale, 'accept_rout
 grep -Fq "dns_mode: 'disabled'" "$GENERATOR"
 grep -Fq "inbound: tailscale_endpoint_tag" "$GENERATOR"
 grep -Fq "invert: true" "$GENERATOR"
-grep -Fq "form.Flag, 'disable_snat_subnet_routes'" "$CLIENT"
-grep -Fq "The default route must be configured as an exit node." "$CLIENT"
-grep -Fq "form.Flag, 'ssh_disable_forwarding'" "$CLIENT"
-grep -Fq "method: 'tailscale_ping'" "$CLIENT"
-grep -Fq "formatTailscaleBytes" "$CLIENT"
-grep -Fq "renderTailscaleRouteDiscovery" "$CLIENT"
-grep -Fq "_('Tailscale IPv4')" "$CLIENT"
-grep -Fq "_('Tailscale IPv6')" "$CLIENT"
-grep -Fq "_('Interface Management')" "$CLIENT"
+grep -Fq "form.Flag, 'disable_snat_subnet_routes'" "$TAILSCALE"
+grep -Fq "The default route must be configured as an exit node." "$TAILSCALE"
+grep -Fq "form.Flag, 'ssh_disable_forwarding'" "$TAILSCALE"
+grep -Fq "method: 'tailscale_ping'" "$TAILSCALE"
+grep -Fq "formatTailscaleBytes" "$TAILSCALE"
+grep -Fq "renderTailscaleRouteDiscovery" "$TAILSCALE"
+grep -Fq "_('Tailscale IPv4')" "$TAILSCALE"
+grep -Fq "_('Tailscale IPv6')" "$TAILSCALE"
+grep -Fq "_('Interface Management')" "$TAILSCALE"
 grep -Fq '"tailscale"' "$ACL"
 grep -Fq 'dashboard/index.html' "$HELPER"
 grep -Fq 'firewall.sbproxy_tszone.masq 0' "$HELPER"
@@ -104,8 +111,8 @@ grep -Fq '/sbin/ip -j address show dev ${shellQuote(interface_name)}' "$RPC"
 grep -Fq "standalone_installed" "$RPC"
 grep -Fq "index(route, '/') < 0" "$RPC"
 # PPPoE receives a /32 WAN address; it must not become an advertised subnet candidate.
-grep -Fq "cidr < 1 || cidr >= 32" "$CLIENT"
-grep -Fq "widgets.DeviceSelect, 'bind_interface'" "$CLIENT"
+grep -Fq "cidr < 1 || cidr >= 32" "$TAILSCALE"
+grep -Fq "widgets.DeviceSelect, 'bind_interface'" "$TAILSCALE"
 grep -Fq "bind_interface: uci.get(uciconfig, ucitailscale, 'bind_interface')" "$GENERATOR"
 grep -Fq 'local routing_mode proxy_mode tailscale_enabled' "$INIT"
 grep -Fq '[ "$outbound_node" = "nil" ] || proxy_client_requested=1' "$INIT"

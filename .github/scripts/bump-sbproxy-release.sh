@@ -8,6 +8,7 @@ PACKAGE_ROOT="$REPO_ROOT/luci-app-sbproxy"
 MAKEFILE="$PACKAGE_ROOT/Makefile"
 MENU="$PACKAGE_ROOT/root/usr/share/luci/menu.d/luci-app-sbproxy.json"
 CLIENT="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client.js"
+TAILSCALE="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale.js"
 
 make_value() {
 	sed -n "s/^$1:=//p" "$MAKEFILE" | head -n1
@@ -59,6 +60,8 @@ old_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${old_
 new_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${new_cache_key}.js"
 old_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${old_cache_key}.js"
 new_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${new_cache_key}.js"
+old_tailscale="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale-${old_cache_key}.js"
+new_tailscale="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale-${new_cache_key}.js"
 
 [[ -L "$old_adaptive" && "$(readlink "$old_adaptive")" == 'sbproxy-adaptive.js' ]] || {
 	printf 'Invalid adaptive cache symlink: %s\n' "$old_adaptive" >&2
@@ -66,6 +69,10 @@ new_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${new
 }
 [[ -L "$old_client" && "$(readlink "$old_client")" == 'client.js' ]] || {
 	printf 'Invalid client cache symlink: %s\n' "$old_client" >&2
+	exit 1
+}
+[[ -L "$old_tailscale" && "$(readlink "$old_tailscale")" == 'tailscale.js' ]] || {
+	printf 'Invalid Tailscale cache symlink: %s\n' "$old_tailscale" >&2
 	exit 1
 }
 [[ ! -e "$new_adaptive" && ! -L "$new_adaptive" ]] || {
@@ -76,17 +83,25 @@ new_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${new
 	printf 'Target client cache path already exists: %s\n' "$new_client" >&2
 	exit 1
 }
+[[ ! -e "$new_tailscale" && ! -L "$new_tailscale" ]] || {
+	printf 'Target Tailscale cache path already exists: %s\n' "$new_tailscale" >&2
+	exit 1
+}
 
-replace_once "$MENU" "$old_cache_key" "$new_cache_key"
+replace_once "$MENU" "sbproxy/client-${old_cache_key}" "sbproxy/client-${new_cache_key}"
+replace_once "$MENU" "sbproxy/tailscale-${old_cache_key}" "sbproxy/tailscale-${new_cache_key}"
 replace_once "$CLIENT" "$old_cache_key" "$new_cache_key"
 replace_once "$MAKEFILE" "PKG_RELEASE:=$release" "PKG_RELEASE:=$new_release"
 mv -- "$old_adaptive" "$new_adaptive"
 mv -- "$old_client" "$new_client"
+mv -- "$old_tailscale" "$new_tailscale"
 
 [[ "$(make_value PKG_RELEASE)" == "$new_release" ]]
 [[ "$(readlink "$new_adaptive")" == 'sbproxy-adaptive.js' ]]
 [[ "$(readlink "$new_client")" == 'client.js' ]]
+[[ "$(readlink "$new_tailscale")" == 'tailscale.js' ]]
 grep -Fq "\"path\": \"sbproxy/client-${new_cache_key}\"" "$MENU"
+grep -Fq "\"path\": \"sbproxy/tailscale-${new_cache_key}\"" "$MENU"
 grep -Fq "'require sbproxy-adaptive-${new_cache_key} as adaptive';" "$CLIENT"
 
 printf 'SBProxy package release: %s-r%s -> %s-r%s (LuCI cache key: %s)\n' \

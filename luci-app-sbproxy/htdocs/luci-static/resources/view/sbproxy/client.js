@@ -5,7 +5,6 @@
  */
 
 'use strict';
-'require dom';
 'require form';
 'require network';
 'require poll';
@@ -16,7 +15,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r9 as adaptive';
+'require sbproxy-adaptive-1-0-0-r10 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -56,167 +55,6 @@ const callCurrentNode = rpc.declare({
 	expect: { '': {} }
 });
 
-const callTailscaleStatus = rpc.declare({
-	object: 'luci.sbproxy',
-	method: 'tailscale_status',
-	expect: { '': {} }
-});
-
-const callTailscaleLogout = rpc.declare({
-	object: 'luci.sbproxy',
-	method: 'tailscale_logout',
-	expect: { '': {} }
-});
-
-const callTailscalePing = rpc.declare({
-	object: 'luci.sbproxy',
-	method: 'tailscale_ping',
-	params: [ 'target' ],
-	expect: { '': {} }
-});
-
-function ipv4Subnet(address) {
-	const parts = (address || '').split('/');
-	const cidr = Number(parts[1]);
-	const octets = parts[0]?.split('.').map(Number);
-	if (parts.length !== 2 || !Number.isInteger(cidr) || cidr < 1 || cidr >= 32 ||
-	    octets?.length !== 4 || octets.some(octet => !Number.isInteger(octet) || octet < 0 || octet > 255))
-		return null;
-
-	const mask = (0xffffffff << (32 - cidr)) >>> 0;
-	const numeric = octets.reduce((value, octet) => ((value << 8) | octet) >>> 0, 0);
-	const subnet = (numeric & mask) >>> 0;
-	return [ 24, 16, 8, 0 ].map(shift => (subnet >>> shift) & 255).join('.') + '/' + cidr;
-}
-
-async function getLocalAdvertiseSubnets() {
-	const ignored = [ 'loopback', 'tailscale', 'sbproxy_ts' ];
-	const networks = await network.getNetworks();
-	const candidates = [], seen = new Set();
-
-	for (const iface of networks) {
-		const name = iface.getName();
-		if (ignored.includes(name) || /^tailscale\d*$/.test(name) || /^singtun\d*$/.test(name))
-			continue;
-		for (const address of (iface.getIPAddrs() || [])) {
-			const subnet = ipv4Subnet(address);
-			if (!subnet || seen.has(subnet) || subnet.startsWith('127.') || subnet.startsWith('169.254.'))
-				continue;
-			seen.add(subnet);
-			candidates.push({ value: subnet, network: name });
-		}
-	}
-	return candidates;
-}
-
-function tailscaleStatusRow(label, value) {
-	return E('tr', { 'class': 'tr' }, [
-		E('td', { 'class': 'td left', 'width': '32%' }, label),
-		E('td', { 'class': 'td left' }, value || '-')
-	]);
-}
-
-function formatTailscaleBytes(value) {
-	const bytes = Number(value);
-	return Number.isFinite(bytes) && bytes >= 0 ? '%1024mB'.format(bytes) : '-';
-}
-
-function renderTailscaleRouteDiscovery(status) {
-	if (status?.peer_routes_available === true)
-		return E('span', { 'style': 'color:green' }, _('Available'));
-	if (status?.peer_routes_available === false)
-		return E('span', {
-			'style': 'color:orange',
-			'title': status.peer_routes_error || ''
-		}, _('Unavailable; configured routes are kept'));
-	return '-';
-}
-
-function renderTailscaleAccountControl(status) {
-	const backendState = status?.backend_state;
-	if (backendState === 'Running') {
-		const button = E('button', {
-			'type': 'button',
-			'class': 'btn cbi-button cbi-button-negative'
-		}, _('Log out'));
-		button.onclick = async function() {
-			if (!confirm(_('Are you sure you want to log out of Tailscale on this device?')))
-				return;
-			button.disabled = true;
-			const result = await callTailscaleLogout();
-			ui.addNotification(null, E('p', {}, [
-				result.code === 0 ? _('Tailscale logged out.') : (result.output || _('Logout failed.'))
-			]), result.code === 0 ? 'info' : 'error');
-			button.disabled = false;
-			if (result.code === 0)
-				window.setTimeout(() => window.location.reload(), 500);
-		};
-		return E('div', {}, [
-			E('span', { 'style': 'color:green;margin-right:1rem' }, _('Connected')),
-			button
-		]);
-	}
-	if (backendState === 'NeedsLogin') {
-		return status?.auth_url && /^https?:\/\//i.test(status.auth_url)
-			? E('a', {
-				'href': status.auth_url,
-				'target': '_blank',
-				'rel': 'noreferrer noopener'
-			}, _('Open login page'))
-			: E('span', { 'style': 'color:orange' }, _('Waiting for login URL'));
-	}
-	if (backendState === 'NeedsMachineAuth')
-		return E('span', { 'style': 'color:orange' }, _('Waiting for machine approval'));
-	return _('Not logged in');
-}
-
-function formatTailscaleBackendState(status) {
-	const backendState = status?.backend_state;
-	if (!backendState)
-		return status?.enabled ? _('Not running') : _('Disabled');
-	switch (backendState) {
-	case 'Running':
-		return _('Connected');
-	case 'NeedsLogin':
-	case 'NoState':
-		return _('Not logged in');
-	case 'NeedsMachineAuth':
-		return _('Waiting for machine approval');
-	case 'Disabled':
-		return _('Disabled');
-	default:
-		return backendState;
-	}
-}
-
-function renderTailscaleStatus(status) {
-	const selectedExitNode = (status?.exit_nodes || []).find(node => node.selected);
-	const interfaceStatus = status?.interface || {};
-	const interfaceState = interfaceStatus.present ?
-		(interfaceStatus.up ? _('Available') : _('Present but down')) : _('Unavailable');
-	const content = [
-		E('table', { 'class': 'table' }, [
-			tailscaleStatusRow(_('Backend State'), formatTailscaleBackendState(status)),
-			tailscaleStatusRow(_('Tailnet'), status?.network_name),
-			tailscaleStatusRow(_('Exit Node in Use'), selectedExitNode ?
-				`${selectedExitNode.name} (${selectedExitNode.address})` : _('None')),
-			tailscaleStatusRow(_('System interface'), interfaceStatus.name),
-			tailscaleStatusRow(_('Interface Management'), _('Managed by sing-box')),
-			tailscaleStatusRow(_('Interface State'), interfaceState),
-			tailscaleStatusRow(_('Tailscale IPv4'), (interfaceStatus.ipv4 || []).join(', ')),
-			tailscaleStatusRow(_('Tailscale IPv6'), (interfaceStatus.ipv6 || []).join(', ')),
-			tailscaleStatusRow(_('Interface MTU'), interfaceStatus.mtu),
-			tailscaleStatusRow(_('Received / Sent'), `${formatTailscaleBytes(interfaceStatus.rx_bytes)} / ${formatTailscaleBytes(interfaceStatus.tx_bytes)}`),
-			tailscaleStatusRow(_('Peer Route Discovery'), renderTailscaleRouteDiscovery(status))
-		])
-	];
-	if (status?.enabled && status?.code !== 0) {
-		content.push(E('div', { 'class': 'alert-message warning' },
-			(status.output || _('Waiting for the embedded backend...')).trim()));
-	}
-	return E('div', {}, content);
-}
-
 function renderStatus(isRunning, version, currentNode) {
 	let spanTemp = '<em><span style="color:%s"><strong>%s (sing-box v%s) %s</strong></span></em>';
 	let renderHTML;
@@ -252,10 +90,7 @@ return view.extend({
 			uci.load('sbproxy'),
 			sb.getBuiltinFeatures(),
 			network.getHostHints(),
-			adaptive.loadStatus(),
-			L.resolveDefault(uci.load('tailscale'), null),
-			L.resolveDefault(callTailscaleStatus(), {}),
-			L.resolveDefault(getLocalAdvertiseSubnets(), [])
+			adaptive.loadStatus()
 		]);
 	},
 
@@ -314,8 +149,7 @@ return view.extend({
 				poll.add(function () {
 					return Promise.all([
 						L.resolveDefault(sb.getServiceStatus('sing-box-c'), false),
-						L.resolveDefault(callCurrentNode(), null),
-						L.resolveDefault(callTailscaleStatus(), {})
+						L.resolveDefault(callCurrentNode(), null)
 					]).then((res) => {
 					let isRunning = res[0],
 					    current = res[1],
@@ -332,9 +166,6 @@ return view.extend({
 						if (view)
 							view.innerHTML = renderStatus(isRunning, features.version, current_label);
 
-						view = document.getElementById('tailscale_status');
-						if (view)
-							dom.content(view, renderTailscaleStatus(res[2]));
 						});
 				});
 
@@ -347,7 +178,6 @@ return view.extend({
 
 		s.tab('routing', _('Routing Settings'));
 		s.tab('dashboard', _('Dashboard'));
-		s.tab('tailscale', _('Tailscale'));
 		adaptive.addForm(m, s, data[3]);
 
 		o = s.taboption('routing', form.ListValue, 'main_node', _('Main node'));
@@ -601,314 +431,6 @@ return view.extend({
 				host = '[' + host + ']';
 			window.open('http://' + host + ':' + port + '/dashboard/', '_blank', 'noopener,noreferrer');
 		};
-
-		/* Embedded Tailscale start */
-		o = s.taboption('tailscale', form.SectionValue, '_tailscale', form.NamedSection,
-			'tailscale', 'sbproxy');
-		ss = o.subsection;
-		ss.hidetitle = true;
-		ss.tab('general', _('General Settings'));
-		ss.tab('routing', _('Routing Settings'));
-		ss.tab('dns', _('DNS Settings'));
-		ss.tab('security', _('Security'));
-		ss.tab('relay', _('Peer Relay'));
-		ss.tab('authentication', _('Authentication'));
-		ss.tab('advanced', _('Extra Settings'));
-		ss.tab('status', _('Status'));
-		const tailscaleStatus = data[5] || {};
-		const standaloneTailscaleEnabled = tailscaleStatus.standalone_installed === true &&
-			uci.get('tailscale', 'settings', 'enabled') === '1';
-		const configuredExitNode = uci.get(data[0], 'tailscale', 'exit_node') || '';
-		const configuredPeerRoutes = L.toArray(uci.get(data[0], 'tailscale', 'subnet_routes'));
-		const configuredAdvertiseRoutes = L.toArray(uci.get(data[0], 'tailscale', 'advertise_routes'));
-		const localAdvertiseSubnets = data[6] || [];
-
-		so = ss.taboption('general', form.Flag, 'enabled', _('Enable embedded Tailscale'),
-			_('Runs Tailscale inside the SBProxy sing-box process. It can run without a proxy node; the independent Tailscale service must be disabled first.'));
-		so.default = so.disabled;
-		so.rmempty = false;
-		so.validate = function(sectionId, value) {
-			if (value !== '1')
-				return true;
-			if (!features.with_tailscale)
-				return _('The installed sing-box build does not include Tailscale support.');
-			if (standaloneTailscaleEnabled)
-				return _('Disable the independent Tailscale service before enabling the embedded backend.');
-			return true;
-		};
-
-		so = ss.taboption('general', form.DummyValue, '_account', _('Account'));
-		so.depends('enabled', '1');
-		so.renderWidget = function() {
-			return renderTailscaleAccountControl(tailscaleStatus);
-		};
-
-		so = ss.taboption('general', form.Value, 'hostname', _('Device name'));
-		so.depends('enabled', '1');
-		so.rmempty = true;
-
-		so = ss.taboption('advanced', form.Value, '_ping_target', _('Peer test target'),
-			_('Enter a Tailscale IP address, machine name, or MagicDNS name.'));
-		so.depends('enabled', '1');
-		so.rmempty = true;
-		so.validate = function(sectionId, value) {
-			return !value || /^[A-Za-z0-9_.:-]+$/.test(value) ? true :
-				_('Expecting: %s').format(_('valid host name or IP address'));
-		};
-
-		so = ss.taboption('advanced', form.Button, '_ping', _('Peer connectivity'));
-		so.inputtitle = _('Ping peer');
-		so.inputstyle = 'action';
-		so.depends('enabled', '1');
-		so.onclick = async function(sectionId) {
-			const target = this.section.formvalue(sectionId, '_ping_target');
-			if (!target) {
-				ui.addNotification(null, E('p', {}, _('Enter a peer test target first.')), 'warning');
-				return;
-			}
-			const result = await callTailscalePing(target);
-			ui.addNotification(null, E('pre', { 'style': 'white-space:pre-wrap' },
-				(result.output || (result.code === 0 ? _('Peer is reachable.') : _('Peer test failed.'))).trim()),
-				result.code === 0 ? 'info' : 'error');
-		};
-
-		so = ss.taboption('advanced', form.Value, 'state_directory', _('State directory'));
-		so.default = '/etc/sbproxy/tailscale';
-		so.depends('enabled', '1');
-		so.rmempty = false;
-		so.validate = function(sectionId, value) {
-			return value?.startsWith('/') ? true : _('Expecting: %s').format(_('absolute path'));
-		};
-
-		so = ss.taboption('advanced', form.Value, 'system_interface_name', _('System interface'));
-		so.default = 'tailscale0';
-		so.depends('enabled', '1');
-		so.rmempty = false;
-		so.validate = function(sectionId, value) {
-			return /^[A-Za-z0-9_.-]+$/.test(value || '') ? true : _('Expecting: %s').format(_('valid interface name'));
-		};
-
-		so = ss.taboption('advanced', form.Value, 'system_interface_mtu', _('Interface MTU'));
-		so.default = '1280';
-		so.datatype = 'range(1280,9000)';
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('advanced', form.Value, 'listen_port', _('UDP port'));
-		so.default = '41641';
-		so.datatype = 'port';
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('advanced', widgets.DeviceSelect, 'bind_interface', _('Underlay interface'));
-		so.multiple = false;
-		so.noaliases = true;
-		so.depends('enabled', '1');
-
-		so = ss.taboption('authentication', form.Value, 'control_url', _('Control server'),
-			_('Leave blank for the official Tailscale control plane, or enter a Headscale URL.'));
-		so.placeholder = 'https://controlplane.tailscale.com';
-		so.depends('enabled', '1');
-		so.rmempty = true;
-		so.validate = function(sectionId, value) {
-			if (!value)
-				return true;
-			try {
-				const url = new URL(value);
-				return ['http:', 'https:'].includes(url.protocol) && !!url.hostname ? true :
-					_('Expecting: %s').format(_('valid URL'));
-			} catch (e) {
-				return _('Expecting: %s').format(_('valid URL'));
-			}
-		};
-
-		so = ss.taboption('authentication', form.Value, 'auth_key', _('Auth key'));
-		so.password = true;
-		so.depends('enabled', '1');
-		so.rmempty = true;
-
-		so = ss.taboption('authentication', form.Value, 'auth_key_file', _('Auth key file'));
-		so.placeholder = '/etc/sbproxy/tailscale/auth.key';
-		so.depends('enabled', '1');
-		so.rmempty = true;
-		so.validate = function(sectionId, value) {
-			return !value || value.startsWith('/') ? true : _('Expecting: %s').format(_('absolute path'));
-		};
-
-		so = ss.taboption('authentication', form.Flag, 'ephemeral', _('Ephemeral node'));
-		so.default = so.disabled;
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('routing', form.Flag, 'accept_routes', _('Accept routes'));
-		so.default = so.disabled;
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('routing', form.DynamicList, 'subnet_routes', _('Static peer routes'),
-			_('Select subnets advertised by peers after login. Custom CIDR values remain supported.'));
-		let peerRouteValues = [];
-		for (const route of (tailscaleStatus.peer_routes || [])) {
-			if (!route.route || peerRouteValues.includes(route.route))
-				continue;
-			peerRouteValues.push(route.route);
-			so.value(route.route, route.route + ' - ' + (route.name || route.address) +
-				(route.online ? '' : ' (' + _('peer offline') + ')'));
-		}
-		for (const route of configuredPeerRoutes) {
-			if (!peerRouteValues.includes(route)) {
-				peerRouteValues.push(route);
-				so.value(route, route + ' (' + (tailscaleStatus.peer_routes_available === true ?
-					_('configured; not currently advertised') :
-					_('configured; backend status unavailable')) + ')');
-			}
-		}
-		so.datatype = 'or(cidr4,cidr6)';
-		so.validate = function(sectionId, value) {
-			return !value.endsWith('/0') || _('The default route must be configured as an exit node.');
-		};
-		so.depends({ enabled: '1', accept_routes: '1' });
-		so.rmempty = true;
-
-		so = ss.taboption('routing', form.DynamicList, 'advertise_routes', _('Advertise subnets'),
-			_('Select local interface subnets to publish. Custom CIDR values remain supported.'));
-		let advertiseRouteValues = [];
-		for (const route of localAdvertiseSubnets) {
-			if (!route.value || advertiseRouteValues.includes(route.value))
-				continue;
-			advertiseRouteValues.push(route.value);
-			so.value(route.value, route.value + ' (' + route.network + ')');
-		}
-		for (const route of configuredAdvertiseRoutes) {
-			if (!advertiseRouteValues.includes(route)) {
-				advertiseRouteValues.push(route);
-				so.value(route, route + ' (' + _('manually configured; no local interface match') + ')');
-			}
-		}
-		so.datatype = 'or(cidr4,cidr6)';
-		so.depends('enabled', '1');
-		so.rmempty = true;
-
-		so = ss.taboption('routing', form.Flag, 'advertise_exit_node', _('Advertise exit node'));
-		so.default = so.disabled;
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('routing', form.Flag, 'disable_snat_subnet_routes', _('Preserve subnet source addresses'),
-			_('Disable SNAT for traffic forwarded from Tailscale. LAN devices must have a return route to the Tailnet address ranges.'));
-		so.default = so.disabled;
-		so.depends({ enabled: '1', advertise_exit_node: '0' });
-		so.rmempty = false;
-
-		so = ss.taboption('routing', form.ListValue, 'exit_node', _('Use exit node'),
-			_('Select an online Tailscale exit node.'));
-		so.value('', _('None'));
-		let exitNodeValues = [];
-		for (const node of (tailscaleStatus.exit_nodes || [])) {
-			if (!node.address || (!node.online && !node.selected) || exitNodeValues.includes(node.address))
-				continue;
-			exitNodeValues.push(node.address);
-			so.value(node.address, (node.name || node.address) + ' (' + node.address + ')');
-		}
-		if (configuredExitNode && !exitNodeValues.includes(configuredExitNode)) {
-			exitNodeValues.push(configuredExitNode);
-			so.value(configuredExitNode, configuredExitNode + ' (' + _('offline or unavailable') + ')');
-		}
-		so.depends({ enabled: '1', advertise_exit_node: '0' });
-		so.default = '';
-		so.rmempty = true;
-
-		so = ss.taboption('routing', form.Flag, 'exit_node_allow_lan_access', _('Allow LAN access with exit node'),
-			_('Keep direct access to local LAN subnets while using an exit node.'));
-		so.default = so.disabled;
-		so.depends({ enabled: '1', advertise_exit_node: '0', exit_node: /.+/ });
-		so.rmempty = false;
-
-		so = ss.taboption('routing', form.MultiValue, 'access', _('OpenWrt forwarding'));
-		so.value('ts_ac_lan', _('Tailscale access LAN'));
-		so.value('ts_ac_wan', _('Tailscale access WAN'));
-		so.value('lan_ac_ts', _('LAN access Tailscale'));
-		so.value('wan_ac_ts', _('WAN access Tailscale'));
-		so.depends('enabled', '1');
-		so.rmempty = true;
-
-		so = ss.taboption('dns', form.Flag, 'magic_dns', _('Forward MagicDNS'),
-			_('Forward Tailnet DNS names through the sing-box Tailscale DNS transport without replacing OpenWrt system DNS.'));
-		so.default = so.enabled;
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('dns', form.Flag, 'accept_search_domain', _('Accept search domain'));
-		so.default = so.enabled;
-		so.depends({ enabled: '1', magic_dns: '1' });
-		so.rmempty = false;
-
-		so = ss.taboption('authentication', form.DynamicList, 'advertise_tags', _('ACL tags'));
-		so.placeholder = 'tag:router';
-		so.depends('enabled', '1');
-		so.rmempty = true;
-
-		so = ss.taboption('relay', form.Flag, 'relay_server_enabled', _('Enable peer relay'));
-		so.default = so.disabled;
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('relay', form.Value, 'relay_server_port', _('Peer relay UDP port'));
-		so.default = '0';
-		so.datatype = 'range(0,65535)';
-		so.depends({ enabled: '1', relay_server_enabled: '1' });
-		so.rmempty = false;
-
-		so = ss.taboption('relay', form.DynamicList, 'relay_server_static_endpoints', _('Static relay endpoints'));
-		so.placeholder = '192.0.2.1:40000';
-		so.depends({ enabled: '1', relay_server_enabled: '1' });
-		so.rmempty = true;
-
-		so = ss.taboption('security', form.Flag, 'ssh_server', _('Tailscale SSH'));
-		so.default = so.disabled;
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('security', form.Flag, 'ssh_disable_pty', _('Disable SSH PTY'));
-		so.default = so.disabled;
-		so.depends({ enabled: '1', ssh_server: '1' });
-		so.rmempty = false;
-
-		so = ss.taboption('security', form.Flag, 'ssh_disable_sftp', _('Disable SFTP'));
-		so.default = so.disabled;
-		so.depends({ enabled: '1', ssh_server: '1' });
-		so.rmempty = false;
-
-		so = ss.taboption('security', form.Flag, 'ssh_disable_forwarding', _('Disable SSH forwarding'));
-		so.default = so.disabled;
-		so.depends({ enabled: '1', ssh_server: '1' });
-		so.rmempty = false;
-
-		so = ss.taboption('security', form.Flag, 'taildrop_enabled', _('Taildrop'));
-		so.default = so.disabled;
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('security', form.Value, 'taildrop_directory', _('Taildrop directory'));
-		so.default = '/etc/sbproxy/tailscale/Taildrop';
-		so.depends({ enabled: '1', taildrop_enabled: '1' });
-		so.rmempty = false;
-		so.validate = function(sectionId, value) {
-			return value?.startsWith('/') ? true : _('Expecting: %s').format(_('absolute path'));
-		};
-
-		so = ss.taboption('advanced', form.Value, 'udp_timeout', _('UDP NAT expiration time'));
-		so.default = '300';
-		so.datatype = 'uinteger';
-		so.depends('enabled', '1');
-		so.rmempty = false;
-
-		so = ss.taboption('status', form.DummyValue, '_status');
-		so.render = function() {
-			return E('div', { 'id': 'tailscale_status', 'class': 'cbi-section' },
-				renderTailscaleStatus(tailscaleStatus));
-		};
-		/* Embedded Tailscale end */
 
 		/* Custom routing settings start */
 		/* Routing settings start */
