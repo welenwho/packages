@@ -12,6 +12,9 @@ ROUTE_STATE_FILE="${SBPROXY_TAILSCALE_ROUTE_STATE:-/var/run/sbproxy/tailscale_ro
 NAT_FILE="${SBPROXY_TAILSCALE_NAT_FILE:-/var/run/sbproxy/fw4_tailscale.nft}"
 STANDALONE_INIT="${SBPROXY_TAILSCALE_STANDALONE_INIT:-/etc/init.d/tailscale}"
 NETIFD_PROTO="${SBPROXY_TAILSCALE_NETIFD_PROTO:-/lib/netifd/proto/sbproxy_tailscale.sh}"
+SYS_CLASS_NET="${SBPROXY_SYS_CLASS_NET:-/sys/class/net}"
+SYNC_LOCK="${SBPROXY_TAILSCALE_SYNC_LOCK:-/var/lock/sbproxy-tailscale-sync}"
+STOP_FILE="${SBPROXY_TAILSCALE_STOP_FILE:-/var/run/sbproxy/tailscale.stopping}"
 LOG_TAG="sbproxy-tailscale"
 FIREWALL_RUNTIME_CHANGED=0
 
@@ -165,6 +168,34 @@ self_details() {
 		*) TS_DNS_SUFFIX='' ;;
 	esac
 	return 0
+}
+
+system_interface_ready() {
+	local addresses routes
+
+	[ -d "$SYS_CLASS_NET/$INTERFACE_NAME" ] || return 1
+	addresses="$("$IP_BIN" -4 address show dev "$INTERFACE_NAME" 2>"/dev/null")" || return 1
+	printf '%s\n' "$addresses" | awk -v address="$TS_IPV4" '
+		$1 == "inet" {
+			split($2, parts, "/")
+			if (parts[1] == address)
+				found = 1
+		}
+		END { exit !found }
+	' || return 1
+	routes="$("$IP_BIN" -4 route show table 52 2>"/dev/null")" || return 1
+	printf '%s\n' "$routes" | grep -Fq "dev $INTERFACE_NAME"
+}
+
+trigger_urltests() {
+	local tab
+
+	tab="$(printf '\t')"
+	api group list 2>"/dev/null" |
+		while IFS="$tab" read -r group type selected; do
+			[ "$type" = "urltest" ] || continue
+			api group urltest "$group" >"/dev/null" 2>&1 || true
+		done
 }
 
 remove_magicdns_target() {
@@ -563,7 +594,8 @@ commit_changes() {
 }
 
 sync_openwrt() {
-	self_details || return 1
+	self_details || return 2
+	system_interface_ready || return 2
 	configure_magicdns || return 1
 	configure_network || return 1
 	configure_dropbear || return 1
@@ -571,6 +603,21 @@ sync_openwrt() {
 	configure_firewall || return 1
 	commit_changes || return 1
 	notify_network_status
+}
+
+sync_openwrt_locked() {
+	local result
+
+	mkdir -p "${SYNC_LOCK%/*}" || return 1
+	lock "$SYNC_LOCK" || return 1
+	if [ -e "$STOP_FILE" ]; then
+		result=2
+	else
+		sync_openwrt
+		result=$?
+	fi
+	lock -u "$SYNC_LOCK"
+	return "$result"
 }
 
 cleanup_openwrt() {
@@ -600,28 +647,70 @@ cleanup_openwrt() {
 	commit_changes
 }
 
-watch_backend() {
-	local state url last_url=''
+cleanup_openwrt_locked() {
+	local result
 
-	while [ "$ENABLED" = "1" ]; do
+	mkdir -p "${SYNC_LOCK%/*}" || return 1
+	lock "$SYNC_LOCK" || return 1
+	cleanup_openwrt
+	result=$?
+	lock -u "$SYNC_LOCK"
+	return "$result"
+}
+
+watch_backend() {
+	local state url last_url='' delay=2 result integrated=0 waiting=0
+
+	while [ "$ENABLED" = "1" ] && [ ! -e "$STOP_FILE" ]; do
 		state="$(backend_state)"
 		case "$state" in
 			Running)
-				if sync_openwrt; then
-					log_info "OpenWrt integration synchronized."
-				else
-					log_error "Failed to synchronize OpenWrt integration."
-				fi
+				sync_openwrt_locked
+				result=$?
+				case "$result" in
+					0)
+						if [ "$integrated" = "0" ]; then
+							trigger_urltests
+							log_info "OpenWrt integration is ready; URLTest groups refreshed."
+						fi
+						integrated=1
+						waiting=0
+						delay=30
+						;;
+					2)
+						[ -e "$STOP_FILE" ] && break
+						if [ "$waiting" = "0" ]; then
+							log_info "Waiting for the Tailscale system interface and routes."
+						fi
+						integrated=0
+						waiting=1
+						delay=2
+						;;
+					*)
+						log_error "Failed to synchronize OpenWrt integration."
+						integrated=0
+						waiting=0
+						delay=2
+						;;
+				esac
 				;;
 			NeedsLogin|NoState)
+				integrated=0
+				waiting=0
+				delay=2
 				url="$(auth_url)"
 				if [ -n "$url" ] && [ "$url" != "$last_url" ]; then
 					log_info "Waiting for authentication: $url"
 					last_url="$url"
 				fi
 				;;
+			*)
+				integrated=0
+				waiting=0
+				delay=2
+				;;
 		esac
-		sleep 30
+		sleep "$delay"
 		load_settings
 	done
 }
@@ -631,7 +720,7 @@ watch_backend() {
 load_settings
 
 if [ "${1:-watch}" = "cleanup" ]; then
-	cleanup_openwrt || fail "Failed to clean embedded Tailscale integration."
+	cleanup_openwrt_locked || fail "Failed to clean embedded Tailscale integration."
 	exit 0
 fi
 
@@ -645,7 +734,7 @@ case "${1:-watch}" in
 	sync)
 		[ "$ENABLED" = "1" ] || fail "Embedded Tailscale is disabled."
 		[ "$(backend_state)" = "Running" ] || fail "Embedded Tailscale is not running."
-		sync_openwrt || fail "Failed to synchronize OpenWrt integration."
+		sync_openwrt_locked || fail "Failed to synchronize OpenWrt integration."
 		;;
 	watch)
 		[ "$ENABLED" = "1" ] || exit 0

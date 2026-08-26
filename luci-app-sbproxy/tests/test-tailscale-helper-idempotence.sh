@@ -11,8 +11,10 @@ mkdir -p "$TEST_ROOT/bin"
 : > "$TEST_ROOT/uci.db"
 : > "$TEST_ROOT/uci.set-count"
 : > "$TEST_ROOT/ip.routes"
+: > "$TEST_ROOT/ip.addresses"
 : > "$TEST_ROOT/ip.rules"
 : > "$TEST_ROOT/ip.rule-add-count"
+: > "$TEST_ROOT/api.calls"
 
 cat > "$TEST_ROOT/bin/uci" <<-'EOF'
 	#!/bin/sh
@@ -73,6 +75,7 @@ cat > "$TEST_ROOT/bin/ip" <<-'EOF'
 	set -eu
 
 	routes="${MOCK_IP_ROUTES:?}"
+	addresses="${MOCK_IP_ADDRESSES:?}"
 	rules="${MOCK_IP_RULES:?}"
 	adds="${MOCK_IP_RULE_ADD_COUNT:?}"
 	family="$1"
@@ -96,12 +99,22 @@ cat > "$TEST_ROOT/bin/ip" <<-'EOF'
 
 	case "$object:$action" in
 	route:show)
-		test "$1" = match
-		prefix="$2"
-		printf '%s\n' 'default via 192.0.2.1 dev wan'
-		awk -F'|' -v family="$family" -v prefix="$prefix" '
-			$1 == family && $2 == prefix { print $2 " dev " $3 }
-		' "$routes"
+		case "$1" in
+		match)
+			prefix="$2"
+			printf '%s\n' 'default via 192.0.2.1 dev wan'
+			awk -F'|' -v family="$family" -v prefix="$prefix" '
+				$1 == family && $2 == prefix { print $2 " dev " $3 }
+			' "$routes"
+			;;
+		table)
+			test "$2" = 52
+			awk -F'|' -v family="$family" '
+				$1 == family { print $2 " dev " $3 }
+			' "$routes"
+			;;
+		*) exit 1 ;;
+		esac
 		;;
 	route:del)
 		prefix="$1"
@@ -110,6 +123,13 @@ cat > "$TEST_ROOT/bin/ip" <<-'EOF'
 		awk -F'|' -v family="$family" -v prefix="$prefix" -v device="$device" \
 			'!($1 == family && $2 == prefix && $3 == device)' "$routes" > "$tmp"
 		mv "$tmp" "$routes"
+		;;
+	address:show)
+		test "$1" = dev
+		device="$2"
+		awk -F'|' -v family="$family" -v device="$device" '
+			$1 == family && $3 == device { print "    inet " $2 " scope global " device }
+		' "$addresses"
 		;;
 	rule:show)
 		if [ "${1:-}" = priority ]; then
@@ -154,9 +174,19 @@ cat > "$TEST_ROOT/bin/ip" <<-'EOF'
 EOF
 chmod 755 "$TEST_ROOT/bin/ip"
 
+cat > "$TEST_ROOT/bin/lock" <<-'EOF'
+	#!/bin/sh
+	set -eu
+
+	[ "${1:-}" != '-u' ] || exit 0
+	: > "$1.held"
+EOF
+chmod 755 "$TEST_ROOT/bin/lock"
+
 export MOCK_UCI_DB="$TEST_ROOT/uci.db"
 export MOCK_UCI_SET_COUNT="$TEST_ROOT/uci.set-count"
 export MOCK_IP_ROUTES="$TEST_ROOT/ip.routes"
+export MOCK_IP_ADDRESSES="$TEST_ROOT/ip.addresses"
 export MOCK_IP_RULES="$TEST_ROOT/ip.rules"
 export MOCK_IP_RULE_ADD_COUNT="$TEST_ROOT/ip.rule-add-count"
 export PATH="$TEST_ROOT/bin:$PATH"
@@ -165,6 +195,9 @@ export SBPROXY_TAILSCALE_HELPER_LIBRARY_ONLY=1
 export SBPROXY_IP_BIN="$TEST_ROOT/bin/ip"
 export SBPROXY_TAILSCALE_ROUTE_STATE="$TEST_ROOT/tailscale_routes"
 export SBPROXY_TAILSCALE_NETIFD_PROTO="$TEST_ROOT/netifd-proto"
+export SBPROXY_SYS_CLASS_NET="$TEST_ROOT/sys/class/net"
+export SBPROXY_TAILSCALE_SYNC_LOCK="$TEST_ROOT/tailscale-sync.lock"
+export SBPROXY_TAILSCALE_STOP_FILE="$TEST_ROOT/tailscale.stopping"
 
 # shellcheck source=/dev/null
 . "$PACKAGE_ROOT/root/usr/sbin/sbproxy_tailscale_helper"
@@ -180,6 +213,40 @@ ACCEPT_ROUTES=1
 EXIT_NODE=''
 SUBNET_ROUTES='192.168.7.0/24 192.168.8.0/24 0.0.0.0/0'
 
+mkdir -p "$TEST_ROOT/sys/class/net/tailscale0"
+printf '%s\n' '-4|100.86.103.57/32|tailscale0' > "$TEST_ROOT/ip.addresses"
+printf '%s\n' '-4|100.100.100.100/32|tailscale0' >> "$TEST_ROOT/ip.routes"
+
+system_interface_ready
+cp "$TEST_ROOT/ip.addresses" "$TEST_ROOT/ip.addresses.ready"
+: > "$TEST_ROOT/ip.addresses"
+if system_interface_ready; then
+	echo 'Tailscale interface must not be ready before its IPv4 address is installed' >&2
+	exit 1
+fi
+mv "$TEST_ROOT/ip.addresses.ready" "$TEST_ROOT/ip.addresses"
+awk '!/100\.100\.100\.100/' "$TEST_ROOT/ip.routes" > "$TEST_ROOT/ip.routes.new"
+mv "$TEST_ROOT/ip.routes.new" "$TEST_ROOT/ip.routes"
+if system_interface_ready; then
+	echo 'Tailscale interface must not be ready before table 52 has routes' >&2
+	exit 1
+fi
+printf '%s\n' '-4|100.100.100.100/32|tailscale0' >> "$TEST_ROOT/ip.routes"
+
+api() {
+	case "$*" in
+	'group list')
+		printf 'welen\turltest\twelen-vless\nmanual\tselector\tdirect\n'
+		;;
+	'group urltest welen')
+		printf '%s\n' "$*" >> "$TEST_ROOT/api.calls"
+		;;
+	*) return 1 ;;
+	esac
+}
+trigger_urltests
+grep -Fxq 'group urltest welen' "$TEST_ROOT/api.calls"
+
 cat > "$TEST_ROOT/ip.rules" <<-'EOF'
 	-4|5270|lookup|52
 	-4|9000|fwmark|0x2024
@@ -188,7 +255,7 @@ cat > "$TEST_ROOT/ip.rules" <<-'EOF'
 	-6|5270|lookup|52
 	-6|32766|lookup|main
 EOF
-printf '%s\n' '-4|192.168.8.0/24|br-lan' > "$TEST_ROOT/ip.routes"
+printf '%s\n' '-4|192.168.8.0/24|br-lan' >> "$TEST_ROOT/ip.routes"
 
 configure_network
 network_count="$(wc -l < "$TEST_ROOT/uci.set-count" | tr -d ' ')"
@@ -261,5 +328,19 @@ third_count="$(wc -l < "$TEST_ROOT/uci.set-count" | tr -d ' ')"
 test "$third_count" -eq "$first_count"
 test "$FIREWALL_RUNTIME_CHANGED" -eq 1
 test ! -s "$NAT_FILE"
+
+sync_openwrt() {
+	printf 'sync\n' >> "$TEST_ROOT/sync.calls"
+}
+: > "$STOP_FILE"
+set +e
+sync_openwrt_locked
+sync_status=$?
+set -e
+test "$sync_status" -eq 2
+test ! -e "$TEST_ROOT/sync.calls"
+rm -f "$STOP_FILE"
+sync_openwrt_locked
+grep -Fxq sync "$TEST_ROOT/sync.calls"
 
 echo 'Tailscale helper test passed: interface ownership, service migration, selected routes, conflicts, exit nodes, and idempotence are safe'
