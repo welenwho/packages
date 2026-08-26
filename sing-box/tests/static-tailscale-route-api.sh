@@ -23,4 +23,8 @@ grep -Fq '$(call PatchDir,$(PKG_BUILD_DIR)/third_party/tailscale,./tailscale-pat
 grep -Fq '$(GO_BIN_PATH) $(GO_PKG_BUILD_VARS) go mod edit' "$MAKEFILE"
 grep -Fq -- '-replace github.com/sagernet/tailscale=./third_party/tailscale' "$MAKEFILE"
 
+golang_include_line="$(grep -nF 'include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk' "$MAKEFILE" | cut -d: -f1)"
+module_dir_line="$(grep -nF 'TAILSCALE_MODULE_DIR:=$(GO_MOD_CACHE_DIR)/github.com/sagernet/tailscale@$(TAILSCALE_MODULE_VERSION)' "$MAKEFILE" | cut -d: -f1)"
+[ -n "$golang_include_line" ] && [ -n "$module_dir_line" ] && [ "$module_dir_line" -gt "$golang_include_line" ]
+
 echo 'sing-box Tailscale test passed: route API and patched local dependency build wiring are present'
