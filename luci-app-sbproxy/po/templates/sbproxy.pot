@@ -2479,11 +2479,6 @@ msgstr ""
 msgid "certificate"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:716
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:738
-msgid "configured or unavailable"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1891
 msgid "exit code %d"
 msgstr ""
@@ -2606,4 +2601,68 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:454
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:472
 msgid "valid port value"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:126
+msgid "Available"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:186
+msgid "Interface Management"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:187
+msgid "Interface State"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:186
+msgid "Managed by sing-box"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:192
+msgid "Peer Route Discovery"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:177
+msgid "Present but down"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:191
+msgid "Received / Sent"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:188
+msgid "Tailscale IPv4"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:189
+msgid "Tailscale IPv6"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:177
+msgid "Unavailable"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:131
+msgid "Unavailable; configured routes are kept"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:177
+msgid "Up"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:745
+msgid "configured; backend status unavailable"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:744
+msgid "configured; not currently advertised"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:767
+msgid "manually configured; no local interface match"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:738
+msgid "peer offline"
 msgstr ""

@@ -2533,11 +2533,6 @@ msgstr "绝对路径"
 msgid "certificate"
 msgstr "证书"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:716
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:738
-msgid "configured or unavailable"
-msgstr "已配置或当前不可用"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1891
 msgid "exit code %d"
 msgstr "退出代码 %d"
@@ -2662,3 +2657,67 @@ msgstr "有效端口范围（port1:port2）"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:472
 msgid "valid port value"
 msgstr "有效端口值"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:126
+msgid "Available"
+msgstr "可用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:186
+msgid "Interface Management"
+msgstr "接口管理"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:187
+msgid "Interface State"
+msgstr "接口状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:186
+msgid "Managed by sing-box"
+msgstr "由 sing-box 管理"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:192
+msgid "Peer Route Discovery"
+msgstr "对等路由发现"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:177
+msgid "Present but down"
+msgstr "接口存在但未启用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:191
+msgid "Received / Sent"
+msgstr "接收 / 发送"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:188
+msgid "Tailscale IPv4"
+msgstr "Tailscale IPv4"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:189
+msgid "Tailscale IPv6"
+msgstr "Tailscale IPv6"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:177
+msgid "Unavailable"
+msgstr "不可用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:131
+msgid "Unavailable; configured routes are kept"
+msgstr "后端状态不可用；已配置路由仍会保留"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:177
+msgid "Up"
+msgstr "已启用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:745
+msgid "configured; backend status unavailable"
+msgstr "已配置；后端状态不可用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:744
+msgid "configured; not currently advertised"
+msgstr "已配置；当前未发布"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:767
+msgid "manually configured; no local interface match"
+msgstr "手动配置；未匹配本地接口"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:738
+msgid "peer offline"
+msgstr "对等节点离线"

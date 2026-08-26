@@ -125,6 +125,61 @@ function parseTailscalePeerRoutes(output) {
 	return routes;
 }
 
+function tailscaleInterfaceStatus(interface_name) {
+	let status = {
+		name: interface_name,
+		present: false,
+		up: false,
+		operstate: null,
+		ipv4: [],
+		ipv6: [],
+		mtu: null,
+		rx_bytes: null,
+		tx_bytes: null
+	};
+	if (!interface_name || length(interface_name) > 15 ||
+	    !match(interface_name, /^[A-Za-z0-9_.-]+$/))
+		return status;
+
+	const sysfs = `/sys/class/net/${interface_name}`;
+	if (!lstat(sysfs))
+		return status;
+
+	status.present = true;
+	status.operstate = trim(readfile(`${sysfs}/operstate`) || '') || null;
+	const mtu = trim(readfile(`${sysfs}/mtu`) || '');
+	const rx_bytes = trim(readfile(`${sysfs}/statistics/rx_bytes`) || '');
+	const tx_bytes = trim(readfile(`${sysfs}/statistics/tx_bytes`) || '');
+	if (match(mtu, /^\d+$/))
+		status.mtu = int(mtu);
+	if (match(rx_bytes, /^\d+$/))
+		status.rx_bytes = int(rx_bytes);
+	if (match(tx_bytes, /^\d+$/))
+		status.tx_bytes = int(tx_bytes);
+
+	const result = runCommand(`/sbin/ip -j address show dev ${shellQuote(interface_name)}`);
+	if (result.code !== 0)
+		return status;
+	try {
+		const devices = json(result.output || '[]');
+		const device = type(devices) === 'array' ? devices[0] : null;
+		for (let flag in ((type(device?.flags) === 'array') ? device.flags : [])) {
+			if (flag === 'UP')
+				status.up = true;
+		}
+		for (let address in ((type(device?.addr_info) === 'array') ? device.addr_info : [])) {
+			if (!address?.local || !address?.prefixlen || address.scope === 'link')
+				continue;
+			const cidr = `${address.local}/${address.prefixlen}`;
+			if (address.family === 'inet')
+				push(status.ipv4, cidr);
+			else if (address.family === 'inet6')
+				push(status.ipv6, cidr);
+		}
+	} catch (e) {}
+	return status;
+}
+
 const RESOURCES = {
 	china_ip4: {
 		source: 'https://cdn.jsdelivr.net/gh/Loyalsoldier/surge-rules@release/cncidr.txt',
@@ -266,6 +321,9 @@ const methods = {
 			sbpuci.load('sbproxy');
 			const enabled = sbpuci.get('sbproxy', 'tailscale', 'enabled') === '1';
 			const standalone_installed = !!lstat('/etc/init.d/tailscale');
+			const interface_name = sbpuci.get('sbproxy', 'tailscale', 'system_interface_name') ||
+			      'tailscale0';
+			const interface_status = tailscaleInterfaceStatus(interface_name);
 			if (!enabled)
 				return {
 					enabled: false,
@@ -276,6 +334,9 @@ const methods = {
 					auth_url: null,
 					exit_nodes: [],
 					peer_routes: [],
+					peer_routes_available: null,
+					peer_routes_error: null,
+					interface: interface_status,
 					code: 0,
 					output: 'Disabled'
 				};
@@ -290,12 +351,16 @@ const methods = {
 					auth_url: null,
 					exit_nodes: [],
 					peer_routes: [],
+					peer_routes_available: null,
+					peer_routes_error: null,
+					interface: interface_status,
 					code: 1,
 					output: 'API port is unavailable.'
 				};
 			const result = runCommand(command);
 			const status = parseTailscaleStatus(result.output);
-			let exit_nodes = [], peer_routes = [];
+			let exit_nodes = [], peer_routes = [], peer_routes_available = null,
+			    peer_routes_error = null;
 			if (result.code === 0) {
 				const exit_command = tailscaleAPICommand([ 'tailscale', 'exit-node', 'list' ]);
 				if (exit_command) {
@@ -306,8 +371,15 @@ const methods = {
 				const route_command = tailscaleAPICommand([ 'tailscale', 'route', 'list' ]);
 				if (route_command) {
 					const route_result = runCommand(route_command);
-					if (route_result.code === 0)
+					if (route_result.code === 0) {
 						peer_routes = parseTailscalePeerRoutes(route_result.output);
+						peer_routes_available = true;
+					} else {
+						peer_routes_available = false;
+						peer_routes_error = trim(replace(route_result.output || '',
+							/\x1b\[[0-9;]*m/g, '')) ||
+							'peer route query failed';
+					}
 				}
 			}
 			return {
@@ -319,6 +391,9 @@ const methods = {
 				auth_url: status.auth_url,
 				exit_nodes,
 				peer_routes,
+				peer_routes_available,
+				peer_routes_error,
+				interface: interface_status,
 				code: result.code,
 				output: result.output
 			};

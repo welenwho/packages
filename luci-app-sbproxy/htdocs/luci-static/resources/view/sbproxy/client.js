@@ -16,7 +16,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r6 as adaptive';
+'require sbproxy-adaptive-1-0-0-r7 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -116,6 +116,22 @@ function tailscaleStatusRow(label, value) {
 	]);
 }
 
+function formatTailscaleBytes(value) {
+	const bytes = Number(value);
+	return Number.isFinite(bytes) && bytes >= 0 ? '%1024mB'.format(bytes) : '-';
+}
+
+function renderTailscaleRouteDiscovery(status) {
+	if (status?.peer_routes_available === true)
+		return E('span', { 'style': 'color:green' }, _('Available'));
+	if (status?.peer_routes_available === false)
+		return E('span', {
+			'style': 'color:orange',
+			'title': status.peer_routes_error || ''
+		}, _('Unavailable; configured routes are kept'));
+	return '-';
+}
+
 function renderTailscaleAccount(status) {
 	const backendState = status?.backend_state;
 	if (backendState === 'Running') {
@@ -156,13 +172,24 @@ function renderTailscaleStatus(status) {
 	const backendState = status?.backend_state ||
 		(status?.enabled ? _('Not running') : _('Disabled'));
 	const selectedExitNode = (status?.exit_nodes || []).find(node => node.selected);
+	const interfaceStatus = status?.interface || {};
+	const interfaceState = interfaceStatus.present ?
+		(interfaceStatus.up ? _('Up') : _('Present but down')) : _('Unavailable');
 	const content = [
 		E('table', { 'class': 'table' }, [
 			tailscaleStatusRow(_('Backend State'), backendState),
 			tailscaleStatusRow(_('Tailnet'), status?.network_name),
 			tailscaleStatusRow(_('Account'), renderTailscaleAccount(status)),
 			tailscaleStatusRow(_('Exit Node in Use'), selectedExitNode ?
-				`${selectedExitNode.name} (${selectedExitNode.address})` : _('None'))
+				`${selectedExitNode.name} (${selectedExitNode.address})` : _('None')),
+			tailscaleStatusRow(_('System interface'), interfaceStatus.name),
+			tailscaleStatusRow(_('Interface Management'), _('Managed by sing-box')),
+			tailscaleStatusRow(_('Interface State'), interfaceState),
+			tailscaleStatusRow(_('Tailscale IPv4'), (interfaceStatus.ipv4 || []).join(', ')),
+			tailscaleStatusRow(_('Tailscale IPv6'), (interfaceStatus.ipv6 || []).join(', ')),
+			tailscaleStatusRow(_('Interface MTU'), interfaceStatus.mtu),
+			tailscaleStatusRow(_('Received / Sent'), `${formatTailscaleBytes(interfaceStatus.rx_bytes)} / ${formatTailscaleBytes(interfaceStatus.tx_bytes)}`),
+			tailscaleStatusRow(_('Peer Route Discovery'), renderTailscaleRouteDiscovery(status))
 		])
 	];
 	if (status?.enabled && status?.code !== 0) {
@@ -708,12 +735,14 @@ return view.extend({
 				continue;
 			peerRouteValues.push(route.route);
 			so.value(route.route, `${route.route} - ${route.name || route.address}` +
-				(route.online ? '' : ` (${_('offline or unavailable')})`));
+				(route.online ? '' : ` (${_('peer offline')})`));
 		}
 		for (const route of configuredPeerRoutes) {
 			if (!peerRouteValues.includes(route)) {
 				peerRouteValues.push(route);
-				so.value(route, `${route} (${_('configured or unavailable')})`);
+				so.value(route, `${route} (${tailscaleStatus.peer_routes_available === true ?
+					_('configured; not currently advertised') :
+					_('configured; backend status unavailable')})`);
 			}
 		}
 		so.datatype = 'or(cidr4,cidr6)';
@@ -735,7 +764,7 @@ return view.extend({
 		for (const route of configuredAdvertiseRoutes) {
 			if (!advertiseRouteValues.includes(route)) {
 				advertiseRouteValues.push(route);
-				so.value(route, `${route} (${_('configured or unavailable')})`);
+				so.value(route, `${route} (${_('manually configured; no local interface match')})`);
 			}
 		}
 		so.datatype = 'or(cidr4,cidr6)';
