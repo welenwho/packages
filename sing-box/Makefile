@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=sing-box
 PKG_UPSTREAM_VERSION:=1.14.0-rc.1
 PKG_VERSION:=1.14.0_rc1
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/SagerNet/sing-box/tar.gz/v$(PKG_UPSTREAM_VERSION)?
@@ -159,14 +159,14 @@ GO_PKG_TAGS:=http2legacy,$(GO_PKG_TAGS)
 
 define Build/Configure
 	cd $(PKG_BUILD_DIR) && \
-		$(GO_PKG_BUILD_VARS) go mod download $(GO_MOD_ARGS) $(TAILSCALE_MODULE)
+		$(GO_BIN_PATH) $(GO_PKG_BUILD_VARS) go mod download $(GO_MOD_ARGS) $(TAILSCALE_MODULE)
 	rm -rf $(PKG_BUILD_DIR)/third_party/tailscale
 	mkdir -p $(PKG_BUILD_DIR)/third_party/tailscale
 	cp -fpR $(TAILSCALE_MODULE_DIR)/. $(PKG_BUILD_DIR)/third_party/tailscale/
 	chmod -R u+w $(PKG_BUILD_DIR)/third_party/tailscale
 	$(call PatchDir,$(PKG_BUILD_DIR)/third_party/tailscale,./tailscale-patches,)
 	cd $(PKG_BUILD_DIR) && \
-		$(GO_PKG_BUILD_VARS) go mod edit \
+		$(GO_BIN_PATH) $(GO_PKG_BUILD_VARS) go mod edit \
 		-replace github.com/sagernet/tailscale=./third_party/tailscale
 	$(call GoPackage/Build/Configure)
 endef

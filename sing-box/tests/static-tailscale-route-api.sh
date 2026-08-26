@@ -18,8 +18,9 @@ grep -Fq 'r.ipRuleAvailable = (cmd.run("ip", "rule") == nil)' "$TAILSCALE_PATCH"
 grep -Fq 'checkOpenWRTUsingMWAN3()' "$TAILSCALE_PATCH"
 grep -Fq 'TAILSCALE_MODULE_VERSION:=v1.102.1-sing-box-1.14-mod.3' "$MAKEFILE"
 grep -Fq 'GO_PKG_INSTALL_EXTRA:=third_party/tailscale' "$MAKEFILE"
-grep -Fq 'go mod download $(GO_MOD_ARGS) $(TAILSCALE_MODULE)' "$MAKEFILE"
+grep -Fq '$(GO_BIN_PATH) $(GO_PKG_BUILD_VARS) go mod download $(GO_MOD_ARGS) $(TAILSCALE_MODULE)' "$MAKEFILE"
 grep -Fq '$(call PatchDir,$(PKG_BUILD_DIR)/third_party/tailscale,./tailscale-patches,)' "$MAKEFILE"
+grep -Fq '$(GO_BIN_PATH) $(GO_PKG_BUILD_VARS) go mod edit' "$MAKEFILE"
 grep -Fq -- '-replace github.com/sagernet/tailscale=./third_party/tailscale' "$MAKEFILE"
 
 echo 'sing-box Tailscale test passed: route API and patched local dependency build wiring are present'

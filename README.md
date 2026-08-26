@@ -17,7 +17,7 @@
 | --- | --- | --- |
 | `axonhub` | `20260826-r1` | [VIKINGYFY/packages](https://github.com/VIKINGYFY/packages) |
 | `gecoosac` | `2.2.20251015-r1` | [VIKINGYFY/packages](https://github.com/VIKINGYFY/packages) |
-| `sing-box` | `1.14.0_rc1-r3` | [SagerNet/sing-box](https://github.com/SagerNet/sing-box) |
+| `sing-box` | `1.14.0_rc1-r4` | [SagerNet/sing-box](https://github.com/SagerNet/sing-box) |
 
 ## 自动维护
 
