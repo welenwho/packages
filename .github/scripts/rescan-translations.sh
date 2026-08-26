@@ -100,12 +100,21 @@ for package_dir in "${PACKAGE_DIRS[@]}"; do
 
 	[[ "${#sources[@]}" -gt 0 ]] || continue
 	mkdir -p -- "$(dirname -- "$template")"
+	previous_message_count=0
+	if [[ -f "$template" ]]; then
+		previous_message_count="$(grep -c '^msgid ' "$template" || true)"
+	fi
 	POT_TEMP="$(mktemp "${template}.tmp.XXXXXX")"
 	perl "$SCAN_SCRIPT" "${sources[@]}" > "$POT_TEMP"
 	[[ -s "$POT_TEMP" ]] || {
 		echo "Translation scan produced an empty template for $package_dir" >&2
 		exit 1
 	}
+	message_count="$(grep -c '^msgid ' "$POT_TEMP" || true)"
+	if (( previous_message_count > 0 && message_count * 100 < previous_message_count * 80 )); then
+		echo "Translation scan unexpectedly dropped from $previous_message_count to $message_count messages for $package_dir" >&2
+		exit 1
+	fi
 	mv -f -- "$POT_TEMP" "$template"
 	POT_TEMP=""
 

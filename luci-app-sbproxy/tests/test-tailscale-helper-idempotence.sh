@@ -36,12 +36,24 @@ cat > "$TEST_ROOT/bin/uci" <<-'EOF'
 			cat "$db"
 		fi
 		;;
-	set)
+set)
 		key="${1%%=*}"
 		value="${1#*=}"
 		tmp="$db.new"
 		awk -F= -v key="$key" '$1 != key' "$db" > "$tmp"
 		printf '%s=%s\n' "$key" "$value" >> "$tmp"
+		mv "$tmp" "$db"
+		printf 'set\n' >> "$count"
+		;;
+	add_list)
+		key="${1%%=*}"
+		value="${1#*=}"
+		tmp="$db.new"
+		awk -F= -v key="$key" -v value="$value" '
+			$1 == key { print key "=" $2 " " value; found=1; next }
+			{ print }
+			END { if (!found) print key "=" value }
+		' "$db" > "$tmp"
 		mv "$tmp" "$db"
 		printf 'set\n' >> "$count"
 		;;
@@ -152,6 +164,7 @@ export SBPROXY_FUNCTIONS_LIB="$TEST_ROOT/functions.sh"
 export SBPROXY_TAILSCALE_HELPER_LIBRARY_ONLY=1
 export SBPROXY_IP_BIN="$TEST_ROOT/bin/ip"
 export SBPROXY_TAILSCALE_ROUTE_STATE="$TEST_ROOT/tailscale_routes"
+export SBPROXY_TAILSCALE_NETIFD_PROTO="$TEST_ROOT/netifd-proto"
 
 # shellcheck source=/dev/null
 . "$PACKAGE_ROOT/root/usr/sbin/sbproxy_tailscale_helper"
@@ -180,10 +193,11 @@ printf '%s\n' '-4|192.168.8.0/24|br-lan' > "$TEST_ROOT/ip.routes"
 configure_network
 network_count="$(wc -l < "$TEST_ROOT/uci.set-count" | tr -d ' ')"
 grep -Fq 'network.sbproxy_ts=interface' "$TEST_ROOT/uci.db"
-grep -Fq 'network.sbproxy_ts.proto=none' "$TEST_ROOT/uci.db"
+grep -Fq 'network.sbproxy_ts.proto=sbproxy_tailscale' "$TEST_ROOT/uci.db"
 grep -Fq 'network.sbproxy_ts.device=tailscale0' "$TEST_ROOT/uci.db"
-grep -Fq 'network.sbproxy_ts.auto=0' "$TEST_ROOT/uci.db"
-! grep -Fq 'network.sbproxy_ts.ipaddr=' "$TEST_ROOT/uci.db"
+grep -Fq 'network.sbproxy_ts.auto=1' "$TEST_ROOT/uci.db"
+grep -Fq 'network.sbproxy_ts.ipaddr=100.86.103.57' "$TEST_ROOT/uci.db"
+grep -Fq 'network.sbproxy_ts.ip6addr=fd7a:115c:a1e0::f337:673a/128' "$TEST_ROOT/uci.db"
 configure_network
 test "$(wc -l < "$TEST_ROOT/uci.set-count" | tr -d ' ')" -eq "$network_count"
 

@@ -11,6 +11,7 @@ STATE_FILE="${SBPROXY_TAILSCALE_MAGICDNS_STATE:-/etc/sbproxy/tailscale/magicdns_
 ROUTE_STATE_FILE="${SBPROXY_TAILSCALE_ROUTE_STATE:-/var/run/sbproxy/tailscale_routes}"
 NAT_FILE="${SBPROXY_TAILSCALE_NAT_FILE:-/var/run/sbproxy/fw4_tailscale.nft}"
 STANDALONE_INIT="${SBPROXY_TAILSCALE_STANDALONE_INIT:-/etc/init.d/tailscale}"
+NETIFD_PROTO="${SBPROXY_TAILSCALE_NETIFD_PROTO:-/lib/netifd/proto/sbproxy_tailscale.sh}"
 LOG_TAG="sbproxy-tailscale"
 FIREWALL_RUNTIME_CHANGED=0
 
@@ -444,19 +445,22 @@ configure_network() {
 	local section
 
 	uci_set_if_changed network.sbproxy_ts interface || return 1
-	uci_set_if_changed network.sbproxy_ts.proto none || return 1
+	uci_set_if_changed network.sbproxy_ts.proto sbproxy_tailscale || return 1
 	uci_set_if_changed network.sbproxy_ts.device "$INTERFACE_NAME" || return 1
-	# Keep the LuCI entry visible without letting netifd take ownership of the
-	# TUN device and flush addresses installed by the embedded backend.
-	uci_set_if_changed network.sbproxy_ts.auto 0 || return 1
-	uci_delete_if_exists network.sbproxy_ts.ipaddr || return 1
+	uci_set_if_changed network.sbproxy_ts.auto 1 || return 1
+	uci_set_if_changed network.sbproxy_ts.ipaddr "$TS_IPV4" || return 1
 	uci_delete_if_exists network.sbproxy_ts.netmask || return 1
-	uci_delete_if_exists network.sbproxy_ts.ip6addr || return 1
+	uci_replace_list network.sbproxy_ts.ip6addr "${TS_IPV6:+$TS_IPV6/128}" || return 1
 	uci_delete_if_exists network.sbproxy_ts_ipv6 || return 1
 	for section in $(uci show network 2>"/dev/null" |
 		sed -n "s/^\(network\.sbproxy_ts_subnet[0-9][0-9]*\)=route$/\1/p"); do
 		uci_delete_if_exists "$section" || return 1
 	done
+}
+
+notify_network_status() {
+	[ -x "$NETIFD_PROTO" ] || return 1
+	"$NETIFD_PROTO" notify sbproxy_ts "$INTERFACE_NAME" "$TS_IPV4" "$TS_IPV6" 1
 }
 
 has_access() {
@@ -533,6 +537,7 @@ commit_changes() {
 	fi
 	if [ -n "$(uci changes network)" ]; then
 		uci commit network || return 1
+		/etc/init.d/network reload || return 1
 	fi
 	if [ -n "$(uci changes firewall)" ]; then
 		uci commit firewall || return 1
@@ -549,7 +554,8 @@ sync_openwrt() {
 	configure_network || return 1
 	configure_route_policy || return 1
 	configure_firewall || return 1
-	commit_changes
+	commit_changes || return 1
+	notify_network_status
 }
 
 cleanup_openwrt() {

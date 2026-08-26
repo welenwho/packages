@@ -30,3 +30,11 @@
  	r.fixupWSLMTU()
  
  	return r, nil
+@@ -340,0 +364,3 @@ func (r *linuxRouter) Up() error {
++	if err := r.addIPRules(); err != nil {
++		return fmt.Errorf("adding IP rules: %w", err)
++	}
+@@ -365,0 +392,3 @@ func (r *linuxRouter) Close() error {
++	if err := r.delIPRules(); err != nil {
++		errs = append(errs, err)
++	}

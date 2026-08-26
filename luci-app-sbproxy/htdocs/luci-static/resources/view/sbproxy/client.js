@@ -16,7 +16,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r7 as adaptive';
+'require sbproxy-adaptive-1-0-0-r8 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -734,15 +734,15 @@ return view.extend({
 			if (!route.route || peerRouteValues.includes(route.route))
 				continue;
 			peerRouteValues.push(route.route);
-			so.value(route.route, `${route.route} - ${route.name || route.address}` +
-				(route.online ? '' : ` (${_('peer offline')})`));
+			so.value(route.route, route.route + ' - ' + (route.name || route.address) +
+				(route.online ? '' : ' (' + _('peer offline') + ')'));
 		}
 		for (const route of configuredPeerRoutes) {
 			if (!peerRouteValues.includes(route)) {
 				peerRouteValues.push(route);
-				so.value(route, `${route} (${tailscaleStatus.peer_routes_available === true ?
+				so.value(route, route + ' (' + (tailscaleStatus.peer_routes_available === true ?
 					_('configured; not currently advertised') :
-					_('configured; backend status unavailable')})`);
+					_('configured; backend status unavailable')) + ')');
 			}
 		}
 		so.datatype = 'or(cidr4,cidr6)';
@@ -759,12 +759,12 @@ return view.extend({
 			if (!route.value || advertiseRouteValues.includes(route.value))
 				continue;
 			advertiseRouteValues.push(route.value);
-			so.value(route.value, `${route.value} (${route.network})`);
+			so.value(route.value, route.value + ' (' + route.network + ')');
 		}
 		for (const route of configuredAdvertiseRoutes) {
 			if (!advertiseRouteValues.includes(route)) {
 				advertiseRouteValues.push(route);
-				so.value(route, `${route} (${_('manually configured; no local interface match')})`);
+				so.value(route, route + ' (' + _('manually configured; no local interface match') + ')');
 			}
 		}
 		so.datatype = 'or(cidr4,cidr6)';
@@ -790,11 +790,11 @@ return view.extend({
 			if (!node.address || (!node.online && !node.selected) || exitNodeValues.includes(node.address))
 				continue;
 			exitNodeValues.push(node.address);
-			so.value(node.address, `${node.name || node.address} (${node.address})`);
+			so.value(node.address, (node.name || node.address) + ' (' + node.address + ')');
 		}
 		if (configuredExitNode && !exitNodeValues.includes(configuredExitNode)) {
 			exitNodeValues.push(configuredExitNode);
-			so.value(configuredExitNode, `${configuredExitNode} (${_('offline or unavailable')})`);
+			so.value(configuredExitNode, configuredExitNode + ' (' + _('offline or unavailable') + ')');
 		}
 		so.depends({ enabled: '1', advertise_exit_node: '0' });
 		so.default = '';

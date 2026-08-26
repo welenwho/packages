@@ -18,11 +18,11 @@ LUCI_DEPENDS:= \
 	+unzip \
 	+ucode-mod-digest \
 	+ucode-mod-math
-LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0_alpha1)
+LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0_rc1-r6)
 
 PKG_NAME:=luci-app-sbproxy
 PKG_VERSION:=1.0.0
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 PKG_PO_VERSION:=$(PKG_VERSION)-r$(PKG_RELEASE)
 
 define Package/luci-app-sbproxy/conffiles
