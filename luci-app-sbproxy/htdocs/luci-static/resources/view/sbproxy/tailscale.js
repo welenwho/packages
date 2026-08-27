@@ -172,12 +172,12 @@ function formatTailscaleBackendState(status) {
 	}
 }
 
-function resolveTailscaleStatus(timeout = 800) {
+function resolveTailscaleStatus(timeout = 800, fallback = {}) {
 	let timer;
 	return Promise.race([
 		callTailscaleStatus(),
 		new Promise(resolve => {
-			timer = window.setTimeout(() => resolve({}), timeout);
+			timer = window.setTimeout(() => resolve(fallback), timeout);
 		})
 	]).finally(() => window.clearTimeout(timer));
 }
@@ -455,7 +455,7 @@ return view.extend({
 	},
 
 	render(data) {
-		let m, s, o;
+		let m, s, o, subnetRouteOption, advertiseRouteOption, exitNodeOption;
 		const features = data[1];
 		const tailscaleStatus = data[3] || {};
 		const standaloneTailscaleEnabled = tailscaleStatus.standalone_installed === true &&
@@ -510,46 +510,104 @@ return view.extend({
 		o.depends('enabled', '1');
 		o.rmempty = false;
 
-		o = s.taboption('routing', form.DynamicList, 'subnet_routes', _('Static peer routes'),
+		subnetRouteOption = s.taboption('routing', sb.CBIStaticList, 'subnet_routes', _('Static peer routes'),
 			_('Select subnets advertised by peers after login. Custom CIDR values remain supported.'));
+		/* Keep the dynamic-list combobox alive even when the initial status RPC
+		 * times out before it can return peer routes. */
+		subnetRouteOption.value('-', _('Loading'));
 		const peerRouteValues = [];
 		for (const route of (tailscaleStatus.peer_routes || [])) {
 			if (!route.route || peerRouteValues.includes(route.route))
 				continue;
 			peerRouteValues.push(route.route);
-			o.value(route.route, route.route);
+			subnetRouteOption.value(route.route, route.route);
 		}
 		for (const route of configuredPeerRoutes) {
 			if (!peerRouteValues.includes(route)) {
 				peerRouteValues.push(route);
-				o.value(route, route);
+				subnetRouteOption.value(route, route);
 			}
 		}
-		o.datatype = 'or(cidr4,cidr6)';
-		o.validate = function(sectionId, value) {
+		subnetRouteOption.datatype = 'or(cidr4,cidr6)';
+		subnetRouteOption.validate = function(sectionId, value) {
 			return !value.endsWith('/0') || _('The default route must be configured as an exit node.');
 		};
-		o.depends({ enabled: '1', accept_routes: '1' });
-		o.rmempty = true;
+		subnetRouteOption.depends({ enabled: '1', accept_routes: '1' });
+		subnetRouteOption.rmempty = true;
 
-		o = s.taboption('routing', form.DynamicList, 'advertise_routes', _('Advertise subnets'),
+		function getTailscaleWidget(option) {
+			if (typeof option?.getUIElement !== 'function')
+				return null;
+			try {
+				return option.getUIElement('tailscale');
+			} catch (e) {
+				return null;
+			}
+		}
+
+		function addPeerRouteChoices(status) {
+			const values = [], labels = {};
+			for (const route of (status?.peer_routes || [])) {
+				if (!route.route || peerRouteValues.includes(route.route))
+					continue;
+				values.push(route.route);
+				labels[route.route] = route.route;
+			}
+			if (!values.length)
+				return;
+
+			const widget = getTailscaleWidget(subnetRouteOption);
+			if (!widget || typeof widget.addChoices !== 'function')
+				return;
+			for (const value of values)
+				peerRouteValues.push(value);
+			widget.addChoices(values, labels);
+		}
+
+		advertiseRouteOption = s.taboption('routing', sb.CBIStaticList, 'advertise_routes', _('Advertise subnets'),
 			_('Select local interface subnets to publish. Custom CIDR values remain supported.'));
+		/* Keep this list upgradeable when an interface appears after the page was
+		 * opened, while retaining the free-form CIDR fallback. */
+		advertiseRouteOption.value('-', _('Loading'));
 		const advertiseRouteValues = [];
 		for (const route of localAdvertiseSubnets) {
 			if (!route.value || advertiseRouteValues.includes(route.value))
 				continue;
 			advertiseRouteValues.push(route.value);
-			o.value(route.value, route.value);
+			advertiseRouteOption.value(route.value, route.value);
 		}
 		for (const route of configuredAdvertiseRoutes) {
 			if (!advertiseRouteValues.includes(route)) {
 				advertiseRouteValues.push(route);
-				o.value(route, route);
+				advertiseRouteOption.value(route, route);
 			}
 		}
-		o.datatype = 'or(cidr4,cidr6)';
-		o.depends('enabled', '1');
-		o.rmempty = true;
+		advertiseRouteOption.datatype = 'or(cidr4,cidr6)';
+		advertiseRouteOption.depends('enabled', '1');
+		advertiseRouteOption.rmempty = true;
+
+		function addAdvertiseRouteChoices(routes) {
+			const values = [], labels = {};
+			for (const route of (routes || [])) {
+				if (!route?.value || advertiseRouteValues.includes(route.value))
+					continue;
+				values.push(route.value);
+				labels[route.value] = route.value;
+			}
+			if (!values.length)
+				return;
+
+			const widget = getTailscaleWidget(advertiseRouteOption);
+			if (!widget || typeof widget.addChoices !== 'function')
+				return;
+			for (const value of values)
+				advertiseRouteValues.push(value);
+			widget.addChoices(values, labels);
+		}
+
+		function refreshAdvertiseRouteChoices() {
+			return getLocalAdvertiseSubnets().then(addAdvertiseRouteChoices).catch(() => undefined);
+		}
 
 		o = s.taboption('routing', form.Flag, 'advertise_exit_node', _('Advertise exit node'));
 		o.default = o.disabled;
@@ -564,6 +622,7 @@ return view.extend({
 
 		o = s.taboption('routing', form.ListValue, 'exit_node', _('Use exit node'),
 			_('Select an online Tailscale exit node.'));
+		exitNodeOption = o;
 		o.value('', _('None'));
 		const exitNodeValues = [];
 		for (const node of (tailscaleStatus.exit_nodes || [])) {
@@ -575,6 +634,36 @@ return view.extend({
 		if (configuredExitNode && !exitNodeValues.includes(configuredExitNode)) {
 			exitNodeValues.push(configuredExitNode);
 			o.value(configuredExitNode, configuredExitNode + ' (' + _('offline or unavailable') + ')');
+		}
+		function addExitNodeChoices(status) {
+			const widget = getTailscaleWidget(exitNodeOption);
+			const select = widget?.node?.querySelector('select');
+			if (!select)
+				return;
+
+			const options = {};
+			select.querySelectorAll('option').forEach((option) => {
+				options[option.value] = option;
+			});
+			for (const node of (status?.exit_nodes || [])) {
+				if (!node.address || (!node.online && !node.selected))
+					continue;
+				const label = (node.name || node.address) + ' (' + node.address + ')';
+				if (options[node.address])
+					options[node.address].textContent = label;
+				else {
+					options[node.address] = E('option', { value: node.address }, label);
+					select.appendChild(options[node.address]);
+				}
+				if (!exitNodeValues.includes(node.address))
+					exitNodeValues.push(node.address);
+			}
+			if (configuredExitNode && !options[configuredExitNode]) {
+				select.appendChild(E('option', {
+					value: configuredExitNode
+				}, configuredExitNode + ' (' + _('offline or unavailable') + ')'));
+				exitNodeValues.push(configuredExitNode);
+			}
 		}
 		o.depends({ enabled: '1', advertise_exit_node: '0' });
 		o.default = '';
@@ -765,8 +854,18 @@ return view.extend({
 				renderTailscaleStatus(tailscaleStatus, configuredPeerRoutes, configuredAdvertiseRoutes, acceptRoutes));
 		};
 
-		poll.add(function() {
-			return L.resolveDefault(callTailscaleStatus(), {}).then((status) => {
+		let statusRefreshPromise;
+		function refreshTailscaleStatus() {
+			if (statusRefreshPromise)
+				return statusRefreshPromise;
+
+			/* The backend status call executes several sing-box API commands. Keep
+			 * it bounded so a hung API cannot block every later poll/focus refresh. */
+			statusRefreshPromise = L.resolveDefault(resolveTailscaleStatus(4000, null), null).then((status) => {
+				if (!status)
+					return null;
+				addPeerRouteChoices(status);
+				addExitNodeChoices(status);
 				const account = document.getElementById('tailscale_account');
 				const statusView = document.getElementById('tailscale_status');
 				if (account)
@@ -774,9 +873,44 @@ return view.extend({
 				if (statusView)
 					dom.content(statusView,
 						renderTailscaleStatus(status, configuredPeerRoutes, configuredAdvertiseRoutes, acceptRoutes));
+				return status;
+			}).finally(() => {
+				statusRefreshPromise = null;
 			});
-		});
 
-		return m.render();
+			return statusRefreshPromise;
+		}
+
+		const refreshOnFocus = () => {
+			if (document.hidden || !document.getElementById('tailscale_account'))
+				return;
+			refreshTailscaleStatus();
+			refreshAdvertiseRouteChoices();
+		};
+		document.addEventListener('visibilitychange', refreshOnFocus);
+		window.addEventListener('focus', refreshOnFocus);
+		window.addEventListener('pageshow', refreshOnFocus);
+		window.addEventListener('online', refreshOnFocus);
+		/* The focus/visibility hooks below provide immediate refreshes; keep the
+		 * background poll at the normal five-second cadence to avoid spawning the
+		 * several embedded Tailscale API commands every second on small routers. */
+		poll.add(refreshTailscaleStatus, 5);
+
+		return m.render().then((node) => {
+			/* The first status read is intentionally bounded so a slow router does
+			 * not block LuCI. Populate choices once the form widget is available;
+			 * subsequent poll cycles keep it current as Tailscale comes online. */
+			addPeerRouteChoices(tailscaleStatus);
+			addAdvertiseRouteChoices(localAdvertiseSubnets);
+			addExitNodeChoices(tailscaleStatus);
+			/* The view inserts the resolved map into #view after this callback;
+			 * defer the first live refresh one turn so getUIElement() can find the
+			 * rendered widgets as well as the account/status containers. */
+			window.setTimeout(() => {
+				refreshTailscaleStatus();
+				refreshAdvertiseRouteChoices();
+			}, 0);
+			return node;
+		});
 	}
 });
