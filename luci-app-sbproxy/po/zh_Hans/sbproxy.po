@@ -3940,3 +3940,283 @@ msgstr "有效端口范围（port1:port2）"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:347
 msgid "valid port value"
 msgstr "有效端口值"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Healthy"
+msgstr "健康"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Warning"
+msgstr "警告"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Hostname"
+msgstr "主机名"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "DNS Name"
+msgstr "DNS 名称"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Tailscale Addresses"
+msgstr "Tailscale 地址"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Operating System"
+msgstr "操作系统"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Stable ID"
+msgstr "稳定 ID"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Key Expiry"
+msgstr "密钥到期时间"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "No expiry reported"
+msgstr "未报告到期时间"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Advertised Routes"
+msgstr "已发布路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Exit Node Offered"
+msgstr "出口节点发布状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "No"
+msgstr "否"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Embedded backend"
+msgstr "内置后端"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Tailnet account"
+msgstr "Tailnet 账户"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "No logged-in account detected"
+msgstr "未检测到已登录账户"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Interface and addresses are ready"
+msgstr "接口和地址已就绪"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Interface has no Tailscale address"
+msgstr "接口没有 Tailscale 地址"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Interface is missing"
+msgstr "接口不存在"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peer status API"
+msgstr "对端状态 API"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+#, javascript-format
+msgid "%d nodes detected"
+msgstr "检测到 %d 个节点"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peer status is unavailable"
+msgstr "对端状态不可用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peer route API"
+msgstr "对端路由 API"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+#, javascript-format
+msgid "%d routes advertised by peers"
+msgstr "对端发布了 %d 条路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peer route status is unavailable"
+msgstr "对端路由状态不可用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "System policy routing"
+msgstr "系统策略路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+#, javascript-format
+msgid "%d table 52 rules installed"
+msgstr "已安装 %d 条表 52 规则"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Unable to inspect system routing"
+msgstr "无法检查系统路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Check"
+msgstr "检查项"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "State"
+msgstr "状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Details"
+msgstr "详情"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peer"
+msgstr "对端"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peer State"
+msgstr "对端状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "System State"
+msgstr "系统状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Online"
+msgstr "在线"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Offline"
+msgstr "离线"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Installed"
+msgstr "已安装"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Configured but not installed"
+msgstr "已配置但未安装"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Not selected"
+msgstr "未选择"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "No peer routes advertised."
+msgstr "没有对端发布路由。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Family"
+msgstr "协议族"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Destination"
+msgstr "目标"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Interface"
+msgstr "接口"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Gateway"
+msgstr "网关"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "No routes installed in table 52."
+msgstr "表 52 中没有已安装的路由。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Accept Routes"
+msgstr "接受路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Enabled"
+msgstr "已启用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Policy Rules"
+msgstr "策略规则"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+#, javascript-format
+msgid "%d table 52 rules"
+msgstr "表 52 规则：%d 条"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Routes Advertised by Peers"
+msgstr "对端发布的路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Installed System Routes"
+msgstr "已安装的系统路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Active"
+msgstr "活跃"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Key Expired"
+msgstr "密钥已过期"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Yes"
+msgstr "是"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Last Seen"
+msgstr "最后在线"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Exit Node"
+msgstr "出口节点"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Unable to read peer details."
+msgstr "无法读取对端详情。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peer Details"
+msgstr "对端详情"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Close"
+msgstr "关闭"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peer Path"
+msgstr "对端路径"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Tailscale IP"
+msgstr "Tailscale IP"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Actions"
+msgstr "操作"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Test Path"
+msgstr "探测路径"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "No peers found."
+msgstr "未发现对端。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Node Overview"
+msgstr "节点概览"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Health Status"
+msgstr "健康状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid ""
+"Derived locally from the embedded backend, interface, peer API, and system "
+"routes. This is not the official Tailscale Health or netcheck result."
+msgstr ""
+"此状态由内置后端、接口、对端 API 和系统路由在本机推导，不是 Tailscale 官方 "
+"Health 或 netcheck 结果。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Route Status"
+msgstr "路由状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js
+msgid "Peers"
+msgstr "对端节点"

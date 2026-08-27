@@ -44,13 +44,20 @@ hostname_line="$(printf '%s\n' "$tailscale_form" | grep -n "form.Value, 'hostnam
 test "$enabled_line" -lt "$account_line"
 test "$account_line" -lt "$hostname_line"
 printf '%s\n' "$tailscale_form" | grep -Fq 'renderTailscaleAccountControl(tailscaleStatus)'
+printf '%s\n' "$tailscale_form" | grep -Fq 'https://login.tailscale.com/admin/machines'
+printf '%s\n' "$tailscale_form" | grep -Fq "status?.self?.user || status?.network_name"
 
 status_renderer="$(sed -n '/^function renderTailscaleStatus(status)/,/^return view.extend/p' "$TAILSCALE")"
 if printf '%s\n' "$status_renderer" | grep -Eq 'renderTailscaleAccount|callTailscaleLogout|<button|<a'; then
 	echo 'Embedded Tailscale status must remain read-only' >&2
 	exit 1
 fi
-printf '%s\n' "$status_renderer" | grep -Fq "interfaceStatus.up ? _('Available')"
+printf '%s\n' "$tailscale_form" | grep -Fq "interfaceStatus.up ? _('Available')"
+for section in 'Node Overview' 'Health Status' 'Interface' 'Route Status' 'Peers'; do
+	printf '%s\n' "$tailscale_form" | grep -Fq "_('$section')"
+done
+printf '%s\n' "$tailscale_form" | grep -Fq 'showTailscalePeerDetails'
+printf '%s\n' "$tailscale_form" | grep -Fq 'probeTailscalePeerPath'
 
 for field in accept_routes subnet_routes advertise_routes advertise_exit_node disable_snat_subnet_routes exit_node exit_node_allow_lan_access access; do
 	printf '%s\n' "$tailscale_form" | grep -Eq "s\.taboption\('routing', [^,]+, '$field'"

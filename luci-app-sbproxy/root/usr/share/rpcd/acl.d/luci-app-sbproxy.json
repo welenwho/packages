@@ -12,7 +12,7 @@
 				"luci-rpc": [ "getHostHints" ],
 				"luci.sbproxy": [
 					"acllist_read", "adaptive_status", "connection_check", "current_node_get",
-					"node_latency_test", "resources_get", "tailscale_status",
+					"node_latency_test", "resources_get", "tailscale_peer_details", "tailscale_status",
 					"singbox_generator", "singbox_get_features"
 				]
 			},

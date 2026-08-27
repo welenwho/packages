@@ -29,6 +29,13 @@ const callTailscaleLogout = rpc.declare({
 	expect: { '': {} }
 });
 
+const callTailscalePeerDetails = rpc.declare({
+	object: 'luci.sbproxy',
+	method: 'tailscale_peer_details',
+	params: [ 'target' ],
+	expect: { '': {} }
+});
+
 const callTailscalePing = rpc.declare({
 	object: 'luci.sbproxy',
 	method: 'tailscale_ping',
@@ -73,8 +80,16 @@ async function getLocalAdvertiseSubnets() {
 function tailscaleStatusRow(label, value) {
 	return E('tr', { 'class': 'tr' }, [
 		E('td', { 'class': 'td left', 'width': '32%' }, label),
-		E('td', { 'class': 'td left' }, value || '-')
+		E('td', { 'class': 'td left' }, value === undefined || value === null || value === '' ? '-' : value)
 	]);
+}
+
+function tailscaleStatusSection(title, content, description) {
+	const children = [ E('h3', {}, title) ];
+	if (description)
+		children.push(E('p', { 'class': 'cbi-section-descr' }, description));
+	children.push(content);
+	return E('div', { 'class': 'cbi-section' }, children);
 }
 
 function formatTailscaleBytes(value) {
@@ -96,6 +111,12 @@ function renderTailscaleRouteDiscovery(status) {
 function renderTailscaleAccountControl(status) {
 	const backendState = status?.backend_state;
 	if (backendState === 'Running') {
+		const accountName = status?.self?.user || status?.network_name || _('Connected');
+		const accountLink = E('a', {
+			'href': 'https://login.tailscale.com/admin/machines',
+			'target': '_blank',
+			'rel': 'noreferrer noopener'
+		}, accountName);
 		const button = E('button', {
 			'type': 'button',
 			'class': 'btn cbi-button cbi-button-negative'
@@ -113,7 +134,8 @@ function renderTailscaleAccountControl(status) {
 				window.setTimeout(() => window.location.reload(), 500);
 		};
 		return E('div', {}, [
-			E('span', { 'style': 'color:green;margin-right:1rem' }, _('Connected')),
+			E('span', { 'style': 'color:green' }, [ _('Connected') + ': ', accountLink ]),
+			E('br'),
 			button
 		]);
 	}
@@ -150,31 +172,264 @@ function formatTailscaleBackendState(status) {
 	}
 }
 
-function renderTailscaleStatus(status) {
+function tailscaleStateLabel(state, detail) {
+	const colours = { healthy: 'green', warning: 'orange', error: 'red' };
+	const labels = { healthy: _('Healthy'), warning: _('Warning'), error: _('Error') };
+	return E('span', { 'style': `color:${colours[state]}`, 'title': detail || '' }, labels[state]);
+}
+
+function renderTailscaleNodeOverview(status, configuredAdvertiseRoutes) {
 	const selectedExitNode = (status?.exit_nodes || []).find(node => node.selected);
+	const self = status?.self || {};
+	return E('table', { 'class': 'table' }, [
+		tailscaleStatusRow(_('Backend State'), formatTailscaleBackendState(status)),
+		tailscaleStatusRow(_('Account'), self.user || status?.network_name),
+		tailscaleStatusRow(_('Tailnet'), status?.network_name),
+		tailscaleStatusRow(_('Hostname'), self.host_name),
+		tailscaleStatusRow(_('DNS Name'), self.dns_name),
+		tailscaleStatusRow(_('Tailscale Addresses'), (self.ips || []).join(', ')),
+		tailscaleStatusRow(_('Operating System'), self.os),
+		tailscaleStatusRow(_('Stable ID'), self.stable_id),
+		tailscaleStatusRow(_('Key Expiry'), self.key_expiry || _('No expiry reported')),
+		tailscaleStatusRow(_('Advertised Routes'), configuredAdvertiseRoutes.length ? configuredAdvertiseRoutes.join(', ') : _('None')),
+		tailscaleStatusRow(_('Exit Node Offered'), self.exit_node === 'offered' ? _('Yes') : (self.exit_node || _('No'))),
+		tailscaleStatusRow(_('Exit Node in Use'), selectedExitNode ?
+			`${selectedExitNode.name} (${selectedExitNode.address})` : _('None'))
+	]);
+}
+
+function renderTailscaleHealth(status) {
+	const interfaceStatus = status?.interface || {};
+	const routing = status?.system_routing || {};
+	const addressReady = (interfaceStatus.ipv4 || []).length > 0 || (interfaceStatus.ipv6 || []).length > 0;
+	const checks = [
+		{
+			label: _('Embedded backend'),
+			state: status?.running ? 'healthy' : 'error',
+			detail: formatTailscaleBackendState(status)
+		},
+		{
+			label: _('Tailnet account'),
+			state: status?.network_name ? 'healthy' : 'warning',
+			detail: status?.network_name || _('No logged-in account detected')
+		},
+		{
+			label: _('System interface'),
+			state: interfaceStatus.present && interfaceStatus.up && addressReady ? 'healthy' : 'error',
+			detail: interfaceStatus.present ?
+				(interfaceStatus.up ? (addressReady ? _('Interface and addresses are ready') : _('Interface has no Tailscale address')) : _('Present but down')) :
+				_('Interface is missing')
+		},
+		{
+			label: _('Peer status API'),
+			state: status?.peers_available === true ? 'healthy' : 'warning',
+			detail: status?.peers_available === true ? _('%d nodes detected').format((status.peers || []).length) :
+				(status?.peers_error || _('Peer status is unavailable'))
+		},
+		{
+			label: _('Peer route API'),
+			state: status?.peer_routes_available === true ? 'healthy' : 'warning',
+			detail: status?.peer_routes_available === true ? _('%d routes advertised by peers').format((status.peer_routes || []).length) :
+				(status?.peer_routes_error || _('Peer route status is unavailable'))
+		},
+		{
+			label: _('System policy routing'),
+			state: routing.available && (routing.rules || []).length > 0 ? 'healthy' : 'warning',
+			detail: routing.available ? _('%d table 52 rules installed').format((routing.rules || []).length) : _('Unable to inspect system routing')
+		}
+	];
+	return E('table', { 'class': 'table' }, [
+		E('tr', { 'class': 'tr table-titles' }, [
+			E('th', { 'class': 'th' }, _('Check')),
+			E('th', { 'class': 'th' }, _('State')),
+			E('th', { 'class': 'th' }, _('Details'))
+		]),
+		...checks.map(check => E('tr', { 'class': 'tr' }, [
+			E('td', { 'class': 'td' }, check.label),
+			E('td', { 'class': 'td' }, tailscaleStateLabel(check.state, check.detail)),
+			E('td', { 'class': 'td' }, check.detail)
+		]))
+	]);
+}
+
+function renderTailscaleInterface(status) {
 	const interfaceStatus = status?.interface || {};
 	const interfaceState = interfaceStatus.present ?
 		(interfaceStatus.up ? _('Available') : _('Present but down')) : _('Unavailable');
-	const content = [
-		E('table', { 'class': 'table' }, [
-			tailscaleStatusRow(_('Backend State'), formatTailscaleBackendState(status)),
-			tailscaleStatusRow(_('Tailnet'), status?.network_name),
-			tailscaleStatusRow(_('Exit Node in Use'), selectedExitNode ?
-				`${selectedExitNode.name} (${selectedExitNode.address})` : _('None')),
-			tailscaleStatusRow(_('System interface'), interfaceStatus.name),
-			tailscaleStatusRow(_('Interface Management'), _('Managed by sing-box')),
-			tailscaleStatusRow(_('Interface State'), interfaceState),
-			tailscaleStatusRow(_('Tailscale IPv4'), (interfaceStatus.ipv4 || []).join(', ')),
-			tailscaleStatusRow(_('Tailscale IPv6'), (interfaceStatus.ipv6 || []).join(', ')),
-			tailscaleStatusRow(_('Interface MTU'), interfaceStatus.mtu),
-			tailscaleStatusRow(_('Received / Sent'), `${formatTailscaleBytes(interfaceStatus.rx_bytes)} / ${formatTailscaleBytes(interfaceStatus.tx_bytes)}`),
-			tailscaleStatusRow(_('Peer Route Discovery'), renderTailscaleRouteDiscovery(status))
+	return E('table', { 'class': 'table' }, [
+		tailscaleStatusRow(_('System interface'), interfaceStatus.name),
+		tailscaleStatusRow(_('Interface Management'), _('Managed by sing-box')),
+		tailscaleStatusRow(_('Interface State'), interfaceState),
+		tailscaleStatusRow(_('Tailscale IPv4'), (interfaceStatus.ipv4 || []).join(', ')),
+		tailscaleStatusRow(_('Tailscale IPv6'), (interfaceStatus.ipv6 || []).join(', ')),
+		tailscaleStatusRow(_('Interface MTU'), interfaceStatus.mtu),
+		tailscaleStatusRow(_('Received / Sent'), `${formatTailscaleBytes(interfaceStatus.rx_bytes)} / ${formatTailscaleBytes(interfaceStatus.tx_bytes)}`)
+	]);
+}
+
+function renderTailscaleRoutes(status, configuredPeerRoutes, acceptRoutes) {
+	const systemRouting = status?.system_routing || {};
+	const systemRoutes = systemRouting.routes || [];
+	const interfaceName = status?.interface?.name;
+	const peerRoutes = status?.peer_routes || [];
+	const routeRows = [
+		E('tr', { 'class': 'tr table-titles' }, [
+			E('th', { 'class': 'th' }, _('Route')),
+			E('th', { 'class': 'th' }, _('Peer')),
+			E('th', { 'class': 'th' }, _('Peer State')),
+			E('th', { 'class': 'th' }, _('System State'))
 		])
 	];
-	if (status?.enabled && status?.code !== 0) {
-		content.push(E('div', { 'class': 'alert-message warning' },
-			(status.output || _('Waiting for the embedded backend...')).trim()));
+	for (const route of peerRoutes) {
+		const configured = acceptRoutes && configuredPeerRoutes.includes(route.route);
+		const installed = systemRoutes.some(entry => entry.destination === route.route && entry.device === interfaceName);
+		routeRows.push(E('tr', { 'class': 'tr' }, [
+			E('td', { 'class': 'td' }, route.route),
+			E('td', { 'class': 'td' }, route.name || route.address),
+			E('td', { 'class': 'td' }, route.online ? _('Online') : _('Offline')),
+			E('td', { 'class': 'td' }, installed ? E('span', { 'style': 'color:green' }, _('Installed')) :
+				(configured ? E('span', { 'style': 'color:orange' }, _('Configured but not installed')) : _('Not selected')))
+		]));
 	}
+	if (!peerRoutes.length)
+		routeRows.push(E('tr', { 'class': 'tr' }, E('td', { 'class': 'td', 'colspan': 4 }, _('No peer routes advertised.'))));
+
+	const systemRows = [
+		E('tr', { 'class': 'tr table-titles' }, [
+			E('th', { 'class': 'th' }, _('Family')),
+			E('th', { 'class': 'th' }, _('Destination')),
+			E('th', { 'class': 'th' }, _('Interface')),
+			E('th', { 'class': 'th' }, _('Gateway'))
+		])
+	];
+	for (const route of systemRoutes)
+		systemRows.push(E('tr', { 'class': 'tr' }, [
+			E('td', { 'class': 'td' }, route.family),
+			E('td', { 'class': 'td' }, route.destination),
+			E('td', { 'class': 'td' }, route.device || '-'),
+			E('td', { 'class': 'td' }, route.gateway || '-')
+		]));
+	if (!systemRoutes.length)
+		systemRows.push(E('tr', { 'class': 'tr' }, E('td', { 'class': 'td', 'colspan': 4 }, _('No routes installed in table 52.'))));
+
+	return E('div', {}, [
+		E('table', { 'class': 'table' }, [
+			tailscaleStatusRow(_('Peer Route Discovery'), renderTailscaleRouteDiscovery(status)),
+			tailscaleStatusRow(_('Accept Routes'), acceptRoutes ? _('Enabled') : _('Disabled')),
+			tailscaleStatusRow(_('Policy Rules'), _('%d table 52 rules').format((systemRouting.rules || []).length))
+		]),
+		E('h4', {}, _('Routes Advertised by Peers')),
+		E('div', { 'style': 'overflow-x:auto' }, E('table', { 'class': 'table' }, routeRows)),
+		E('h4', {}, _('Installed System Routes')),
+		E('div', { 'style': 'overflow-x:auto' }, E('table', { 'class': 'table' }, systemRows))
+	]);
+}
+
+function renderPeerDetails(peer) {
+	return E('table', { 'class': 'table' }, [
+		tailscaleStatusRow(_('Hostname'), peer?.host_name),
+		tailscaleStatusRow(_('DNS Name'), peer?.dns_name),
+		tailscaleStatusRow(_('User'), peer?.user),
+		tailscaleStatusRow(_('Operating System'), peer?.os),
+		tailscaleStatusRow(_('Tailscale Addresses'), (peer?.ips || []).join(', ')),
+		tailscaleStatusRow(_('Stable ID'), peer?.stable_id),
+		tailscaleStatusRow(_('State'), peer?.online ? (peer.active ? _('Active') : _('Online')) : _('Offline')),
+		tailscaleStatusRow(_('Key Expired'), peer?.expired ? _('Yes') : _('No')),
+		tailscaleStatusRow(_('Key Expiry'), peer?.key_expiry || _('No expiry reported')),
+		tailscaleStatusRow(_('Last Seen'), peer?.last_seen),
+		tailscaleStatusRow(_('Exit Node'), peer?.exit_node === 'offered' ? _('Available') : peer?.exit_node),
+		tailscaleStatusRow(_('Received / Sent'), `${formatTailscaleBytes(peer?.rx_bytes)} / ${formatTailscaleBytes(peer?.tx_bytes)}`)
+	]);
+}
+
+async function showTailscalePeerDetails(peer, button) {
+	button.disabled = true;
+	try {
+		const result = await callTailscalePeerDetails(peer.address);
+		if (result.code !== 0 || !result.peer) {
+			ui.addNotification(null, E('p', {}, result.output || _('Unable to read peer details.')), 'error');
+			return;
+		}
+		ui.showModal(_('Peer Details'), [
+			renderPeerDetails(result.peer),
+			E('div', { 'class': 'right' }, E('button', {
+				'type': 'button',
+				'class': 'btn cbi-button',
+				'click': ui.hideModal
+			}, _('Close')))
+		]);
+	} finally {
+		button.disabled = false;
+	}
+}
+
+async function probeTailscalePeerPath(peer, button) {
+	button.disabled = true;
+	try {
+		const result = await callTailscalePing(peer.address);
+		ui.showModal(_('Peer Path'), [
+			E('pre', { 'style': 'white-space:pre-wrap' },
+				(result.output || (result.code === 0 ? _('Peer is reachable.') : _('Peer test failed.'))).trim()),
+			E('div', { 'class': 'right' }, E('button', {
+				'type': 'button',
+				'class': 'btn cbi-button',
+				'click': ui.hideModal
+			}, _('Close')))
+		]);
+	} finally {
+		button.disabled = false;
+	}
+}
+
+function renderTailscalePeers(status) {
+	const peers = (status?.peers || []).filter(peer => !peer.self).sort((a, b) => {
+		if (a.online !== b.online)
+			return a.online ? -1 : 1;
+		return (a.dns_name || '').localeCompare(b.dns_name || '');
+	});
+	const rows = [
+		E('tr', { 'class': 'tr table-titles' }, [
+			E('th', { 'class': 'th' }, _('Peer')),
+			E('th', { 'class': 'th' }, _('Tailscale IP')),
+			E('th', { 'class': 'th' }, _('State')),
+			E('th', { 'class': 'th' }, _('Actions'))
+		])
+	];
+	for (const peer of peers) {
+		const detailsButton = E('button', {
+			'type': 'button',
+			'class': 'btn cbi-button cbi-button-neutral'
+		}, _('Details'));
+		const pathButton = E('button', {
+			'type': 'button',
+			'class': 'btn cbi-button cbi-button-action'
+		}, _('Test Path'));
+		detailsButton.onclick = () => showTailscalePeerDetails(peer, detailsButton);
+		pathButton.onclick = () => probeTailscalePeerPath(peer, pathButton);
+		rows.push(E('tr', { 'class': 'tr' }, [
+			E('td', { 'class': 'td' }, peer.dns_name || '-'),
+			E('td', { 'class': 'td' }, peer.address || '-'),
+			E('td', { 'class': 'td' }, peer.online ? E('span', { 'style': 'color:green' }, _('Online')) : _('Offline')),
+			E('td', { 'class': 'td' }, [ detailsButton, ' ', pathButton ])
+		]));
+	}
+	if (!peers.length)
+		rows.push(E('tr', { 'class': 'tr' }, E('td', { 'class': 'td', 'colspan': 4 }, _('No peers found.'))));
+	return E('div', { 'style': 'overflow-x:auto' }, E('table', { 'class': 'table' }, rows));
+}
+
+function renderTailscaleStatus(status, configuredPeerRoutes, configuredAdvertiseRoutes, acceptRoutes) {
+	const content = [
+		tailscaleStatusSection(_('Node Overview'), renderTailscaleNodeOverview(status, configuredAdvertiseRoutes)),
+		tailscaleStatusSection(_('Health Status'), renderTailscaleHealth(status),
+			_('Derived locally from the embedded backend, interface, peer API, and system routes. This is not the official Tailscale Health or netcheck result.')),
+		tailscaleStatusSection(_('Interface'), renderTailscaleInterface(status)),
+		tailscaleStatusSection(_('Route Status'), renderTailscaleRoutes(status, configuredPeerRoutes, acceptRoutes)),
+		tailscaleStatusSection(_('Peers'), renderTailscalePeers(status))
+	];
+	if (status?.enabled && status?.code !== 0)
+		content.unshift(E('div', { 'class': 'alert-message warning' },
+			(status.output || _('Waiting for the embedded backend...')).trim()));
 	return E('div', {}, content);
 }
 
@@ -198,6 +453,7 @@ return view.extend({
 		const configuredExitNode = uci.get(data[0], 'tailscale', 'exit_node') || '';
 		const configuredPeerRoutes = L.toArray(uci.get(data[0], 'tailscale', 'subnet_routes'));
 		const configuredAdvertiseRoutes = L.toArray(uci.get(data[0], 'tailscale', 'advertise_routes'));
+		const acceptRoutes = uci.get(data[0], 'tailscale', 'accept_routes') === '1';
 		const localAdvertiseSubnets = data[4] || [];
 
 		m = new form.Map('sbproxy', _('Tailscale'),
@@ -498,8 +754,8 @@ return view.extend({
 
 		o = s.taboption('status', form.DummyValue, '_status');
 		o.render = function() {
-			return E('div', { 'id': 'tailscale_status', 'class': 'cbi-section' },
-				renderTailscaleStatus(tailscaleStatus));
+			return E('div', { 'id': 'tailscale_status' },
+				renderTailscaleStatus(tailscaleStatus, configuredPeerRoutes, configuredAdvertiseRoutes, acceptRoutes));
 		};
 
 		poll.add(function() {
@@ -509,7 +765,8 @@ return view.extend({
 				if (account)
 					dom.content(account, renderTailscaleAccountControl(status));
 				if (statusView)
-					dom.content(statusView, renderTailscaleStatus(status));
+					dom.content(statusView,
+						renderTailscaleStatus(status, configuredPeerRoutes, configuredAdvertiseRoutes, acceptRoutes));
 			});
 		});
 

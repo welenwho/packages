@@ -125,6 +125,168 @@ function parseTailscalePeerRoutes(output) {
 	return routes;
 }
 
+function parseTailscalePeers(output) {
+	let peers = [], is_self = true;
+	for (let line in split(output || '', '\n')) {
+		const fields = split(trim(line), '\t');
+		if (length(fields) < 3)
+			continue;
+		const dns_name = trim(fields[0]);
+		const address = trim(fields[1]);
+		if (!dns_name || !address)
+			continue;
+		push(peers, {
+			dns_name,
+			address,
+			online: lc(trim(fields[2])) === 'yes',
+			self: is_self
+		});
+		is_self = false;
+	}
+	return peers;
+}
+
+function parseTailscalePeerDetails(output) {
+	let peer = {
+		dns_name: null,
+		host_name: null,
+		stable_id: null,
+		user: null,
+		os: null,
+		ips: [],
+		online: null,
+		active: null,
+		expired: null,
+		sharee_node: null,
+		exit_node: null,
+		rx_bytes: null,
+		tx_bytes: null,
+		key_expiry: null,
+		last_seen: null,
+		ssh_host_keys: null
+	};
+	for (let line in split(output || '', '\n')) {
+		const parsed = match(line, /^\s*([^:]+):\s*(.*)$/);
+		if (!parsed)
+			continue;
+		const key = lc(trim(parsed[1]));
+		const raw_value = trim(parsed[2]);
+		const value = raw_value === '-' ? null : raw_value;
+		switch (key) {
+		case 'dns name':
+			peer.dns_name = value;
+			break;
+		case 'host name':
+			peer.host_name = value;
+			break;
+		case 'stable id':
+			peer.stable_id = value;
+			break;
+		case 'user':
+			peer.user = value;
+			break;
+		case 'os':
+			peer.os = value;
+			break;
+		case 'ips':
+			for (let address in split(raw_value, ',')) {
+				address = trim(address);
+				if (address)
+					push(peer.ips, address);
+			}
+			break;
+		case 'online':
+			peer.online = lc(raw_value) === 'yes';
+			break;
+		case 'active':
+			peer.active = lc(raw_value) === 'yes';
+			break;
+		case 'expired':
+			peer.expired = lc(raw_value) === 'yes';
+			break;
+		case 'sharee node':
+			peer.sharee_node = lc(raw_value) === 'yes';
+			break;
+		case 'exit node':
+			peer.exit_node = value;
+			break;
+		case 'rx':
+			peer.rx_bytes = match(raw_value, /^\d+$/) ? int(raw_value) : null;
+			break;
+		case 'tx':
+			peer.tx_bytes = match(raw_value, /^\d+$/) ? int(raw_value) : null;
+			break;
+		case 'key expiry':
+			peer.key_expiry = value;
+			break;
+		case 'last seen':
+			peer.last_seen = value;
+			break;
+		case 'ssh host keys':
+			peer.ssh_host_keys = value;
+			break;
+		}
+	}
+	return peer;
+}
+
+function parseTailscaleSystemRoutes(output, family) {
+	let routes = [];
+	try {
+		const entries = json(output || '[]');
+		for (let route in ((type(entries) === 'array') ? entries : [])) {
+			const destination = route?.dst || (family === 'IPv6' ? '::/0' : '0.0.0.0/0');
+			push(routes, {
+				family,
+				destination,
+				device: route?.dev || null,
+				gateway: route?.gateway || null,
+				metric: route?.metric || null,
+				protocol: route?.protocol || null
+			});
+		}
+	} catch (e) {}
+	return routes;
+}
+
+function parseTailscalePolicyRules(output, family) {
+	let rules = [];
+	try {
+		const entries = json(output || '[]');
+		for (let rule in ((type(entries) === 'array') ? entries : [])) {
+			if (`${rule?.table}` !== '52')
+				continue;
+			push(rules, {
+				family,
+				priority: rule?.priority || null,
+				source: rule?.src || 'all',
+				destination: rule?.dst ? `${rule.dst}${rule.dstlen ? `/${rule.dstlen}` : ''}` : 'all',
+				fwmark: rule?.fwmark || null,
+				table: 52
+			});
+		}
+	} catch (e) {}
+	return rules;
+}
+
+function tailscaleSystemRoutingStatus() {
+	let status = { available: true, routes: [], rules: [] };
+	for (let family in [ '-4', '-6' ]) {
+		const name = family === '-6' ? 'IPv6' : 'IPv4';
+		const route_result = runCommand(`/sbin/ip ${family} -j route show table 52`);
+		const rule_result = runCommand(`/sbin/ip ${family} -j rule show`);
+		if (route_result.code !== 0 || rule_result.code !== 0)
+			status.available = false;
+		if (route_result.code === 0)
+			for (let route in parseTailscaleSystemRoutes(route_result.output, name))
+				push(status.routes, route);
+		if (rule_result.code === 0)
+			for (let rule in parseTailscalePolicyRules(rule_result.output, name))
+				push(status.rules, rule);
+	}
+	return status;
+}
+
 function tailscaleInterfaceStatus(interface_name) {
 	let status = {
 		name: interface_name,
@@ -324,6 +486,7 @@ const methods = {
 			const interface_name = sbpuci.get('sbproxy', 'tailscale', 'system_interface_name') ||
 			      'tailscale0';
 			const interface_status = tailscaleInterfaceStatus(interface_name);
+			const routing_status = tailscaleSystemRoutingStatus();
 			if (!enabled)
 				return {
 					enabled: false,
@@ -336,7 +499,12 @@ const methods = {
 					peer_routes: [],
 					peer_routes_available: null,
 					peer_routes_error: null,
+					peers_available: null,
+					peers_error: null,
+					peers: [],
+					self: null,
 					interface: interface_status,
+					system_routing: routing_status,
 					code: 0,
 					output: 'Disabled'
 				};
@@ -353,15 +521,41 @@ const methods = {
 					peer_routes: [],
 					peer_routes_available: null,
 					peer_routes_error: null,
+					peers_available: null,
+					peers_error: null,
+					peers: [],
+					self: null,
 					interface: interface_status,
+					system_routing: routing_status,
 					code: 1,
 					output: 'API port is unavailable.'
 				};
 			const result = runCommand(command);
 			const status = parseTailscaleStatus(result.output);
-			let exit_nodes = [], peer_routes = [], peer_routes_available = null,
-			    peer_routes_error = null;
+			let exit_nodes = [], peer_routes = [], peers = [], self = null,
+			    peer_routes_available = null, peer_routes_error = null,
+			    peers_available = null, peers_error = null;
 			if (result.code === 0) {
+				const peer_command = tailscaleAPICommand([ 'tailscale', 'peer', 'list' ]);
+				if (peer_command) {
+					const peer_result = runCommand(peer_command);
+					if (peer_result.code === 0) {
+						peers_available = true;
+						peers = parseTailscalePeers(peer_result.output);
+						const self_peer = peers[0];
+						const self_command = self_peer?.self ?
+							tailscaleAPICommand([ 'tailscale', 'peer', 'show', self_peer.address ]) : null;
+						if (self_command) {
+							const self_result = runCommand(self_command);
+							if (self_result.code === 0)
+								self = parseTailscalePeerDetails(self_result.output);
+						}
+					} else {
+						peers_available = false;
+						peers_error = trim(replace(peer_result.output || '',
+							/\x1b\[[0-9;]*m/g, '')) || 'peer status query failed';
+					}
+				}
 				const exit_command = tailscaleAPICommand([ 'tailscale', 'exit-node', 'list' ]);
 				if (exit_command) {
 					const exit_result = runCommand(exit_command);
@@ -393,9 +587,32 @@ const methods = {
 				peer_routes,
 				peer_routes_available,
 				peer_routes_error,
+				peers_available,
+				peers_error,
+				peers,
+				self,
 				interface: interface_status,
+				system_routing: routing_status,
 				code: result.code,
 				output: result.output
+			};
+		}
+	},
+
+	tailscale_peer_details: {
+		args: { target: 'target' },
+		call: function(req) {
+			const target = trim(req.args?.target || '');
+			if (!target || length(target) > 253 || !match(target, /^[A-Za-z0-9_.:-]+$/))
+				return { code: 2, output: 'invalid Tailscale peer', peer: null };
+			const command = tailscaleAPICommand([ 'tailscale', 'peer', 'show', target ]);
+			if (!command)
+				return { code: 1, output: 'API port is unavailable.', peer: null };
+			const result = runCommand(command);
+			return {
+				code: result.code,
+				output: result.output,
+				peer: result.code === 0 ? parseTailscalePeerDetails(result.output) : null
 			};
 		}
 	},

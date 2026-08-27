@@ -3860,3 +3860,299 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:347
 msgid "valid port value"
 msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:177
+msgid "Healthy"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:177
+msgid "Warning"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:188
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:329
+msgid "Hostname"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:189
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:330
+msgid "DNS Name"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:190
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:333
+msgid "Tailscale Addresses"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:191
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:332
+msgid "Operating System"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:192
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:334
+msgid "Stable ID"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:193
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:337
+msgid "Key Expiry"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:193
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:337
+msgid "No expiry reported"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:194
+msgid "Advertised Routes"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:195
+msgid "Exit Node Offered"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:195
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:336
+msgid "No"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:207
+msgid "Embedded backend"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:212
+msgid "Tailnet account"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:214
+msgid "No logged-in account detected"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:220
+msgid "Interface and addresses are ready"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:220
+msgid "Interface has no Tailscale address"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:221
+msgid "Interface is missing"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:224
+msgid "Peer status API"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:226
+#, javascript-format
+msgid "%d nodes detected"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:226
+msgid "Peer status is unavailable"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:229
+msgid "Peer route API"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:231
+#, javascript-format
+msgid "%d routes advertised by peers"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:232
+msgid "Peer route status is unavailable"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:235
+msgid "System policy routing"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:237
+#, javascript-format
+msgid "%d table 52 rules installed"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:237
+msgid "Unable to inspect system routing"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:242
+msgid "Check"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:243
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:335
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:393
+msgid "State"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:244
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:401
+msgid "Details"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:277
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:391
+msgid "Peer"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:278
+msgid "Peer State"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:279
+msgid "System State"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:288
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:335
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:411
+msgid "Online"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:288
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:335
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:411
+msgid "Offline"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:289
+msgid "Installed"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:290
+msgid "Configured but not installed"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:290
+msgid "Not selected"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:294
+msgid "No peer routes advertised."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:298
+msgid "Family"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:299
+msgid "Destination"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:300
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:425
+msgid "Interface"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:301
+msgid "Gateway"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:312
+msgid "No routes installed in table 52."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:317
+msgid "Accept Routes"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:317
+msgid "Enabled"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:318
+msgid "Policy Rules"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:318
+#, javascript-format
+msgid "%d table 52 rules"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:320
+msgid "Routes Advertised by Peers"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:322
+msgid "Installed System Routes"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:335
+msgid "Active"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:336
+msgid "Key Expired"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:336
+msgid "Yes"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:338
+msgid "Last Seen"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:339
+msgid "Exit Node"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:349
+msgid "Unable to read peer details."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:352
+msgid "Peer Details"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:358
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:376
+msgid "Close"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:369
+msgid "Peer Path"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:392
+msgid "Tailscale IP"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:394
+msgid "Actions"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:405
+msgid "Test Path"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:416
+msgid "No peers found."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:422
+msgid "Node Overview"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:423
+msgid "Health Status"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:424
+msgid ""
+"Derived locally from the embedded backend, interface, peer API, and system "
+"routes. This is not the official Tailscale Health or netcheck result."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:426
+msgid "Route Status"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:427
+msgid "Peers"
+msgstr ""
