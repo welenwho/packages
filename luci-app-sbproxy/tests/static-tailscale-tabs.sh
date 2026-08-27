@@ -65,14 +65,11 @@ done
 printf '%s\n' "$tailscale_form" | grep -Fq "s.taboption('routing', form.ListValue, 'exit_node'"
 printf '%s\n' "$tailscale_form" | grep -Fq "exit_node: /.+/"
 printf '%s\n' "$tailscale_form" | grep -Fq "tailscaleStatus.peer_routes"
-printf '%s\n' "$tailscale_form" | grep -Fq "tailscaleStatus.peer_routes_available"
 printf '%s\n' "$tailscale_form" | grep -Fq "localAdvertiseSubnets"
 printf '%s\n' "$tailscale_form" | grep -Fq "configuredPeerRoutes"
 printf '%s\n' "$tailscale_form" | grep -Fq "configuredAdvertiseRoutes"
-printf '%s\n' "$tailscale_form" | grep -Fq "configured; backend status unavailable"
-printf '%s\n' "$tailscale_form" | grep -Fq "configured; not currently advertised"
-printf '%s\n' "$tailscale_form" | grep -Fq "manually configured; no local interface match"
-printf '%s\n' "$tailscale_form" | grep -Fq "peer offline"
+printf '%s\n' "$tailscale_form" | grep -Fq "o.value(route.route, route.route)"
+printf '%s\n' "$tailscale_form" | grep -Fq "o.value(route.value, route.value)"
 printf '%s\n' "$tailscale_form" | grep -Fq "o.depends({ enabled: '1', advertise_exit_node: '0' });"
 if printf '%s\n' "$tailscale_form" | grep -Fq "this.section.formvalue(sectionId, 'advertise_exit_node')"; then
 	echo 'Embedded Tailscale flags must not use cross-validation through a nested SectionValue' >&2

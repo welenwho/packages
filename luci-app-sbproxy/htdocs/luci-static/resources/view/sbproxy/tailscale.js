@@ -517,15 +517,12 @@ return view.extend({
 			if (!route.route || peerRouteValues.includes(route.route))
 				continue;
 			peerRouteValues.push(route.route);
-			o.value(route.route, route.route + ' - ' + (route.name || route.address) +
-				(route.online ? '' : ' (' + _('peer offline') + ')'));
+			o.value(route.route, route.route);
 		}
 		for (const route of configuredPeerRoutes) {
 			if (!peerRouteValues.includes(route)) {
 				peerRouteValues.push(route);
-				o.value(route, route + ' (' + (tailscaleStatus.peer_routes_available === true ?
-					_('configured; not currently advertised') :
-					_('configured; backend status unavailable')) + ')');
+				o.value(route, route);
 			}
 		}
 		o.datatype = 'or(cidr4,cidr6)';
@@ -542,12 +539,12 @@ return view.extend({
 			if (!route.value || advertiseRouteValues.includes(route.value))
 				continue;
 			advertiseRouteValues.push(route.value);
-			o.value(route.value, route.value + ' (' + route.network + ')');
+			o.value(route.value, route.value);
 		}
 		for (const route of configuredAdvertiseRoutes) {
 			if (!advertiseRouteValues.includes(route)) {
 				advertiseRouteValues.push(route);
-				o.value(route, route + ' (' + _('manually configured; no local interface match') + ')');
+				o.value(route, route);
 			}
 		}
 		o.datatype = 'or(cidr4,cidr6)';
