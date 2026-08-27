@@ -62,6 +62,18 @@ msgstr "ACL 标签"
 msgid "API secret"
 msgstr "API 密钥"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:423
+msgid "Recommended when the dashboard is enabled. The dashboard API is blocked from Tailscale peers by default."
+msgstr "启用面板时建议设置。默认禁止 Tailscale 对端访问面板 API。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:428
+msgid "Allow dashboard from Tailscale"
+msgstr "允许从 Tailscale 访问面板"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:429
+msgid "Only enable this when remote dashboard access is required; set an API secret first."
+msgstr "仅在确实需要远程访问面板时启用；请先设置 API 密钥。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:642
 msgid "API token"
 msgstr "API 令牌"

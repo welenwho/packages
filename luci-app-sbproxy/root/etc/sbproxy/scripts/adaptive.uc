@@ -770,8 +770,16 @@ function probeCandidate() {
 		promote(candidate, direct_ms, proxy_ms, 'baseline_failed');
 		return;
 	}
-	if (baseline_samples < required_successes || baseline_ms < settings.baseline_slow_ms) {
+	if (baseline_samples < required_successes) {
 		finishUnsuccessfulProbe(candidate);
+		return;
+	}
+	/* A successful, healthy baseline is not worth probing again. This is
+	 * especially important when slow-connection detection is enabled: a
+	 * transient observation can leave many otherwise-fast targets in the queue,
+	 * and retrying each one three times wastes probe slots. */
+	if (baseline_ms < settings.baseline_slow_ms) {
+		deleteCandidate(target.key);
 		return;
 	}
 

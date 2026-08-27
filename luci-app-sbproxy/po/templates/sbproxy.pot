@@ -52,6 +52,18 @@ msgstr ""
 msgid "API secret"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:423
+msgid "Recommended when the dashboard is enabled. The dashboard API is blocked from Tailscale peers by default."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:428
+msgid "Allow dashboard from Tailscale"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:429
+msgid "Only enable this when remote dashboard access is required; set an API secret first."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:642
 msgid "API token"
 msgstr ""

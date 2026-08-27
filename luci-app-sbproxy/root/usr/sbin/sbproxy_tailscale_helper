@@ -659,7 +659,10 @@ cleanup_openwrt_locked() {
 }
 
 watch_backend() {
-	local state url last_url='' delay=2 result integrated=0 waiting=0
+	# The embedded endpoint may need a short moment to create tailscale0 and
+	# install its policy rules. Retry at 1s intervals so switching to Tailscale
+	# does not leave LuCI waiting for the old 2s polling cadence.
+	local state url last_url='' delay=1 result integrated=0 waiting=0
 
 	while [ "$ENABLED" = "1" ] && [ ! -e "$STOP_FILE" ]; do
 		state="$(backend_state)"
@@ -684,20 +687,20 @@ watch_backend() {
 						fi
 						integrated=0
 						waiting=1
-						delay=2
+						delay=1
 						;;
 					*)
 						log_error "Failed to synchronize OpenWrt integration."
 						integrated=0
 						waiting=0
-						delay=2
+						delay=1
 						;;
 				esac
 				;;
 			NeedsLogin|NoState)
 				integrated=0
 				waiting=0
-				delay=2
+				delay=1
 				url="$(auth_url)"
 				if [ -n "$url" ] && [ "$url" != "$last_url" ]; then
 					log_info "Waiting for authentication: $url"
@@ -707,7 +710,7 @@ watch_backend() {
 			*)
 				integrated=0
 				waiting=0
-				delay=2
+				delay=1
 				;;
 		esac
 		sleep "$delay"

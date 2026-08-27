@@ -15,7 +15,9 @@ import {
 const uciConfigDir = getenv('SBPROXY_UCI_CONFIG_DIR');
 const uci = uciConfigDir ? cursor(uciConfigDir) : cursor();
 const uciconfig = 'sbproxy';
+const adaptiveConfig = 'sbproxy-adaptive';
 uci.load(uciconfig);
+uci.load(adaptiveConfig);
 
 const stockWanProxyIPv4 = [
 	'91.105.192.0/23', '91.108.4.0/22', '91.108.8.0/21', '91.108.16.0/21',
@@ -100,6 +102,27 @@ if (subscriptionNodeMigrationState !== subscriptionNodeMigration) {
 		uciconfig, 'migration', subscriptionNodeMigrationOption,
 		subscriptionNodeMigration
 	);
+}
+
+/* Move installations from the pre-stability defaults once. Explicit changes
+ * made after this migration are preserved on later package upgrades. */
+const stabilityMigration = '1';
+const stabilityMigrationOption = 'adaptive_stability_defaults';
+if (uci.get(uciconfig, 'migration', stabilityMigrationOption) !== stabilityMigration) {
+	if (uci.get(adaptiveConfig, 'main', 'candidate_trigger') === 'slow_or_failure')
+		uci.set(adaptiveConfig, 'main', 'candidate_trigger', 'failure_only');
+	if (uci.get(uciconfig, 'config', 'main_urltest_interrupt_exist_connections') === '1')
+		uci.set(uciconfig, 'config', 'main_urltest_interrupt_exist_connections', '0');
+	uci.foreach(uciconfig, 'routing_node', (section) => {
+		if (section.node === 'urltest' && section.urltest_interval === '60' &&
+			section.urltest_interrupt_exist_connections === '1') {
+			uci.set(uciconfig, section['.name'], 'urltest_interval', '180');
+			uci.set(uciconfig, section['.name'], 'urltest_interrupt_exist_connections', '0');
+		}
+	});
+	if (uci.get(uciconfig, 'migration') === null)
+		uci.set(uciconfig, 'migration', 'sbproxy');
+	uci.set(uciconfig, 'migration', stabilityMigrationOption, stabilityMigration);
 }
 
 synchronizeNodeLabels(uci, uciconfig);
@@ -198,7 +221,8 @@ setDefault('infra', 'tailscale_api_port', 'auto');
 setDefault('infra', 'tailscale_api_port_initialized', '0');
 setDefault('config', 'main_urltest_interval', '180');
 setDefault('config', 'main_urltest_tolerance', '50');
-setDefault('config', 'main_urltest_interrupt_exist_connections', '1');
+setDefault('config', 'main_urltest_interrupt_exist_connections', '0');
+setDefault('config', 'dashboard_allow_tailscale', '0');
 setDefault('config', 'log_level', 'warn');
 setDefault('routing', 'tcpip_stack', 'mixed');
 if (isEmpty(uci.get(uciconfig, 'routing', 'udp_timeout')))
@@ -250,4 +274,6 @@ if (getenv('SBPROXY_MIGRATION_SKIP_CLEANUP') !== '1')
 	system('rm -f "/etc/sbproxy/resources/china_list.txt" "/etc/sbproxy/resources/china_list.ver" "/etc/sbproxy/resources/gfw_list.txt" "/etc/sbproxy/resources/gfw_list.ver"');
 
 if (!isEmpty(uci.changes(uciconfig)) && uci.commit(uciconfig) !== true)
+	exit(1);
+if (!isEmpty(uci.changes(adaptiveConfig)) && uci.commit(adaptiveConfig) !== true)
 	exit(1);

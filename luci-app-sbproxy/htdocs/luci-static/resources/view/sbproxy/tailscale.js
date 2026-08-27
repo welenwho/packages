@@ -172,6 +172,16 @@ function formatTailscaleBackendState(status) {
 	}
 }
 
+function resolveTailscaleStatus(timeout = 800) {
+	let timer;
+	return Promise.race([
+		callTailscaleStatus(),
+		new Promise(resolve => {
+			timer = window.setTimeout(() => resolve({}), timeout);
+		})
+	]).finally(() => window.clearTimeout(timer));
+}
+
 function tailscaleStateLabel(state, detail) {
 	const colours = { healthy: 'green', warning: 'orange', error: 'red' };
 	const labels = { healthy: _('Healthy'), warning: _('Warning'), error: _('Error') };
@@ -439,7 +449,7 @@ return view.extend({
 			uci.load('sbproxy'),
 			sb.getBuiltinFeatures(),
 			L.resolveDefault(uci.load('tailscale'), null),
-			L.resolveDefault(callTailscaleStatus(), {}),
+			L.resolveDefault(resolveTailscaleStatus(), {}),
 			L.resolveDefault(getLocalAdvertiseSubnets(), [])
 		]);
 	},

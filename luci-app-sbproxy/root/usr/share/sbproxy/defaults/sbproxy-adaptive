@@ -3,7 +3,9 @@ config adaptive 'main'
 	option dry_run '1'
 	option allow_global '0'
 	option outbound ''
-	option candidate_trigger 'slow_or_failure'
+	# Only failed connections enter the learning queue by default. Slow-connection
+	# detection remains available as an explicit opt-in for networks that need it.
+	option candidate_trigger 'failure_only'
 	option poll_interval '15'
 	option slow_seconds '10'
 	option slow_bytes '65536'

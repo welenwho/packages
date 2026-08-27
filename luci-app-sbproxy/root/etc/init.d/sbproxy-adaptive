@@ -40,6 +40,10 @@ start_service() {
 
 service_triggers() {
 	procd_add_reload_trigger "$CONFIG"
+	# The worker derives its policy from both files. Reload it when the main
+	# SBProxy configuration changes as well, otherwise a routing-mode or
+	# default-outbound change can leave the old adaptive policy running.
+	procd_add_reload_trigger sbproxy
 }
 
 reload_service() {

@@ -263,9 +263,9 @@ return baseclass.extend({
 		o.rmempty = true;
 
 		o = s.taboption('general', form.ListValue, 'candidate_trigger', _('Candidate trigger'));
-		o.value('slow_or_failure', _('Slow connections or failures'));
 		o.value('failure_only', _('Failures only'));
-		o.default = 'slow_or_failure';
+		o.value('slow_or_failure', _('Slow connections or failures'));
+		o.default = 'failure_only';
 		o.rmempty = false;
 
 		o = s.taboption('general', form.Value, 'max_rules', _('Maximum learned rules'));

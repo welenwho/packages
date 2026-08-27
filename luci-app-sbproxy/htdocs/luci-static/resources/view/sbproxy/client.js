@@ -15,7 +15,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r12 as adaptive';
+'require sbproxy-adaptive-1-0-0-r13 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -231,7 +231,7 @@ return view.extend({
 
 		o = s.taboption('routing', form.Flag, 'main_urltest_interrupt_exist_connections', _('Interrupt existing connections'),
 			_('Interrupt existing connections when the selected outbound has changed.'));
-		o.default = o.enabled;
+		o.default = o.disabled;
 		o.rmempty = false;
 		o.depends('main_node', 'urltest');
 		o.retain = true;
@@ -417,8 +417,15 @@ return view.extend({
 
 		o = s.taboption('dashboard', form.Value, 'dashboard_secret', _('API secret'));
 		o.password = true;
+		o.description = _('Recommended when the dashboard is enabled. The dashboard API is blocked from Tailscale peers by default.');
 		o.rmempty = true;
 		o.retain = true;
+
+		o = s.taboption('dashboard', form.Flag, 'dashboard_allow_tailscale', _('Allow dashboard from Tailscale'),
+			_('Only enable this when remote dashboard access is required; set an API secret first.'));
+		o.default = o.disabled;
+		o.depends('dashboard_enabled', '1');
+		o.rmempty = false;
 
 		o = s.taboption('dashboard', form.Button, '_open_dashboard', _('sing-box dashboard'));
 		o.inputtitle = _('Open dashboard');
@@ -670,7 +677,7 @@ return view.extend({
 
 		so = ss.option(form.Flag, 'urltest_interrupt_exist_connections', _('Interrupt existing connections'),
 			_('Interrupt existing connections when the selected outbound has changed.'));
-		so.default = so.enabled;
+		so.default = so.disabled;
 		so.rmempty = false;
 		so.depends('node', 'urltest');
 		so.modalonly = true;

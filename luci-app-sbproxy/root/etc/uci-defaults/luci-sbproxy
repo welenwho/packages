@@ -8,6 +8,10 @@ if ! /usr/libexec/sbproxy-runtime-init; then
 fi
 
 if ! uci -q batch <<-EOF >"/dev/null"
+	delete firewall.homeproxy_forward
+	delete firewall.homeproxy_input
+	delete firewall.homeproxy_post
+
 	delete firewall.sbproxy_pre
 
 	delete firewall.sbproxy_forward
