@@ -171,9 +171,16 @@ self_details() {
 }
 
 system_interface_ready() {
-	local addresses routes
+	local addresses routes carrier_path
 
 	[ -d "$SYS_CLASS_NET/$INTERFACE_NAME" ] || return 1
+	# A Tailscale TUN can keep its device node, address and routes while the
+	# underlying endpoint is temporarily stopped. Treat a down carrier as not
+	# ready so the next recovery can rebind consumers such as Dropbear.
+	carrier_path="$SYS_CLASS_NET/$INTERFACE_NAME/carrier"
+	if [ -r "$carrier_path" ]; then
+		[ "$(cat "$carrier_path" 2>"/dev/null")" = "1" ] || return 1
+	fi
 	addresses="$("$IP_BIN" -4 address show dev "$INTERFACE_NAME" 2>"/dev/null")" || return 1
 	printf '%s\n' "$addresses" | awk -v address="$TS_IPV4" '
 		$1 == "inet" {
@@ -499,6 +506,19 @@ configure_dropbear() {
 	done
 }
 
+dropbear_has_tailscale_binding() {
+	local section direct_interface
+
+	for section in $(uci show dropbear 2>"/dev/null" |
+		sed -n 's/^\(dropbear\.[^=]*\)=dropbear$/\1/p'); do
+		direct_interface="$(uci_get "$section.DirectInterface")"
+		case "$direct_interface" in
+			sbproxy_ts|tailscale|tailscale0) return 0 ;;
+		esac
+	done
+	return 1
+}
+
 notify_network_status() {
 	[ -x "$NETIFD_PROTO" ] || return 1
 	"$NETIFD_PROTO" notify sbproxy_ts "$INTERFACE_NAME" "$TS_IPV4" "$TS_IPV6" 1
@@ -572,6 +592,8 @@ configure_firewall() {
 }
 
 commit_changes() {
+	local dropbear_changes
+
 	if [ -n "$(uci changes dhcp)" ]; then
 		uci commit dhcp || return 1
 		/etc/init.d/dnsmasq reload || return 1
@@ -586,8 +608,12 @@ commit_changes() {
 	elif [ "$FIREWALL_RUNTIME_CHANGED" = "1" ]; then
 		/etc/init.d/firewall reload || return 1
 	fi
-	if [ -n "$(uci changes dropbear)" ]; then
+	dropbear_changes="$(uci changes dropbear)"
+	if [ -n "$dropbear_changes" ]; then
 		uci commit dropbear || return 1
+		/etc/init.d/dropbear restart || return 1
+	elif [ "${SBPROXY_TAILSCALE_RESTART_DROPBEAR:-0}" = "1" ] &&
+		dropbear_has_tailscale_binding; then
 		/etc/init.d/dropbear restart || return 1
 	fi
 	FIREWALL_RUNTIME_CHANGED=0
@@ -668,7 +694,16 @@ watch_backend() {
 		state="$(backend_state)"
 		case "$state" in
 			Running)
-				sync_openwrt_locked
+				# DirectInterface sockets are bound to the current TUN device. A
+				# Tailscale restart can leave the old Dropbear listener alive but
+				# unable to receive packets on the recovered interface. Force one
+				# service restart whenever integration transitions back to ready;
+				# subsequent 30s syncs remain idempotent.
+				if [ "$integrated" = "0" ]; then
+					SBPROXY_TAILSCALE_RESTART_DROPBEAR=1 sync_openwrt_locked
+				else
+					sync_openwrt_locked
+				fi
 				result=$?
 				case "$result" in
 					0)

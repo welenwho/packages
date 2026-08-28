@@ -219,6 +219,13 @@ printf '%s\n' '-4|100.100.100.100/32|tailscale0' >> "$TEST_ROOT/ip.routes"
 
 system_interface_ready
 cp "$TEST_ROOT/ip.addresses" "$TEST_ROOT/ip.addresses.ready"
+: > "$TEST_ROOT/sys/class/net/tailscale0/carrier"
+printf '0\n' > "$TEST_ROOT/sys/class/net/tailscale0/carrier"
+if system_interface_ready; then
+	echo 'Tailscale interface must not be ready while its carrier is down' >&2
+	exit 1
+fi
+printf '1\n' > "$TEST_ROOT/sys/class/net/tailscale0/carrier"
 : > "$TEST_ROOT/ip.addresses"
 if system_interface_ready; then
 	echo 'Tailscale interface must not be ready before its IPv4 address is installed' >&2
