@@ -171,7 +171,7 @@ self_details() {
 }
 
 system_interface_ready() {
-	local addresses routes carrier_path
+	local addresses routes carrier_path route route_family
 
 	[ -d "$SYS_CLASS_NET/$INTERFACE_NAME" ] || return 1
 	# A Tailscale TUN can keep its device node, address and routes while the
@@ -191,7 +191,28 @@ system_interface_ready() {
 		END { exit !found }
 	' || return 1
 	routes="$("$IP_BIN" -4 route show table 52 2>"/dev/null")" || return 1
-	printf '%s\n' "$routes" | grep -Fq "dev $INTERFACE_NAME"
+	printf '%s\n' "$routes" | grep -Fq "dev $INTERFACE_NAME" || return 1
+	# A table-52 route for the interface is not sufficient: Tailscale can
+	# create the device and install its catch-all rule before every accepted
+	# subnet route has arrived. Do not publish the integration as ready until
+	# each configured subnet route is actually present on tailscale0.
+	for route in $SUBNET_ROUTES; do
+		case "$route" in
+			0.0.0.0/0|::/0) continue ;;
+			*:*) route_family=-6 ;;
+			*) route_family=-4 ;;
+		esac
+		"$IP_BIN" "$route_family" route show table 52 2>"/dev/null" |
+			awk -v target="$route" -v interface="$INTERFACE_NAME" '
+				$1 == target {
+					for (i = 1; i < NF; i++)
+						if ($i == "dev" && $(i + 1) == interface)
+							found = 1
+				}
+				END { exit !found }
+			' || return 1
+	done
+	return 0
 }
 
 trigger_urltests() {

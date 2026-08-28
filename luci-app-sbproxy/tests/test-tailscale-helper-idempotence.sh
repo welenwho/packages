@@ -217,6 +217,12 @@ mkdir -p "$TEST_ROOT/sys/class/net/tailscale0"
 printf '%s\n' '-4|100.86.103.57/32|tailscale0' > "$TEST_ROOT/ip.addresses"
 printf '%s\n' '-4|100.100.100.100/32|tailscale0' >> "$TEST_ROOT/ip.routes"
 
+if system_interface_ready; then
+	echo 'Tailscale interface must not be ready before every configured subnet route is installed' >&2
+	exit 1
+fi
+printf '%s\n' '-4|192.168.7.0/24|tailscale0' >> "$TEST_ROOT/ip.routes"
+printf '%s\n' '-4|192.168.8.0/24|tailscale0' >> "$TEST_ROOT/ip.routes"
 system_interface_ready
 cp "$TEST_ROOT/ip.addresses" "$TEST_ROOT/ip.addresses.ready"
 : > "$TEST_ROOT/sys/class/net/tailscale0/carrier"
@@ -232,7 +238,7 @@ if system_interface_ready; then
 	exit 1
 fi
 mv "$TEST_ROOT/ip.addresses.ready" "$TEST_ROOT/ip.addresses"
-awk '!/100\.100\.100\.100/' "$TEST_ROOT/ip.routes" > "$TEST_ROOT/ip.routes.new"
+awk -F'|' '$3 != "tailscale0"' "$TEST_ROOT/ip.routes" > "$TEST_ROOT/ip.routes.new"
 mv "$TEST_ROOT/ip.routes.new" "$TEST_ROOT/ip.routes"
 if system_interface_ready; then
 	echo 'Tailscale interface must not be ready before table 52 has routes' >&2
