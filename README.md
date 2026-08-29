@@ -8,7 +8,7 @@
 | --- | --- | --- | --- |
 | `luci-app-axonhub` | `20260812-r4` | axonhub 核心的 LuCI 管理界面与 OpenWrt 集成。 | [VIKINGYFY/packages](https://github.com/VIKINGYFY/packages) |
 | `luci-app-gecoosac` | `20260812-r4` | gecoosac 核心的 LuCI 管理界面与 OpenWrt 集成。 | [VIKINGYFY/packages](https://github.com/VIKINGYFY/packages) |
-| `luci-app-sbproxy` | `1.0.0-r19` | sing-box 代理与 VPN 平台，支持可选的内置 Tailscale。 | [welenwho/packages](https://github.com/welenwho/packages) |
+| `luci-app-sbproxy` | `1.0.0-r20` | sing-box 代理与 VPN 平台，支持可选的内置 Tailscale。 | [welenwho/packages](https://github.com/welenwho/packages) |
 | `luci-app-wolultra` | `20260812-r3` | wol 功能的 LuCI 管理界面与 OpenWrt 集成。 | [welenwho/packages](https://github.com/welenwho/packages) |
 
 ## 核心与依赖来源
@@ -17,7 +17,7 @@
 | --- | --- | --- |
 | `axonhub` | `20260828-r1` | [VIKINGYFY/packages](https://github.com/VIKINGYFY/packages) |
 | `gecoosac` | `2.2.20251015-r1` | [VIKINGYFY/packages](https://github.com/VIKINGYFY/packages) |
-| `sing-box` | `1.14.0_rc1-r6` | [SagerNet/sing-box](https://github.com/SagerNet/sing-box) |
+| `sing-box` | `1.14.0_rc2-r1` | [SagerNet/sing-box](https://github.com/SagerNet/sing-box) |
 
 ## 自动维护
 
