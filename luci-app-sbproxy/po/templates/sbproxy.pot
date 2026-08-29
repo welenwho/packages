@@ -1,16 +1,55 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the luci-app-sbproxy package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
 msgid ""
-msgstr "Content-Type: text/plain; charset=UTF-8"
+msgstr ""
+"Project-Id-Version: luci-app-sbproxy 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-29 13:16+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:236
+#, javascript-format
+msgid "%d nodes detected"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:242
+#, javascript-format
+msgid "%d routes advertised by peers"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:329
+#, javascript-format
+msgid "%d table 52 rules"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:248
+#, javascript-format
+msgid "%d table 52 rules installed"
+msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:372
+#, javascript-format
 msgid "%s Log"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:511
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:93
+#, javascript-format
 msgid "%s ms"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1931
+#, javascript-format
 msgid "%s nodes removed"
 msgstr ""
 
@@ -24,15 +63,16 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:895
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1374
+#, javascript-format
 msgid ""
 "<code>%s</code> will be temporarily overwritten to <code>%s</code> after 50 "
 "triggers in 30s if not enabled."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1526
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1545
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:746
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:765
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1526
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1545
 msgid "<strong>Save your configuration before uploading files!</strong>"
 msgstr ""
 
@@ -44,6 +84,10 @@ msgstr ""
 msgid "A random available port is assigned on first installation."
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:781
+msgid "ACL tags"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:418
 msgid "API secret"
 msgstr ""
@@ -52,8 +96,20 @@ msgstr ""
 msgid "API token"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:328
+msgid "Accept Routes"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1108
 msgid "Accept any if empty."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:508
+msgid "Accept routes"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:692
+msgid "Accept search domain"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1564
@@ -68,10 +124,23 @@ msgstr ""
 msgid "Access key secret"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:196
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:498
+msgid "Account"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:120
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:789
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1277
 msgid "Action"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:405
+msgid "Actions"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:346
+msgid "Active"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:245
@@ -134,6 +203,18 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:612
+msgid "Advertise exit node"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:567
+msgid "Advertise subnets"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:204
+msgid "Advertised Routes"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:618
 msgid "AliDNS"
 msgstr ""
@@ -144,6 +225,10 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:321
 msgid "All ports"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:672
+msgid "Allow LAN access with exit node"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:155
@@ -172,8 +257,8 @@ msgid ""
 "Allow insecure connection by default when adding nodes from subscriptions."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1312
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:458
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1312
 msgid "Allowed payload size is in the request."
 msgstr ""
 
@@ -181,8 +266,8 @@ msgstr ""
 msgid "Already at the latest version."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1180
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:367
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1180
 msgid "Alter ID"
 msgstr ""
 
@@ -196,6 +281,7 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1890
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1897
+#, javascript-format
 msgid "An error occurred during updating subscriptions: %s."
 msgstr ""
 
@@ -203,8 +289,8 @@ msgstr ""
 msgid "Answer"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:875
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:159
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:875
 msgid "AnyTLS"
 msgstr ""
 
@@ -242,6 +328,14 @@ msgstr ""
 msgid "Are you sure you want to log out of Tailscale on this device?"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:763
+msgid "Auth key"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:768
+msgid "Auth key file"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:339
 msgid "Auth timeout"
 msgstr ""
@@ -250,13 +344,17 @@ msgstr ""
 msgid "Authenticated length"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:996
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:479
+msgid "Authentication"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:254
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:996
 msgid "Authentication payload"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:989
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:247
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:989
 msgid "Authentication type"
 msgstr ""
 
@@ -273,11 +371,17 @@ msgid "Auto-exclude Tailscale routes"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:102
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:268
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:350
 msgid "Available"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1140
 msgid "BBR"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:195
+msgid "Backend State"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:487
@@ -288,8 +392,8 @@ msgstr ""
 msgid "Baidu"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:991
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:249
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:991
 msgid "Base64"
 msgstr ""
 
@@ -334,6 +438,7 @@ msgid "Both"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:340
+#, javascript-format
 msgid ""
 "Built-in common ports: %s. Add only ports or ranges that are not already "
 "listed."
@@ -369,9 +474,13 @@ msgstr ""
 msgid "Candidate trigger"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1517
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:734
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1517
 msgid "Certificate path"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:253
+msgid "Check"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:278
@@ -400,8 +509,8 @@ msgstr ""
 msgid "Chromium / Cronet"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1504
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:564
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1504
 msgid "Cipher suites"
 msgstr ""
 
@@ -429,12 +538,13 @@ msgstr ""
 msgid "Client"
 msgstr ""
 
-#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:14
-msgid "Client Settings"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1102
 msgid "Client version"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:369
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:387
+msgid "Close"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:619
@@ -459,8 +569,12 @@ msgstr ""
 msgid "Comparison proxy outbound"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1136
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:301
+msgid "Configured but not installed"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:330
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1136
 msgid "Congestion control algorithm"
 msgstr ""
 
@@ -482,6 +596,10 @@ msgstr ""
 msgid "Connectivity"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:746
+msgid "Control server"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1805
 msgid "Cron expression"
 msgstr ""
@@ -496,6 +614,11 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:738
 msgid "DNS"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:199
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:341
+msgid "DNS Name"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1187
@@ -515,6 +638,7 @@ msgid "DNS Servers"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1004
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:476
 msgid "DNS Settings"
 msgstr ""
 
@@ -565,11 +689,11 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:875
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1214
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1545
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:550
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:558
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1148
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1490
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1498
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:550
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:558
 msgid "Default"
 msgstr ""
 
@@ -616,6 +740,7 @@ msgid "Default path latency threshold (ms)"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:160
+#, javascript-format
 msgid "Default path: %s; learned target: %s"
 msgstr ""
 
@@ -632,11 +757,26 @@ msgstr ""
 msgid "Delete learned rule"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:435
+msgid ""
+"Derived locally from the embedded backend, interface, peer API, and system "
+"routes. This is not the official Tailscale Health or netcheck result."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:310
+msgid "Destination"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:358
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:367
 msgid ""
 "Destinations excluded from TUN automatic redirect and handled by system "
 "routing. Applies to all routing modes."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:255
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:412
+msgid "Details"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:209
@@ -645,6 +785,10 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:163
 msgid "Detection paused due to router load."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:504
+msgid "Device name"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:113
@@ -677,12 +821,12 @@ msgid "Direct MAC addresses"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:184
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:248
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:261
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:990
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1003
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1555
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1838
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:248
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:261
 msgid "Disable"
 msgstr ""
 
@@ -702,6 +846,24 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:648
 msgid "Disable HTTP challenge"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:707
+msgid "Disable SFTP"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:618
+msgid ""
+"Disable SNAT for traffic forwarded from Tailscale. LAN devices must have a "
+"return route to the Tailnet address ranges."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:702
+msgid "Disable SSH PTY"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:712
+msgid "Disable SSH forwarding"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:652
@@ -730,18 +892,25 @@ msgstr ""
 msgid "Disable optimistic DNS caching in this query."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1042
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:296
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1042
 msgid "Disable path MTU discovery"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:494
+msgid ""
+"Disable the independent Tailscale service before enabling the embedded "
+"backend."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:159
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:169
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:328
 msgid "Disabled"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1043
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:297
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1043
 msgid ""
 "Disables Path MTU Discovery (RFC 8899). Packets will then be at most 1252 "
 "(IPv4) / 1232 (IPv6) bytes in size."
@@ -795,13 +964,13 @@ msgstr ""
 msgid "Don't drop requests"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1427
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:493
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1427
 msgid "Download bandwidth"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1428
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:494
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1428
 msgid "Download bandwidth in Mbps."
 msgstr ""
 
@@ -843,8 +1012,8 @@ msgid ""
 "encrypt the first part of its ClientHello message."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1549
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:813
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1549
 msgid "ECH config"
 msgstr ""
 
@@ -862,13 +1031,13 @@ msgstr ""
 msgid "EDNS Client subnet"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1311
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:457
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1311
 msgid "Early data"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1318
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:464
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1318
 msgid "Early data header name"
 msgstr ""
 
@@ -884,6 +1053,10 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:217
+msgid "Embedded backend"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:227
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:521
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:710
@@ -895,16 +1068,16 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1160
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:347
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1160
 msgid ""
 "Enable 0-RTT QUIC connection handshake on the client side. This is not "
 "impacting much on the performance, as the protocol is fully multiplexed.<br/"
 ">Disabling this is highly recommended, as it is vulnerable to replay attacks."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1159
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:346
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1159
 msgid "Enable 0-RTT handshake"
 msgstr ""
 
@@ -916,18 +1089,18 @@ msgstr ""
 msgid "Enable ECH"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1422
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:488
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1422
 msgid "Enable TCP Brutal"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1423
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:489
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1423
 msgid "Enable TCP Brutal congestion control algorithm."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1608
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:833
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1608
 msgid "Enable UDP fragmentation."
 msgstr ""
 
@@ -935,9 +1108,17 @@ msgstr ""
 msgid "Enable dashboard"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1418
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:484
+msgid "Enable embedded Tailscale"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:483
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1418
 msgid "Enable padding"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:730
+msgid "Enable peer relay"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:824
@@ -949,10 +1130,26 @@ msgid ""
 "Enable the SUoT protocol, requires server support. Conflict with multiplex."
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:328
+msgid "Enabled"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:314
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1050
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1186
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:314
 msgid "Encrypt method"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:787
+msgid "Enter a Tailscale IP address, machine name, or MagicDNS name."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:802
+msgid "Enter a peer test target first."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:776
+msgid "Ephemeral node"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:499
@@ -977,6 +1174,18 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:281
 msgid "Excluded domain suffixes"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:350
+msgid "Exit Node"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:205
+msgid "Exit Node Offered"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:206
+msgid "Exit Node in Use"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:352
@@ -1005,14 +1214,22 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1529
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1663
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1694
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:218
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:596
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:598
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:934
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1571
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1768
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1826
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1829
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:218
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:596
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:598
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:727
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:757
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:759
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:773
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:792
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:816
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:825
+#, javascript-format
 msgid "Expecting: %s"
 msgstr ""
 
@@ -1026,6 +1243,10 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:674
 msgid "External account key ID"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:480
+msgid "Extra Settings"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1401
@@ -1045,6 +1266,7 @@ msgid "Failed to delete learned rule."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:69
+#, javascript-format
 msgid "Failed to generate %s, error: %s."
 msgstr ""
 
@@ -1053,11 +1275,16 @@ msgid "Failed to save domain list."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:376
+#, javascript-format
 msgid "Failed to upload %s, error: %s."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:266
 msgid "Failures only"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:309
+msgid "Family"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:306
@@ -1084,8 +1311,8 @@ msgstr ""
 msgid "First seen"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1174
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:361
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1174
 msgid "Flow"
 msgstr ""
 
@@ -1097,11 +1324,22 @@ msgstr ""
 msgid "Format"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:686
+msgid "Forward MagicDNS"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:687
+msgid ""
+"Forward Tailnet DNS names through the sing-box Tailscale DNS transport "
+"without replacing OpenWrt system DNS."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:850
 msgid "Fragment TLS handshake into multiple TLS records."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:856
+#, javascript-format
 msgid ""
 "Fragment TLS handshakes. Due to poor performance, try <code>%s</code> first."
 msgstr ""
@@ -1114,7 +1352,12 @@ msgstr ""
 msgid "GET"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:312
+msgid "Gateway"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:206
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:474
 msgid "General Settings"
 msgstr ""
 
@@ -1148,16 +1391,12 @@ msgstr ""
 msgid "Google Public DNS (DoH)"
 msgstr ""
 
-#: luci-app-sbproxy/root/usr/share/rpcd/acl.d/luci-app-sbproxy.json:3
-msgid "Grant access to SBProxy configuration"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:740
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1239
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:876
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1215
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:160
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:379
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:876
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1215
 msgid "HTTP"
 msgstr ""
 
@@ -1175,8 +1414,8 @@ msgstr ""
 msgid "HTTPS"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1216
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:380
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1216
 msgid "HTTPUpgrade"
 msgstr ""
 
@@ -1192,12 +1431,16 @@ msgstr ""
 msgid "Headers"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:434
+msgid "Health Status"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:187
 msgid "Healthy"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1165
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:352
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1165
 msgid "Heartbeat interval"
 msgstr ""
 
@@ -1209,12 +1452,12 @@ msgstr ""
 msgid "Hopping port"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1264
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1269
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1303
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:413
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:418
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:449
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1264
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1269
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1303
 msgid "Host"
 msgstr ""
 
@@ -1231,19 +1474,24 @@ msgstr ""
 msgid "Host/IP Fields"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:198
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:340
+msgid "Hostname"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:340
 msgid ""
 "How long the server should wait for the client to send the authentication "
 "command (in seconds)."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:878
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:162
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:878
 msgid "Hysteria"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:879
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:163
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:879
 msgid "Hysteria2"
 msgstr ""
 
@@ -1308,8 +1556,8 @@ msgid "Idle session check timeout"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:671
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1285
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:432
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1285
 msgid "Idle timeout"
 msgstr ""
 
@@ -1336,8 +1584,8 @@ msgid ""
 "If set, the requested domain name will be resolved to IP before routing."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1242
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:401
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1242
 msgid ""
 "If the transport doesn't see any activity after a duration of this time (in "
 "seconds), it pings the client to check if the connection is still active."
@@ -1392,8 +1640,46 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:300
+msgid "Installed"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:333
+msgid "Installed System Routes"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:311
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:436
+msgid "Interface"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1570
 msgid "Interface Control"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:275
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:828
+msgid "Interface MTU"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:271
+msgid "Interface Management"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:272
+msgid "Interface State"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:230
+msgid "Interface and addresses are ready"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:230
+msgid "Interface has no Tailscale address"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:231
+msgid "Interface is missing"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:232
@@ -1410,8 +1696,8 @@ msgstr ""
 msgid "Interval checking for idle sessions, in seconds."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1166
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:353
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1166
 msgid ""
 "Interval for sending heartbeat packets for keeping the connection alive (in "
 "seconds)."
@@ -1447,6 +1733,25 @@ msgid ""
 "node traffic can still use SBProxy rules."
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:673
+msgid "Keep direct access to local LAN subnets while using an exit node."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:820
+msgid ""
+"Keep tailscale0 unless another Tailscale-compatible device name is "
+"explicitly required."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:347
+msgid "Key Expired"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:203
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:348
+msgid "Key Expiry"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:753
 msgid "Key path"
 msgstr ""
@@ -1455,14 +1760,22 @@ msgstr ""
 msgid "LAN IP Policy"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:681
+msgid "LAN access Tailscale"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:516
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:705
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1068
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1196
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1488
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:867
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:143
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:867
 msgid "Label"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:349
+msgid "Last Seen"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:117
@@ -1478,8 +1791,14 @@ msgstr ""
 msgid "Learned Rules"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1181
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:747
+msgid ""
+"Leave blank for the official Tailscale control plane, or enter a Headscale "
+"URL."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:368
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1181
 msgid ""
 "Legacy protocol support (VMess MD5 Authentication) is provided for "
 "compatibility purposes only, use of alterId > 1 is not recommended."
@@ -1498,8 +1817,8 @@ msgid ""
 "List of IP (v4 or v6) addresses prefixes to be assigned to the interface."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1476
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:544
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1476
 msgid "List of supported application level protocols, in order of preference."
 msgstr ""
 
@@ -1529,6 +1848,8 @@ msgid "Listen port"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:340
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:517
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:571
 msgid "Loading"
 msgstr ""
 
@@ -1578,6 +1899,10 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1266
 msgid "Make IP CIDR in rule sets match the source IP."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:271
+msgid "Managed by sing-box"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:195
@@ -1690,13 +2015,13 @@ msgstr ""
 msgid "Match user name."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1014
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:233
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1014
 msgid "Max download speed"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1015
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:234
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1015
 msgid "Max download speed in Mbps."
 msgstr ""
 
@@ -1704,18 +2029,18 @@ msgstr ""
 msgid "Max time difference"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1021
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:240
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1021
 msgid "Max upload speed"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1022
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:241
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1022
 msgid "Max upload speed in Mbps."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1496
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:556
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1496
 msgid "Maximum TLS version"
 msgstr ""
 
@@ -1737,6 +2062,7 @@ msgid "Maximum learned rules"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1411
+#, javascript-format
 msgid ""
 "Maximum multiplexed streams in a connection before opening a new connection."
 "<br/>Conflict with <code>%s</code> and <code>%s</code>."
@@ -1750,13 +2076,13 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:896
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1366
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1375
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1279
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:428
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1279
 msgid "Method"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1488
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:548
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1488
 msgid "Minimum TLS version"
 msgstr ""
 
@@ -1805,8 +2131,8 @@ msgstr ""
 msgid "Mode"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1382
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:476
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1382
 msgid "Multiplex"
 msgstr ""
 
@@ -1842,8 +2168,8 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:757
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1230
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:980
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:844
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:980
 msgid "Network"
 msgstr ""
 
@@ -1851,16 +2177,42 @@ msgstr ""
 msgid "New Reno"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1212
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1229
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:205
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:347
+msgid "No"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:376
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:393
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1212
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1229
 msgid "No TCP transport, plain HTTP is merged into the HTTP transport."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1227
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:391
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1227
 msgid "No additional encryption support: It's basically duplicate encryption."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:203
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:348
+msgid "No expiry reported"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:224
+msgid "No logged-in account detected"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:305
+msgid "No peer routes advertised."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:427
+msgid "No peers found."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:323
+msgid "No routes installed in table 52."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1884
@@ -1884,8 +2236,8 @@ msgstr ""
 msgid "Node"
 msgstr ""
 
-#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:30
-msgid "Node Settings"
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:433
+msgid "Node Overview"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1680
@@ -1893,13 +2245,16 @@ msgid "Nodes"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1125
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:362
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:377
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1069
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1175
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1213
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1325
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1862
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:362
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:377
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:204
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:207
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:626
 msgid "None"
 msgstr ""
 
@@ -1912,23 +2267,39 @@ msgstr ""
 msgid "Not running"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:301
+msgid "Not selected"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:505
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:518
 msgid "Not tested"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1008
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:266
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1008
 msgid "Obfuscate password"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1002
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:260
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1002
 msgid "Obfuscate type"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:115
 msgid "Observations"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:299
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:346
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:422
+msgid "Offline"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:299
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:346
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:422
+msgid "Online"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:425
@@ -1947,6 +2318,15 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:148
 msgid "Open login page"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:678
+msgid "OpenWrt forwarding"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:201
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:343
+msgid "Operating System"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1036
@@ -2009,17 +2389,17 @@ msgstr ""
 msgid "Panic"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:910
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:193
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:910
 msgid "Password"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1098
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1510
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1274
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1307
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:423
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:453
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1274
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1307
 msgid "Path"
 msgstr ""
 
@@ -2027,8 +2407,75 @@ msgstr ""
 msgid "Pause at 1-minute load average"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:288
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:402
+msgid "Peer"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:363
+msgid "Peer Details"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:380
+msgid "Peer Path"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:478
+msgid "Peer Relay"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:327
+msgid "Peer Route Discovery"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:289
+msgid "Peer State"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:795
+msgid "Peer connectivity"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:382
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:807
+msgid "Peer is reachable."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1349
 msgid "Peer public key"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:735
+msgid "Peer relay UDP port"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:240
+msgid "Peer route API"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:243
+msgid "Peer route status is unavailable"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:234
+msgid "Peer status API"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:237
+msgid "Peer status is unavailable"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:382
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:807
+msgid "Peer test failed."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:786
+msgid "Peer test target"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:438
+msgid "Peers"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:208
@@ -2047,8 +2494,12 @@ msgstr ""
 msgid "Persistent keepalive interval"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1293
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:796
+msgid "Ping peer"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:440
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1293
 msgid "Ping timeout"
 msgstr ""
 
@@ -2060,7 +2511,12 @@ msgstr ""
 msgid "Plugin opts"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:329
+msgid "Policy Rules"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:155
+#, javascript-format
 msgid "Polls: %d"
 msgstr ""
 
@@ -2072,6 +2528,7 @@ msgid "Port"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:331
+#, javascript-format
 msgid "Port %s already exists!"
 msgstr ""
 
@@ -2105,9 +2562,18 @@ msgstr ""
 msgid "Prefer IPv6"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:230
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:268
+msgid "Present but down"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:617
+msgid "Preserve subnet source addresses"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:769
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1116
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1341
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:769
 msgid "Private key"
 msgstr ""
 
@@ -2132,6 +2598,7 @@ msgid "Probe timeout (ms)"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:157
+#, javascript-format
 msgid "Probes: %d"
 msgstr ""
 
@@ -2201,19 +2668,19 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:741
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1084
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1240
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:381
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1150
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1217
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:381
 msgid "QUIC"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1137
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:331
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1137
 msgid "QUIC congestion control algorithm."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1035
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:280
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1035
 msgid "QUIC connection receive window"
 msgstr ""
 
@@ -2221,8 +2688,8 @@ msgstr ""
 msgid "QUIC maximum concurrent bidirectional streams"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1028
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:272
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1028
 msgid "QUIC stream receive window"
 msgstr ""
 
@@ -2243,8 +2710,8 @@ msgstr ""
 msgid "RDP"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1582
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:687
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1582
 msgid "REALITY"
 msgstr ""
 
@@ -2252,13 +2719,13 @@ msgstr ""
 msgid "REALITY private key"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1587
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:708
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1587
 msgid "REALITY public key"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1593
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:712
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1593
 msgid "REALITY short ID"
 msgstr ""
 
@@ -2276,6 +2743,11 @@ msgstr ""
 msgid "Random version will be used if empty."
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:276
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:351
+msgid "Received / Sent"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:420
 msgid ""
 "Recommended when the dashboard is enabled. The dashboard API is blocked from "
@@ -2291,6 +2763,7 @@ msgid "Recursive resolver detected!"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:385
+#, javascript-format
 msgid "Refresh every %s seconds."
 msgstr ""
 
@@ -2309,10 +2782,12 @@ msgid "Remote"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:56
+#, javascript-format
 msgid "Remove %s from automatically learned targets?"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1912
+#, javascript-format
 msgid "Remove %s nodes"
 msgstr ""
 
@@ -2384,12 +2859,21 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:790
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1278
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:287
 msgid "Route"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:437
+msgid "Route Status"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:791
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1281
 msgid "Route options"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:331
+msgid "Routes Advertised by Peers"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:512
@@ -2409,6 +2893,7 @@ msgid "Routing Rules"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:179
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:475
 msgid "Routing Settings"
 msgstr ""
 
@@ -2439,11 +2924,17 @@ msgstr ""
 msgid "Rule set URL"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:470
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:485
+msgid ""
+"Runs Tailscale inside the SBProxy sing-box process. It can run without a "
+"proxy node; the independent Tailscale service must be disabled first."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:64
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:66
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:144
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:411
-#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:3
 msgid "SBProxy"
 msgstr ""
 
@@ -2457,8 +2948,8 @@ msgstr ""
 msgid "SBProxy Tailscale"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:883
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:168
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:883
 msgid "SOCKS"
 msgstr ""
 
@@ -2497,8 +2988,8 @@ msgstr ""
 msgid "Safari / Apple Network API"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1004
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:262
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1004
 msgid "Salamander"
 msgstr ""
 
@@ -2510,8 +3001,28 @@ msgstr ""
 msgid "Save subscriptions settings"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:477
+msgid "Security"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:624
+msgid "Select an online Tailscale exit node."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:243
 msgid "Select an outbound"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:568
+msgid ""
+"Select local interface subnets to publish. Custom CIDR values remain "
+"supported."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:514
+msgid ""
+"Select subnets advertised by peers after login. Custom CIDR values remain "
+"supported."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1037
@@ -2524,7 +3035,6 @@ msgid "Server"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:134
-#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:38
 msgid "Server Settings"
 msgstr ""
 
@@ -2532,10 +3042,6 @@ msgstr ""
 msgid ""
 "Server name to use when choosing a certificate if the ClientHello's "
 "ServerName field is empty."
-msgstr ""
-
-#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:46
-msgid "Service Status"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:882
@@ -2546,8 +3052,8 @@ msgstr ""
 msgid "ShadowTLS version"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:881
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:167
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:881
 msgid "Shadowsocks"
 msgstr ""
 
@@ -2566,8 +3072,8 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:736
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1236
 msgid ""
-"Sniffed protocol, see <a target=\"_blank\" href=\"https://sing-box.sagernet."
-"org/configuration/route/sniff/\">Sniff</a> for details."
+"Sniffed protocol, see <a target=\"_blank\" href=\"https://sing-"
+"box.sagernet.org/configuration/route/sniff/\">Sniff</a> for details."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:261
@@ -2628,16 +3134,44 @@ msgid ""
 "will be closed."
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:202
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:345
+msgid "Stable ID"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:254
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:346
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:404
+msgid "State"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:811
+msgid "State directory"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:513
+msgid "Static peer routes"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:741
+msgid "Static relay endpoints"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:482
+msgid "Status"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1050
 msgid "Store DNS cache"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:992
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:250
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:992
 msgid "String"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1788
+#, javascript-format
 msgid "Sub (%s)"
 msgstr ""
 
@@ -2655,6 +3189,7 @@ msgid "Success"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1737
+#, javascript-format
 msgid "Successfully imported %s nodes of total %s."
 msgstr ""
 
@@ -2688,6 +3223,20 @@ msgstr ""
 msgid "System DNS"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:290
+msgid "System State"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:227
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:270
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:819
+msgid "System interface"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:246
+msgid "System policy routing"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:758
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1080
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1231
@@ -2699,13 +3248,13 @@ msgstr ""
 msgid "TCP and UDP"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1601
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:823
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1601
 msgid "TCP fast open"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1604
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:828
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1604
 msgid "TCP multi-path"
 msgstr ""
 
@@ -2720,19 +3269,19 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:745
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1081
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1244
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1441
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:508
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1441
 msgid "TLS"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1475
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:543
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1475
 msgid "TLS ALPN"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1111
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1470
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:538
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1470
 msgid "TLS SNI"
 msgstr ""
 
@@ -2740,8 +3289,8 @@ msgstr ""
 msgid "TLS fragment"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1225
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:389
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1225
 msgid "TLS is not enforced. If TLS is not configured, plain HTTP 1.1 is used."
 msgstr ""
 
@@ -2754,8 +3303,8 @@ msgstr ""
 msgid "TProxy TCP/UDP"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:887
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:171
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:887
 msgid "TUIC"
 msgstr ""
 
@@ -2799,8 +3348,53 @@ msgstr ""
 msgid "Tag of the target outbound."
 msgstr ""
 
-#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:22
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:717
+msgid "Taildrop"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:722
+msgid "Taildrop directory"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:197
+msgid "Tailnet"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:222
+msgid "Tailnet account"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:469
 msgid "Tailscale"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:200
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:344
+msgid "Tailscale Addresses"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:403
+msgid "Tailscale IP"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:273
+msgid "Tailscale IPv4"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:274
+msgid "Tailscale IPv6"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:697
+msgid "Tailscale SSH"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:679
+msgid "Tailscale access LAN"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:680
+msgid "Tailscale access WAN"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:130
@@ -2823,6 +3417,10 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:552
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:841
 msgid "Test"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:416
+msgid "Test Path"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:628
@@ -2873,13 +3471,13 @@ msgstr ""
 msgid "The DNS strategy for resolving the domain name in the address."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1036
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:281
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1036
 msgid "The QUIC connection-level flow control window for receiving data."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1029
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:273
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1029
 msgid "The QUIC stream-level flow control window for receiving data."
 msgstr ""
 
@@ -2906,6 +3504,10 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:363
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:372
 msgid "The default route cannot be excluded from TUN redirect."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:533
+msgid "The default route must be configured as an exit node."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:716
@@ -2943,8 +3545,8 @@ msgstr ""
 msgid "The domain strategy for resolving the domain name in the address."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1505
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:565
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1505
 msgid ""
 "The elliptic curves that will be used in an ECDHE handshake, in preference "
 "order. If empty, the default will be used."
@@ -2966,8 +3568,12 @@ msgstr ""
 msgid "The idle timeout in seconds."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1497
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:492
+msgid "The installed sing-box build does not include Tailscale support."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:557
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1497
 msgid "The maximum TLS version that is acceptable."
 msgstr ""
 
@@ -2981,8 +3587,8 @@ msgstr ""
 msgid "The maximum time difference between the server and the client."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1489
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:549
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1489
 msgid "The minimum TLS version that is acceptable."
 msgstr ""
 
@@ -3046,8 +3652,8 @@ msgstr ""
 msgid "The test tolerance in milliseconds."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1245
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:441
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1245
 msgid ""
 "The timeout (in seconds) that after performing a keepalive check, the client "
 "will wait for activity. If no activity is detected, the connection will be "
@@ -3096,24 +3702,25 @@ msgid "Trace"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:153
+#, javascript-format
 msgid "Tracked connections: %d"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1211
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:375
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1211
 msgid "Transport"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:885
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:169
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:885
 msgid "Trojan"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:112
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1078
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1498
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:873
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:158
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:873
 msgid "Type"
 msgstr ""
 
@@ -3126,11 +3733,12 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:448
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:837
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:845
 msgid "UDP NAT expiration time"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1607
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:832
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1607
 msgid "UDP fragment"
 msgstr ""
 
@@ -3144,6 +3752,10 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1147
 msgid "UDP packet relay mode."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:834
+msgid "UDP port"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1146
@@ -3174,16 +3786,33 @@ msgid "URLTest subscriptions"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:162
+#, javascript-format
 msgid "URLTest: %s"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1128
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:322
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1128
 msgid "UUID"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:248
+msgid "Unable to inspect system routing"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:360
+msgid "Unable to read peer details."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:268
+msgid "Unavailable"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:107
 msgid "Unavailable; configured routes are kept"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:840
+msgid "Underlay interface"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:265
@@ -3192,6 +3821,7 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1745
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:361
+#, javascript-format
 msgid "Unknown error: %s."
 msgstr ""
 
@@ -3200,6 +3830,7 @@ msgid "Unsupported fingerprint!"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1881
+#, javascript-format
 msgid "Update %s subscriptions"
 msgstr ""
 
@@ -3239,18 +3870,18 @@ msgstr ""
 msgid "Upload ECH config"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1433
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:499
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1433
 msgid "Upload bandwidth"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1434
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:500
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1434
 msgid "Upload bandwidth in Mbps."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1525
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:745
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1525
 msgid "Upload certificate"
 msgstr ""
 
@@ -3258,15 +3889,19 @@ msgstr ""
 msgid "Upload key"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1528
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1547
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:748
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:767
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1528
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1547
 msgid "Upload..."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:574
 msgid "Use ACME TLS certificate issuer."
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:623
+msgid "Use exit node"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:242
@@ -3275,8 +3910,8 @@ msgid ""
 "Direct."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1471
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:539
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1471
 msgid ""
 "Used to verify the hostname on the returned certificates unless insecure is "
 "given."
@@ -3288,6 +3923,7 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:762
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1246
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:342
 msgid "User"
 msgstr ""
 
@@ -3295,18 +3931,18 @@ msgstr ""
 msgid "User-Agent"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:904
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:186
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:904
 msgid "Username"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:890
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:172
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:890
 msgid "VLESS"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:891
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:173
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:891
 msgid "VMess"
 msgstr ""
 
@@ -3323,6 +3959,10 @@ msgstr ""
 msgid "WAN IP Policy"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:682
+msgid "WAN access Tailscale"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:149
 msgid "Waiting for login URL"
 msgstr ""
@@ -3330,6 +3970,10 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:152
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:167
 msgid "Waiting for machine approval"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:442
+msgid "Waiting for the embedded backend..."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:304
@@ -3340,8 +3984,8 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1218
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:382
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1218
 msgid "WebSocket"
 msgstr ""
 
@@ -3374,11 +4018,17 @@ msgstr ""
 msgid "XUDP (Xray-core)"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:205
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:347
+msgid "Yes"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:40
 msgid "YouTube"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:374
+#, javascript-format
 msgid "Your %s was successfully uploaded. Size: %sB."
 msgstr ""
 
@@ -3386,8 +4036,14 @@ msgstr ""
 msgid "ZeroSSL"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1530
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:727
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:773
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:816
+msgid "absolute path"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:750
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1530
 msgid "certificate"
 msgstr ""
 
@@ -3396,11 +4052,12 @@ msgid "connect UDP connections"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1891
+#, javascript-format
 msgid "exit code %d"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1214
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:378
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1214
 msgid "gRPC"
 msgstr ""
 
@@ -3408,8 +4065,8 @@ msgstr ""
 msgid "gRPC permit without stream"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1251
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:406
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1251
 msgid "gRPC service name"
 msgstr ""
 
@@ -3420,10 +4077,15 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:291
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:615
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1521
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:218
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:934
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1571
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:218
 msgid "non-empty value"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:636
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:664
+msgid "offline or unavailable"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1326
@@ -3445,6 +4107,12 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:430
 msgid "sing-box dashboard"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:481
+msgid ""
+"tailscale0 is the standard Tailscale kernel device; sbproxy_ts is the "
+"OpenWrt logical interface used by netifd and firewall integration."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1553
@@ -3494,6 +4162,8 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1529
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1826
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1829
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:757
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:759
 msgid "valid URL"
 msgstr ""
 
@@ -3502,12 +4172,21 @@ msgid "valid UUID"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:386
+#, javascript-format
 msgid "valid base64 key with %d characters"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:792
+msgid "valid host name or IP address"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1663
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1694
 msgid "valid hostname"
+msgstr ""
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:825
+msgid "valid interface name"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:412
