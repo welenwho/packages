@@ -854,6 +854,15 @@ return view.extend({
 				renderTailscaleStatus(tailscaleStatus, configuredPeerRoutes, configuredAdvertiseRoutes, acceptRoutes));
 		};
 
+		/* LuCI removes options hidden by unsatisfied dependencies on save unless
+		 * retain is enabled.  Toggling embedded Tailscale off must stop the
+		 * backend without erasing its device, route, DNS, security or relay
+		 * settings, so retain every real UCI option in this section. */
+		for (const option of s.children) {
+			if (option.option && !option.option.startsWith('_'))
+				option.retain = true;
+		}
+
 		let statusRefreshPromise;
 		function refreshTailscaleStatus() {
 			if (statusRefreshPromise)

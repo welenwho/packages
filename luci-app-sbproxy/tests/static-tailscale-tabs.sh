@@ -77,6 +77,8 @@ printf '%s\n' "$tailscale_form" | grep -Fq "function addExitNodeChoices(status)"
 printf '%s\n' "$tailscale_form" | grep -Fq "function refreshTailscaleStatus()"
 printf '%s\n' "$tailscale_form" | grep -Fq "resolveTailscaleStatus(4000, null)"
 printf '%s\n' "$tailscale_form" | grep -Fq "poll.add(refreshTailscaleStatus, 5)"
+printf '%s\n' "$tailscale_form" | grep -Fq 'retain every real UCI option in this section.'
+printf '%s\n' "$tailscale_form" | grep -Fq 'option.retain = true;'
 printf '%s\n' "$tailscale_form" | grep -Fq "document.addEventListener('visibilitychange', refreshOnFocus)"
 printf '%s\n' "$tailscale_form" | grep -Fq "window.addEventListener('focus', refreshOnFocus)"
 printf '%s\n' "$tailscale_form" | grep -Fq "window.addEventListener('pageshow', refreshOnFocus)"
