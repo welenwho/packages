@@ -46,7 +46,10 @@ jobs:
   translation:
     name: 翻译维护
     needs: sbproxy
-    if: ${{ always() }}
+    # Translation maintenance must not run after a failed SBProxy update.
+    # Running it unconditionally allowed a failed/partial source update to
+    # trigger an incomplete scan and publish translation deletions.
+    if: ${{ needs.sbproxy.result == 'success' }}
     uses: ./.github/workflows/Rescan-Translation.yml
     with:
       build_apks: false
