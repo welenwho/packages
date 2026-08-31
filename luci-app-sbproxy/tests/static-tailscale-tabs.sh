@@ -56,6 +56,12 @@ printf '%s\n' "$tailscale_form" | grep -Fq "interfaceStatus.up ? _('Available')"
 for section in 'Node Overview' 'Health Status' 'Interface' 'Route Status' 'Peers'; do
 	printf '%s\n' "$tailscale_form" | grep -Fq "_('$section')"
 done
+status_renderer_order="$(printf '%s\n' "$tailscale_form" | sed -n '/^function renderTailscaleStatus(status/,/^return view.extend/p')"
+health_line="$(printf '%s\n' "$status_renderer_order" | grep -nF "_('Health Status')" | head -n1 | cut -d: -f1)"
+peers_line="$(printf '%s\n' "$status_renderer_order" | grep -nF "_('Peers')" | head -n1 | cut -d: -f1)"
+interface_line="$(printf '%s\n' "$status_renderer_order" | grep -nF "_('Interface')" | head -n1 | cut -d: -f1)"
+test "$health_line" -lt "$peers_line"
+test "$peers_line" -lt "$interface_line"
 printf '%s\n' "$tailscale_form" | grep -Fq 'showTailscalePeerDetails'
 printf '%s\n' "$tailscale_form" | grep -Fq 'probeTailscalePeerPath'
 

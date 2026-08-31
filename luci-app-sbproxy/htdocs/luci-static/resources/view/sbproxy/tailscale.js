@@ -433,9 +433,9 @@ function renderTailscaleStatus(status, configuredPeerRoutes, configuredAdvertise
 		tailscaleStatusSection(_('Node Overview'), renderTailscaleNodeOverview(status, configuredAdvertiseRoutes)),
 		tailscaleStatusSection(_('Health Status'), renderTailscaleHealth(status),
 			_('Derived locally from the embedded backend, interface, peer API, and system routes. This is not the official Tailscale Health or netcheck result.')),
+		tailscaleStatusSection(_('Peers'), renderTailscalePeers(status)),
 		tailscaleStatusSection(_('Interface'), renderTailscaleInterface(status)),
-		tailscaleStatusSection(_('Route Status'), renderTailscaleRoutes(status, configuredPeerRoutes, acceptRoutes)),
-		tailscaleStatusSection(_('Peers'), renderTailscalePeers(status))
+		tailscaleStatusSection(_('Route Status'), renderTailscaleRoutes(status, configuredPeerRoutes, acceptRoutes))
 	];
 	if (status?.enabled && status?.code !== 0)
 		content.unshift(E('div', { 'class': 'alert-message warning' },
