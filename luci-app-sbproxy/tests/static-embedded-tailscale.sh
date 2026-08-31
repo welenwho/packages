@@ -27,7 +27,7 @@ versioned_tailscale="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tai
 
 grep -Fq '"admin/vpn/sbproxy"' "$MENU"
 grep -Fq 'PKG_NAME:=luci-app-sbproxy' "$PACKAGE_ROOT/Makefile"
-grep -Fq 'LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0_rc1-r6)' "$PACKAGE_ROOT/Makefile"
+grep -Fq 'LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0)' "$PACKAGE_ROOT/Makefile"
 grep -Fq "config sbproxy 'tailscale'" "$CONFIG"
 grep -Fq 'NEW_CONFIG="$MIGRATION_ROOT/etc/config/sbproxy"' "$MIGRATION"
 grep -Fq 'MIGRATE_FROM_LEGACY=1' "$MIGRATION"

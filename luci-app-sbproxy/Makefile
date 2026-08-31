@@ -18,7 +18,7 @@ LUCI_DEPENDS:= \
 	+unzip \
 	+ucode-mod-digest \
 	+ucode-mod-math
-LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0_rc1-r6)
+LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0)
 
 PKG_NAME:=luci-app-sbproxy
 PKG_VERSION:=1.0.0

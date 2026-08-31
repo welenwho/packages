@@ -63,8 +63,11 @@ jobs:
         run: |
           makefile='sing-box/Makefile'
           upstream_tag="$(gh api 'repos/SagerNet/sing-box/releases?per_page=30' \
-            --jq '[.[] | select(.draft == false)][0].tag_name')"
-          [[ "$upstream_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.]+)?$ ]]
+            --jq '[.[] | select(.draft == false and .prerelease == false)][0].tag_name')"
+          # Only stable SemVer tags are eligible.  This is intentionally
+          # stricter than accepting any release suffix: alpha, beta and RC
+          # releases must never enter the package feed automatically.
+          [[ "$upstream_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
 
           upstream_version="${upstream_tag#v}"
           current_version="$(sed -n 's/^PKG_UPSTREAM_VERSION:=//p' "$makefile")"
