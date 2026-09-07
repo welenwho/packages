@@ -1,0 +1,525 @@
+#!/bin/sh
+
+# SPDX-License-Identifier: GPL-2.0-only
+
+set -u
+
+STATE_DIR="/etc/sbproxy/core"
+ROLLBACK_APK="$STATE_DIR/rollback.apk"
+ROLLBACK_META="$STATE_DIR/rollback.meta"
+LOCK_FILE="/var/lock/sbproxy-core-manager.lock"
+LOG_FILE="/var/run/sbproxy/core-manager.log"
+REPOSITORY="welenwho/packages"
+REQUIRED_TAGS="with_acme with_clash_api with_dhcp with_gvisor with_quic with_tailscale with_utls with_wireguard"
+USER_AGENT="SBProxy-Core-Manager"
+TAB="$(printf '\t')"
+
+work_dir=''
+assets_file=''
+last_download_mode=''
+
+cleanup() {
+	[ -z "$work_dir" ] || rm -rf -- "$work_dir"
+}
+
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+emit() {
+	key="$1"
+	shift
+	value="$(printf '%s' "$*" | tr '\n\t' '  ')"
+	printf '%s=%s\n' "$key" "$value"
+}
+
+fail() {
+	emit error_code "$1"
+	shift
+	emit error "$*"
+	exit 1
+}
+
+log() {
+	mkdir -p "$(dirname "$LOG_FILE")"
+	printf '%s [CORE] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >> "$LOG_FILE"
+}
+
+package_version() {
+	apk query --installed --fields version sing-box 2>/dev/null |
+		sed -n 's/^Version:[[:space:]]*//p' | head -n 1
+}
+
+package_arch() {
+	apk query --installed --fields arch sing-box 2>/dev/null |
+		sed -n 's/^Arch:[[:space:]]*//p' | head -n 1
+}
+
+core_version() {
+	/usr/bin/sing-box version -n 2>/dev/null || true
+}
+
+core_tags() {
+	/usr/bin/sing-box version 2>/dev/null |
+		sed -n 's/^Tags:[[:space:]]*//p' | head -n 1
+}
+
+service_running() {
+	/etc/init.d/sbproxy running >/dev/null 2>&1
+}
+
+release_tag() {
+	case "$(apk --print-arch 2>/dev/null)" in
+	aarch64*) printf '%s\n' 'apk-packages-arm64' ;;
+	x86_64*) printf '%s\n' 'apk-packages-amd64' ;;
+	*) return 1 ;;
+	esac
+}
+
+meta_value() {
+	key="$1"
+	[ -f "$ROLLBACK_META" ] || return 0
+	sed -n "s/^${key}=//p" "$ROLLBACK_META" | head -n 1
+}
+
+preferred_proxy() {
+	port="$(uci -q get sbproxy.infra.mixed_port)"
+	case "$port" in
+	''|*[!0-9]*) return 1 ;;
+	esac
+	service_running || return 1
+	printf 'http://127.0.0.1:%s\n' "$port"
+}
+
+curl_to_file() {
+	url="$1"
+	destination="$2"
+	temporary="${destination}.part"
+	proxy="$(preferred_proxy || true)"
+	rm -f -- "$temporary"
+
+	if [ -n "$proxy" ] && curl -fsSL --retry 2 --retry-delay 2 \
+		--connect-timeout 10 --max-time 240 --speed-limit 1024 --speed-time 20 \
+		--user-agent "$USER_AGENT" --proxy "$proxy" "$url" -o "$temporary" \
+		>>"$LOG_FILE" 2>&1; then
+		last_download_mode='proxy'
+		mv -f -- "$temporary" "$destination"
+		return 0
+	fi
+
+	rm -f -- "$temporary"
+	if curl -fsSL --retry 2 --retry-delay 2 \
+		--connect-timeout 10 --max-time 240 --speed-limit 1024 --speed-time 20 \
+		--user-agent "$USER_AGENT" "$url" -o "$temporary" >>"$LOG_FILE" 2>&1; then
+		last_download_mode='direct'
+		mv -f -- "$temporary" "$destination"
+		return 0
+	fi
+
+	rm -f -- "$temporary"
+	return 1
+}
+
+fetch_assets() {
+	tag="$(release_tag)" || return 2
+	api_file="$work_dir/release.json"
+	api_url="https://api.github.com/repos/$REPOSITORY/releases/tags/$tag"
+
+	curl_to_file "$api_url" "$api_file" || return 1
+	jsonfilter -i "$api_file" -e '@.assets[*].name' > "$work_dir/names"
+	jsonfilter -i "$api_file" -e '@.assets[*].browser_download_url' > "$work_dir/urls"
+	jsonfilter -i "$api_file" -e '@.assets[*].digest' > "$work_dir/digests"
+	jsonfilter -i "$api_file" -e '@.assets[*].size' > "$work_dir/sizes"
+	jsonfilter -i "$api_file" -e '@.assets[*].created_at' > "$work_dir/created"
+	assets_file="$work_dir/assets"
+	: > "$assets_file"
+
+	asset_index=0
+	while IFS= read -r name; do
+		asset_index=$((asset_index + 1))
+		url="$(sed -n "${asset_index}p" "$work_dir/urls")"
+		digest="$(sed -n "${asset_index}p" "$work_dir/digests")"
+		size="$(sed -n "${asset_index}p" "$work_dir/sizes")"
+		created="$(sed -n "${asset_index}p" "$work_dir/created")"
+		printf '%s\n' "$name" | grep -Eq \
+			'^sing-box-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.apk$' || continue
+		case "$url" in
+		"https://github.com/$REPOSITORY/releases/download/$tag/"*) ;;
+		*) continue ;;
+		esac
+		printf '%s\n' "$digest" | grep -Eq '^sha256:[0-9a-f]{64}$' || continue
+		case "$size" in
+		''|*[!0-9]*) continue ;;
+		esac
+		printf '%s\t%s\t%s\t%s\t%s\n' \
+			"$name" "$url" "$digest" "$size" "$created" >> "$assets_file"
+	done < "$work_dir/names"
+
+	[ -s "$assets_file" ]
+}
+
+asset_by_name() {
+	wanted="$1"
+	while IFS="$TAB" read -r name url digest size created; do
+		[ "$name" = "$wanted" ] || continue
+		printf '%s\t%s\t%s\t%s\t%s\n' \
+			"$name" "$url" "$digest" "$size" "$created"
+		return 0
+	done < "$assets_file"
+	return 1
+}
+
+verify_digest() {
+	file="$1"
+	digest="${2#sha256:}"
+	actual="$(sha256sum "$file" | awk '{ print $1 }')"
+	[ "$actual" = "$digest" ]
+}
+
+ensure_persistent_storage() {
+	required_bytes="$1"
+	available_kb="$(df -Pk "$STATE_DIR" 2>/dev/null | awk 'NR == 2 { print $4 }')"
+	case "$available_kb" in
+	''|*[!0-9]*) return 1 ;;
+	esac
+	[ $((available_kb * 1024)) -ge "$required_bytes" ]
+}
+
+validate_arch() {
+	system_arch="$(apk --print-arch 2>/dev/null)"
+	apk_arch="$1"
+	case "$system_arch:$apk_arch" in
+	aarch64:aarch64|aarch64:aarch64_*) return 0 ;;
+	x86_64:x86_64) return 0 ;;
+	*) return 1 ;;
+	esac
+}
+
+validate_binary() {
+	binary="$1"
+	version_output="$("$binary" version 2>>"$LOG_FILE")" || return 1
+	tags="$(printf '%s\n' "$version_output" | sed -n 's/^Tags:[[:space:]]*//p')"
+	word_tags="$(printf '%s' "$tags" | tr ',' ' ')"
+	for required in $REQUIRED_TAGS; do
+		printf '%s\n' "$word_tags" | grep -qw "$required" || {
+			log "Missing required build tag: $required"
+			return 1
+		}
+	done
+	return 0
+}
+
+validate_configs() {
+	binary="$1"
+	checked=0
+	for config in /var/run/sbproxy/sing-box-c.json /var/run/sbproxy/sing-box-s.json; do
+		[ -s "$config" ] || continue
+		"$binary" check --config "$config" >>"$LOG_FILE" 2>&1 || return 1
+		checked=1
+	done
+	[ "$checked" = '0' ] || return 0
+
+	client_config="$work_dir/generated-client.json"
+	server_config="$work_dir/generated-server.json"
+	SBPROXY_CLIENT_CONFIG_PATH="$client_config" \
+		ucode -S /etc/sbproxy/scripts/generate_client.uc >>"$LOG_FILE" 2>&1 || true
+	SBPROXY_SERVER_CONFIG_PATH="$server_config" \
+		ucode -S /etc/sbproxy/scripts/generate_server.uc >>"$LOG_FILE" 2>&1 || true
+	for config in "$client_config" "$server_config"; do
+		[ -s "$config" ] || continue
+		"$binary" check --config "$config" >>"$LOG_FILE" 2>&1 || return 1
+	done
+	return 0
+}
+
+validate_apk() {
+	file="$1"
+	expected_version="$2"
+	metadata="$(apk adbdump "$file" 2>>"$LOG_FILE")" || return 1
+	name="$(printf '%s\n' "$metadata" | awk '/^  name: / { sub(/^  name: /, ""); print; exit }')"
+	version="$(printf '%s\n' "$metadata" | awk '/^  version: / { sub(/^  version: /, ""); print; exit }')"
+	arch="$(printf '%s\n' "$metadata" | awk '/^  arch: / { sub(/^  arch: /, ""); print; exit }')"
+	[ "$name" = 'sing-box' ] || return 1
+	[ "$version" = "$expected_version" ] || return 1
+	validate_arch "$arch" || return 1
+
+	extract_dir="$work_dir/extract"
+	rm -rf -- "$extract_dir"
+	mkdir -p "$extract_dir"
+	apk --allow-untrusted extract --destination "$extract_dir" "$file" \
+		>>"$LOG_FILE" 2>&1 || return 1
+	[ -x "$extract_dir/usr/bin/sing-box" ] || return 1
+	validate_binary "$extract_dir/usr/bin/sing-box" || return 1
+	validate_configs "$extract_dir/usr/bin/sing-box" || return 1
+	rm -rf -- "$extract_dir"
+	return 0
+}
+
+wait_for_service() {
+	count=0
+	while [ "$count" -lt 30 ]; do
+		service_running && return 0
+		sleep 1
+		count=$((count + 1))
+	done
+	return 1
+}
+
+restart_if_needed() {
+	was_running="$1"
+	[ "$was_running" = '1' ] || return 0
+	/etc/init.d/sbproxy restart >>"$LOG_FILE" 2>&1 || return 1
+	wait_for_service
+}
+
+install_apk() {
+	apk_file="$1"
+	apk add --allow-untrusted --upgrade --force-reinstall "$apk_file" \
+		>>"$LOG_FILE" 2>&1
+}
+
+restore_rollback() {
+	was_running="$1"
+	log 'Restoring the previous core automatically.'
+	install_apk "$ROLLBACK_APK" || return 1
+	validate_binary /usr/bin/sing-box || return 1
+	restart_if_needed "$was_running"
+}
+
+emit_status() {
+	system_arch="$(apk --print-arch 2>/dev/null || true)"
+	tag="$(release_tag 2>/dev/null || true)"
+	current_package="$(package_version)"
+	current_core="$(core_version)"
+	tags="$(core_tags)"
+	installed_arch="$(package_arch)"
+	running=0
+	service_running && running=1
+	busy=0
+	flock -n "$LOCK_FILE" -c true >/dev/null 2>&1 || busy=1
+	rollback_available=0
+	[ -s "$ROLLBACK_APK" ] && [ -s "$ROLLBACK_META" ] && rollback_available=1
+	overlay_available="$(df -Pk "$STATE_DIR" 2>/dev/null | awk 'NR == 2 { print $4 }')"
+	[ -n "$overlay_available" ] || overlay_available="$(df -Pk /etc | awk 'NR == 2 { print $4 }')"
+	tmp_available="$(df -Pk /tmp | awk 'NR == 2 { print $4 }')"
+
+	emit manager_supported "$([ -n "$tag" ] && printf 1 || printf 0)"
+	emit repository "$REPOSITORY"
+	emit release_tag "$tag"
+	emit system_arch "$system_arch"
+	emit package_arch "$installed_arch"
+	emit package_version "$current_package"
+	emit version "$current_core"
+	emit tags "$tags"
+	emit required_tags "$(printf '%s' "$REQUIRED_TAGS" | tr ' ' ',')"
+	emit service_running "$running"
+	emit busy "$busy"
+	emit overlay_available_kb "${overlay_available:-0}"
+	emit tmp_available_kb "${tmp_available:-0}"
+	emit rollback_available "$rollback_available"
+	if [ "$rollback_available" = '1' ]; then
+		emit rollback_version "$(meta_value version)"
+		emit rollback_package_version "$(meta_value package_version)"
+		emit rollback_saved_at "$(meta_value saved_at)"
+		emit rollback_sha256 "$(meta_value sha256)"
+	fi
+}
+
+check_updates() {
+	fetch_assets || {
+		case "$?" in
+		2) fail unsupported_architecture 'Core updates are not available for this architecture.' ;;
+		*) fail release_query_failed 'Unable to query the SBProxy package release.' ;;
+		esac
+	}
+
+	current="$(package_version)"
+	latest=''
+	while IFS="$TAB" read -r name url digest size created; do
+		candidate="${name#sing-box-}"
+		candidate="${candidate%.apk}"
+		relation='unknown'
+		if [ -n "$current" ]; then
+			comparison="$(apk version --test "$current" "$candidate" 2>/dev/null || true)"
+			if [ "$comparison" = '<' ]; then
+				relation='newer'
+			elif [ "$comparison" = '=' ]; then
+				relation='current'
+			else
+				relation='older'
+			fi
+		fi
+		if [ -z "$latest" ] || \
+		   [ "$(apk version --test "$latest" "$candidate" 2>/dev/null || true)" = '<' ]; then
+			latest="$candidate"
+		fi
+		printf 'asset=%s\t%s\t%s\t%s\t%s\t%s\n' \
+			"$name" "$candidate" "$relation" "$size" "$created" "${digest#sha256:}"
+	done < "$assets_file"
+	emit latest_package_version "$latest"
+	emit download_mode "$last_download_mode"
+}
+
+save_rollback() {
+	file="$1"
+	version="$2"
+	digest="$3"
+	url="$4"
+	created="$5"
+	core="${version%-r*}"
+	sha="${digest#sha256:}"
+	metadata_file="$work_dir/rollback.meta"
+	chmod 600 "$file"
+	{
+		printf 'version=%s\n' "$core"
+		printf 'package_version=%s\n' "$version"
+		printf 'sha256=%s\n' "$sha"
+		printf 'source_url=%s\n' "$url"
+		printf 'source_created_at=%s\n' "$created"
+		printf 'saved_at=%s\n' "$(date '+%Y-%m-%d %H:%M:%S %z')"
+	} > "$metadata_file"
+	chmod 600 "$metadata_file"
+	mv -f -- "$file" "$ROLLBACK_APK"
+	mv -f -- "$metadata_file" "$ROLLBACK_META"
+}
+
+upgrade_core() {
+	target="$1"
+	printf '%s\n' "$target" | grep -Eq \
+		'^sing-box-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.apk$' || \
+		fail invalid_target 'Invalid core package selection.'
+	fetch_assets || fail release_query_failed 'Unable to query the SBProxy package release.'
+	target_asset="$(asset_by_name "$target")" || \
+		fail target_unavailable 'The selected core package is no longer available.'
+	IFS="$TAB" read -r target_name target_url target_digest target_size target_created <<EOF
+$target_asset
+EOF
+	target_version="${target_name#sing-box-}"
+	target_version="${target_version%.apk}"
+	current="$(package_version)"
+	[ -n "$current" ] || fail current_version_unknown 'Unable to determine the installed core package version.'
+	[ "$(apk version --test "$current" "$target_version" 2>/dev/null || true)" = '<' ] || \
+		fail not_an_upgrade 'The selected package is not newer than the installed core.'
+
+	current_name="sing-box-$current.apk"
+	current_asset="$(asset_by_name "$current_name")" || \
+		fail rollback_source_unavailable \
+		'The installed core package is no longer in the trusted release, so a safe rollback cannot be prepared.'
+	IFS="$TAB" read -r current_name current_url current_digest current_size current_created <<EOF
+$current_asset
+EOF
+	max_package_size="$target_size"
+	[ "$current_size" -le "$max_package_size" ] || max_package_size="$current_size"
+	required_bytes=$((target_size + current_size + max_package_size * 3 + 16 * 1024 * 1024))
+	ensure_persistent_storage "$required_bytes" || \
+		fail insufficient_storage 'Not enough persistent storage is available to validate the upgrade and keep a rollback package.'
+
+	log "Preparing core upgrade from $current to $target_version."
+	candidate_apk="$work_dir/candidate.apk"
+	curl_to_file "$target_url" "$candidate_apk" || \
+		fail download_failed 'Unable to download the selected core package.'
+	verify_digest "$candidate_apk" "$target_digest" || \
+		fail checksum_mismatch 'The downloaded core package failed SHA-256 verification.'
+	validate_apk "$candidate_apk" "$target_version" || \
+		fail candidate_rejected 'The downloaded package failed metadata, feature, or configuration validation.'
+
+	curl_to_file "$current_url" "$work_dir/rollback.apk" || \
+		fail rollback_download_failed 'Unable to download the current core package for rollback.'
+	verify_digest "$work_dir/rollback.apk" "$current_digest" || \
+		fail rollback_checksum_mismatch 'The rollback package failed SHA-256 verification.'
+	validate_apk "$work_dir/rollback.apk" "$current" || \
+		fail rollback_rejected 'The rollback package failed validation.'
+	save_rollback "$work_dir/rollback.apk" "$current" "$current_digest" \
+		"$current_url" "$current_created"
+
+	was_running=0
+	service_running && was_running=1
+	if ! install_apk "$candidate_apk" || \
+	   [ "$(package_version)" != "$target_version" ] || \
+	   ! validate_binary /usr/bin/sing-box || \
+	   ! restart_if_needed "$was_running"; then
+		if restore_rollback "$was_running"; then
+			emit automatic_rollback 1
+			fail upgrade_failed_rolled_back \
+				'The new core failed to install or start; the previous core was restored.'
+		fi
+		emit automatic_rollback 0
+		fail upgrade_and_rollback_failed \
+			'The new core failed and automatic rollback also failed. Check the core manager log immediately.'
+	fi
+
+	log "Core upgrade completed: $current -> $target_version."
+	emit upgraded 1
+	emit previous_package_version "$current"
+	emit package_version "$target_version"
+	emit download_mode "$last_download_mode"
+}
+
+rollback_core() {
+	[ -s "$ROLLBACK_APK" ] && [ -s "$ROLLBACK_META" ] || \
+		fail rollback_unavailable 'No rollback package is available.'
+	target_version="$(meta_value package_version)"
+	expected_sha="$(meta_value sha256)"
+	[ -n "$target_version" ] && [ -n "$expected_sha" ] || \
+		fail rollback_metadata_invalid 'Rollback metadata is incomplete.'
+	verify_digest "$ROLLBACK_APK" "sha256:$expected_sha" || \
+		fail rollback_checksum_mismatch 'The rollback package failed SHA-256 verification.'
+	rollback_size="$(wc -c < "$ROLLBACK_APK" | tr -d ' ')"
+	ensure_persistent_storage $((rollback_size * 3 + 8 * 1024 * 1024)) || \
+		fail insufficient_storage 'Not enough persistent storage is available to validate the rollback package.'
+	validate_apk "$ROLLBACK_APK" "$target_version" || \
+		fail rollback_rejected 'The rollback package failed metadata, feature, or configuration validation.'
+	current="$(package_version)"
+	[ "$current" != "$target_version" ] || \
+		fail already_rolled_back 'The rollback core is already installed.'
+
+	was_running=0
+	service_running && was_running=1
+	log "Rolling core back from $current to $target_version."
+	if ! install_apk "$ROLLBACK_APK" || \
+	   [ "$(package_version)" != "$target_version" ] || \
+	   ! validate_binary /usr/bin/sing-box || \
+	   ! restart_if_needed "$was_running"; then
+		fail rollback_failed 'Core rollback failed. Check the core manager log immediately.'
+	fi
+
+	rm -f -- "$ROLLBACK_APK" "$ROLLBACK_META"
+	log "Core rollback completed: $current -> $target_version."
+	emit rolled_back 1
+	emit previous_package_version "$current"
+	emit package_version "$target_version"
+}
+
+action="${1:-status}"
+mkdir -p "$STATE_DIR" "$(dirname "$LOCK_FILE")" "$(dirname "$LOG_FILE")"
+chmod 700 "$STATE_DIR"
+
+case "$action" in
+status)
+	emit_status
+	;;
+check)
+	work_dir="$(mktemp -d /tmp/sbproxy-core.XXXXXX)" || fail temporary_directory_failed \
+		'Unable to create a temporary directory.'
+	emit_status
+	check_updates
+	;;
+upgrade|rollback)
+	exec 9>"$LOCK_FILE"
+	flock -n 9 || fail operation_in_progress 'Another core operation is already in progress.'
+	: > "$LOG_FILE"
+	work_dir="$(mktemp -d "$STATE_DIR/.work.XXXXXX")" || fail temporary_directory_failed \
+		'Unable to create a temporary directory.'
+	if [ "$action" = 'upgrade' ]; then
+		[ "$#" -eq 2 ] || fail invalid_target 'A core package must be selected.'
+		upgrade_core "$2"
+	else
+		rollback_core
+	fi
+	;;
+*)
+	fail invalid_action 'Unsupported core manager action.'
+	;;
+esac
+
+exit 0

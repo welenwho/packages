@@ -3,6 +3,7 @@
 		"description": "Grant access to SBProxy configuration",
 		"read": {
 			"file": {
+				"/var/run/sbproxy/core-manager.log": [ "read" ],
 				"/var/run/sbproxy/sbproxy.log": [ "read" ],
 				"/var/run/sbproxy/sing-box-c.log": [ "read" ],
 				"/var/run/sbproxy/sing-box-s.log": [ "read" ]
@@ -11,7 +12,7 @@
 				"service": [ "list" ],
 				"luci-rpc": [ "getHostHints" ],
 				"luci.sbproxy": [
-					"acllist_read", "adaptive_status", "connection_check", "current_node_get",
+					"acllist_read", "adaptive_status", "connection_check", "core_check_update", "core_status", "current_node_get",
 					"node_latency_test", "resources_get", "tailscale_peer_details", "tailscale_status",
 					"singbox_generator", "singbox_get_features"
 				]
@@ -26,7 +27,7 @@
 			"ubus": {
 				"luci.sbproxy": [
 					"acllist_write", "adaptive_clear", "adaptive_remove", "certificate_write", "log_clean", "resources_update",
-					"tailscale_logout", "tailscale_ping"
+					"core_rollback", "core_upgrade", "tailscale_logout", "tailscale_ping"
 				]
 			},
 			"uci": [ "sbproxy", "sbproxy-adaptive" ]

@@ -25,12 +25,16 @@ cp -p "$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client.js" \
 	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js"
 cp -p "$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale.js" \
 	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js"
+cp -p "$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/core.js" \
+	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js"
 cp -P "$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${old_cache_key}.js" \
 	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive-${old_cache_key}.js"
 cp -P "$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${old_cache_key}.js" \
 	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client-${old_cache_key}.js"
 cp -P "$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale-${old_cache_key}.js" \
 	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale-${old_cache_key}.js"
+cp -P "$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/core-${old_cache_key}.js" \
+	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core-${old_cache_key}.js"
 
 REPO_ROOT="$TEST_ROOT" "$BUMP_SCRIPT"
 
@@ -42,15 +46,21 @@ test ! -e "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy
 test ! -L "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client-${old_cache_key}.js"
 test ! -e "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale-${old_cache_key}.js"
 test ! -L "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale-${old_cache_key}.js"
+test ! -e "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core-${old_cache_key}.js"
+test ! -L "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core-${old_cache_key}.js"
 test "$(readlink "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive-${new_cache_key}.js")" = \
 	'sbproxy-adaptive.js'
 test "$(readlink "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client-${new_cache_key}.js")" = \
 	'client.js'
 test "$(readlink "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale-${new_cache_key}.js")" = \
 	'tailscale.js'
+test "$(readlink "$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core-${new_cache_key}.js")" = \
+	'core.js'
 grep -Fq "\"path\": \"sbproxy/client-${new_cache_key}\"" \
 	"$TEST_ROOT/luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json"
 grep -Fq "\"path\": \"sbproxy/tailscale-${new_cache_key}\"" \
+	"$TEST_ROOT/luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json"
+grep -Fq "\"path\": \"sbproxy/core-${new_cache_key}\"" \
 	"$TEST_ROOT/luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json"
 grep -Fq "'require sbproxy-adaptive-${new_cache_key} as adaptive';" \
 	"$TEST_ROOT/luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js"

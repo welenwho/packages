@@ -209,5 +209,6 @@ if (length(config.inbounds) === 0)
 	exit(1);
 
 system('mkdir -p ' + RUN_DIR);
-if (!writefile(RUN_DIR + '/sing-box-s.json.new', sprintf('%.J\n', removeBlankAttrs(config))))
+const output_path = getenv('SBPROXY_SERVER_CONFIG_PATH') || RUN_DIR + '/sing-box-s.json.new';
+if (!writefile(output_path, sprintf('%.J\n', removeBlankAttrs(config))))
 	exit(1);

@@ -27,9 +27,26 @@ msgstr "%d 条 table 52 规则"
 msgid "%d table 52 rules installed"
 msgstr "已安装 %d 条 table 52 规则"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:104
+msgid "%s (saved at %s)"
+msgstr "%s（保存于 %s）"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:67
+msgid "%s B"
+msgstr "%s B"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:66
+msgid "%s KiB"
+msgstr "%s KiB"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:372
 msgid "%s Log"
 msgstr "%s 日志"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:64
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:71
+msgid "%s MiB"
+msgstr "%s MiB"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:511
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:93
@@ -39,6 +56,10 @@ msgstr "%s 毫秒"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1931
 msgid "%s nodes removed"
 msgstr "移除了 %s 个节点"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:269
+msgid "%s · %s · %s"
+msgstr "%s · %s · %s"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:394
 msgid "/etc/sbproxy/certs/..., /etc/acme/..., /etc/ssl/..."
@@ -72,9 +93,19 @@ msgstr "必须选择一个代理出站。"
 msgid "A random available port is assigned on first installation."
 msgstr "首次安装时会随机分配一个可用端口。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:329
+msgid ""
+"A rollback package will be created automatically before the first managed "
+"upgrade."
+msgstr "首次通过此页面升级前会自动创建回滚包。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:781
 msgid "ACL tags"
 msgstr "ACL 标签"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:135
+msgid "ACME certificates"
+msgstr "ACME 证书"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:418
 msgid "API secret"
@@ -252,6 +283,10 @@ msgstr "从订阅添加节点时，默认允许不安全连接。"
 msgid "Allowed payload size is in the request."
 msgstr "请求中允许的载荷大小。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:271
+msgid "Already at the latest stable version"
+msgstr "已经是最新稳定版"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:258
 msgid "Already at the latest version."
 msgstr "已是最新版本。"
@@ -273,6 +308,10 @@ msgstr "备用 TLS 端口"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1897
 msgid "An error occurred during updating subscriptions: %s."
 msgstr "更新订阅时发生错误：%s。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:45
+msgid "Another core operation is already in progress."
+msgstr "另一个核心操作正在进行中。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1391
 msgid "Answer"
@@ -310,6 +349,10 @@ msgstr "已应用"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:820
 msgid "Apply"
 msgstr "应用"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:109
+msgid "Architecture"
+msgstr "架构"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:27
 msgid "Are you sure to allow insecure?"
@@ -428,6 +471,10 @@ msgstr "黑名单模式"
 msgid "Both"
 msgstr "全部"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:111
+msgid "Build features"
+msgstr "编译功能"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:340
 msgid ""
 "Built-in common ports: %s. Add only ports or ranges that are not already "
@@ -456,6 +503,7 @@ msgstr "CUBIC"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:58
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:78
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:221
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1698
 msgid "Cancel"
 msgstr "取消"
@@ -463,6 +511,10 @@ msgstr "取消"
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:265
 msgid "Candidate trigger"
 msgstr "候选触发条件"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:146
+msgid "Capability"
+msgstr "能力"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1517
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:734
@@ -472,6 +524,22 @@ msgstr "证书路径"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:253
 msgid "Check"
 msgstr "检查项"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:233
+msgid "Check for a newer stable core from the trusted SBProxy package release."
+msgstr "从受信任的 SBProxy 软件包发布中检查更新的稳定版核心。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:282
+msgid "Check for updates"
+msgstr "检查更新"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:239
+msgid "Check for updates first"
+msgstr "请先检查更新"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:259
+msgid "Checking for updates..."
+msgstr "正在检查更新..."
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:278
 msgid "China DNS server"
@@ -510,6 +578,10 @@ msgstr "密码套件"
 msgid "Cisco Public DNS (DoH)"
 msgstr "Cisco 公共DNS (DoH)"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:136
+msgid "Clash API"
+msgstr "Clash API"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:380
 msgid "Clean log"
 msgstr "清空日志"
@@ -534,10 +606,15 @@ msgstr "客户端"
 msgid "Client Settings"
 msgstr "客户端设置"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:138
+msgid "Client TUN settings"
+msgstr "客户端 TUN 设置"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1102
 msgid "Client version"
 msgstr "客户端版本"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:179
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:369
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:387
 msgid "Close"
@@ -564,6 +641,14 @@ msgstr "常用端口 + 额外端口"
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:241
 msgid "Comparison proxy outbound"
 msgstr "对比代理出站"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:147
+msgid "Compiled"
+msgstr "已编译"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:112
+msgid "Complete"
+msgstr "完整"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:301
 msgid "Configured but not installed"
@@ -592,9 +677,38 @@ msgstr "连接轮询间隔（秒）"
 msgid "Connectivity"
 msgstr "通断"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:226
+msgid "Continue"
+msgstr "继续"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:746
 msgid "Control server"
 msgstr "控制服务器"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:294
+#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:46
+msgid "Core Management"
+msgstr "核心管理"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:305
+msgid "Core Status"
+msgstr "核心状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:302
+msgid "Core management is not available on this architecture."
+msgstr "当前架构不支持核心管理。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:49
+msgid "Core rollback failed. Check the core manager log immediately."
+msgstr "核心回滚失败，请立即检查核心管理日志。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:56
+msgid "Core updates are not available for this architecture."
+msgstr "当前架构不提供核心更新。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:107
+msgid "Core version"
+msgstr "核心版本"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1805
 msgid "Cron expression"
@@ -607,6 +721,10 @@ msgstr "cron表达式在线生成"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:314
 msgid "Custom routing"
 msgstr "自定义路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:137
+msgid "DHCP DNS transport"
+msgstr "DHCP DNS 传输"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:738
 msgid "DNS"
@@ -976,6 +1094,12 @@ msgstr "下载带宽"
 msgid "Download bandwidth in Mbps."
 msgstr "下载带宽（单位：Mbps）。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:199
+msgid ""
+"Downloading, validating and applying the core package. Do not power off the "
+"router."
+msgstr "正在下载、验证并应用核心软件包，请勿关闭路由器电源。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:890
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:896
 msgid "Drop packets"
@@ -1299,6 +1423,10 @@ msgstr "地址族"
 msgid "Fatal"
 msgstr "致命"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:309
+msgid "Feature Coverage"
+msgstr "功能覆盖"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1844
 msgid "Filter keywords"
 msgstr "过滤关键词"
@@ -1503,6 +1631,10 @@ msgstr "服务器等待客户端发送认证命令的时间（单位：秒）。
 msgid "Hysteria"
 msgstr "Hysteria"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:139
+msgid "Hysteria, Hysteria2, TUIC and QUIC DNS"
+msgstr "Hysteria、Hysteria2、TUIC 和 QUIC DNS"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:879
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:163
 msgid "Hysteria2"
@@ -1665,8 +1797,12 @@ msgstr "已安装"
 msgid "Installed System Routes"
 msgstr "已安装的系统路由"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:108
+msgid "Installed package"
+msgstr "已安装软件包"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:311
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:436
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:437
 msgid "Interface"
 msgstr "接口"
 
@@ -1720,6 +1856,10 @@ msgid ""
 "seconds)."
 msgstr "发送心跳包以保持连接存活的时间间隔（单位：秒）。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:43
+msgid "Invalid core package selection."
+msgstr "选择的核心软件包无效。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:160
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:493
 msgid "Invalid node"
@@ -1738,6 +1878,10 @@ msgstr "反转"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1274
 msgid "Invert match result."
 msgstr "反转匹配结果。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:124
+msgid "Item"
+msgstr "项目"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:37
 msgid "JD"
@@ -1805,6 +1949,10 @@ msgstr "最后出现"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:58
 msgid "Latency"
 msgstr "延迟"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:275
+msgid "Latest stable package: %s"
+msgstr "最新稳定版软件包：%s"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:207
 msgid "Learned Rules"
@@ -1898,6 +2046,10 @@ msgstr "退出登录"
 msgid "Logout failed."
 msgstr "退出登录失败。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:148
+msgid "LuCI integration"
+msgstr "LuCI 集成"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1587
 msgid "MAC addresses in this option are forced to use global direct routing."
 msgstr "该选项中的 MAC 地址将强制走全局直连。"
@@ -1921,6 +2073,12 @@ msgstr "使规则集中的 IP CIDR 用于匹配源 IP。"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1266
 msgid "Make IP CIDR in rule sets match the source IP."
 msgstr "使规则集中的 IP CIDR 匹配源 IP。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:296
+msgid ""
+"Manage the sing-box core used by the client, server and embedded Tailscale "
+"services."
+msgstr "管理客户端、服务端和内置 Tailscale 服务共用的 sing-box 核心。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:271
 msgid "Managed by sing-box"
@@ -2140,6 +2298,10 @@ msgid ""
 "Minutes (0-59), hours (0-23), days (1-31), months (1-12), weekdays (0-6)."
 msgstr "分（0-59）、时（0-23）、日（1-31）、月（1-12）、周（0-6）。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:112
+msgid "Missing"
+msgstr "缺失"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:166
 msgid "Mixed"
 msgstr "混合"
@@ -2199,6 +2361,7 @@ msgstr "网络"
 msgid "New Reno"
 msgstr "New Reno"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:153
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:205
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:347
 msgid "No"
@@ -2233,6 +2396,10 @@ msgstr "没有对端发布的路由。"
 msgid "No peers found."
 msgstr "未找到对端。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:53
+msgid "No rollback package is available."
+msgstr "没有可用的回滚软件包。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:323
 msgid "No routes installed in table 52."
 msgstr "table 52 中没有已安装的路由。"
@@ -2262,9 +2429,14 @@ msgstr "节点"
 msgid "Node Overview"
 msgstr "节点概览"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:142
 #: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:30
 msgid "Node Settings"
 msgstr "节点设置"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:141
+msgid "Node TLS settings"
+msgstr "节点 TLS 设置"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1680
 msgid "Nodes"
@@ -2283,6 +2455,14 @@ msgstr "节点"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:626
 msgid "None"
 msgstr "无"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:42
+msgid "Not enough persistent storage is available for this core operation."
+msgstr "持久存储可用空间不足，无法执行此核心操作。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:137
+msgid "Not exposed in LuCI"
+msgstr "尚未在 LuCI 中开放"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:153
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:165
@@ -2322,6 +2502,10 @@ msgstr "观测次数"
 msgid "Offline"
 msgstr "离线"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:328
+msgid "One previous verified package is stored locally for rollback."
+msgstr "本地保存一个已验证的上一版软件包用于回滚。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:299
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:346
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:422
@@ -2337,6 +2521,14 @@ msgstr "仅在确实需要远程访问面板时启用；请先设置 API 密钥�
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1573
 msgid "Only process traffic from specific interfaces. Leave empty for all."
 msgstr "只处理来自指定接口的流量。留空表示全部。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:299
+msgid ""
+"Only sing-box packages built by this project are accepted. Official upstream "
+"binaries do not include the SBProxy-specific Tailscale compatibility patches."
+msgstr ""
+"仅接受由本项目构建的 sing-box 软件包。上游官方二进制不包含 SBProxy 专用的 "
+"Tailscale 兼容补丁。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:431
 msgid "Open dashboard"
@@ -2402,6 +2594,10 @@ msgstr "覆盖目标连接端口。"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1281
 msgid "PUT"
 msgstr "PUT"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:116
+msgid "Package source"
+msgstr "软件包来源"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1324
 msgid "Packet encoding"
@@ -2500,7 +2696,7 @@ msgstr "对端测试失败。"
 msgid "Peer test target"
 msgstr "对端测试目标"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:438
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:436
 msgid "Peers"
 msgstr "对端节点"
 
@@ -2519,6 +2715,10 @@ msgstr "将完整的 DNS 缓存持久保存到缓存文件。"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1374
 msgid "Persistent keepalive interval"
 msgstr "持久 keepalive 间隔"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:114
+msgid "Persistent storage available"
+msgstr "持久存储可用空间"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:796
 msgid "Ping peer"
@@ -2711,6 +2911,10 @@ msgstr "QUIC 连接窗口"
 msgid "QUIC maximum concurrent bidirectional streams"
 msgstr "QUIC 最大双向并发流"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:139
+msgid "QUIC protocols"
+msgstr "QUIC 协议"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1028
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:272
 msgid "QUIC stream receive window"
@@ -2789,6 +2993,10 @@ msgstr "检测到递归解析器！"
 msgid "Refresh every %s seconds."
 msgstr "每 %s 秒刷新。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:191
+msgid "Refresh status"
+msgstr "刷新状态"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:637
 msgid "Region ID"
 msgstr "区域 ID"
@@ -2832,6 +3040,10 @@ msgid ""
 "Required before adaptive routing can create direct exceptions in global "
 "proxy mode."
 msgstr "必须明确开启后，自适应路由才能在全局代理模式下产生直连例外。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:112
+msgid "Required features"
+msgstr "必需功能"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1363
 msgid "Reserved field bytes"
@@ -2877,13 +3089,38 @@ msgstr "重写 TTL"
 msgid "Rewrite TTL in DNS responses."
 msgstr "在 DNS 响应中重写 TTL。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:291
+msgid "Roll back"
+msgstr "回滚"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:286
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:289
+msgid "Roll back sing-box core"
+msgstr "回滚 sing-box 核心"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:287
+msgid "Roll back the sing-box core to %s?"
+msgstr "将 sing-box 核心回滚到 %s？"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:325
+msgid "Rollback"
+msgstr "回滚"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:50
+msgid "Rollback metadata is incomplete."
+msgstr "回滚元数据不完整。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:113
+msgid "Rollback package"
+msgstr "回滚软件包"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:790
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1278
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:287
 msgid "Route"
 msgstr "路由"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:437
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:438
 msgid "Route Status"
 msgstr "路由状态"
 
@@ -2944,6 +3181,10 @@ msgstr "将规则集 IP CIDR 作为源 IP"
 msgid "Rule set URL"
 msgstr "规则集 URL"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:110
+msgid "Running"
+msgstr "运行中"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:470
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:485
 msgid ""
@@ -2970,6 +3211,16 @@ msgstr "SBProxy 服务端"
 #: luci-app-sbproxy/htdocs/luci-static/resources/protocol/sbproxy_tailscale.js:8
 msgid "SBProxy Tailscale"
 msgstr "SBProxy Tailscale"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:110
+msgid "SBProxy service"
+msgstr "SBProxy 服务"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:215
+msgid ""
+"SBProxy will be restarted if it is currently running. Network access may "
+"pause briefly."
+msgstr "如果 SBProxy 当前正在运行，将会重启服务，网络访问可能短暂中断。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:883
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:168
@@ -3057,6 +3308,7 @@ msgstr "刷新期间提供已过期的 DNS 条目。"
 msgid "Server"
 msgstr "服务器"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:135
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:134
 #: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:38
 msgid "Server Settings"
@@ -3068,7 +3320,7 @@ msgid ""
 "ServerName field is empty."
 msgstr "当 ClientHello 的 ServerName 字段为空时，选择证书所使用的服务器名称。"
 
-#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:46
+#: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:54
 msgid "Service Status"
 msgstr "服务状态"
 
@@ -3084,6 +3336,12 @@ msgstr "ShadowTLS 版本"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:167
 msgid "Shadowsocks"
 msgstr "Shadowsocks"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:311
+msgid ""
+"Shows whether each optional core feature is compiled and where SBProxy "
+"currently uses it."
+msgstr "显示各项可选核心功能是否已编译，以及 SBProxy 当前在何处使用它。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:283
 msgid "Slow connection window (seconds)"
@@ -3194,9 +3452,14 @@ msgstr "静态对端路由"
 msgid "Static relay endpoints"
 msgstr "静态中继端点"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:125
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:482
 msgid "Status"
 msgstr "状态"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:110
+msgid "Stopped"
+msgstr "已停止"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1050
 msgid "Store DNS cache"
@@ -3403,6 +3666,7 @@ msgstr "Tailnet"
 msgid "Tailnet account"
 msgstr "Tailnet 账户"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:140
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:469
 #: luci-app-sbproxy/root/usr/share/luci/menu.d/luci-app-sbproxy.json:22
 msgid "Tailscale"
@@ -3441,6 +3705,10 @@ msgstr "Tailscale 访问 WAN"
 msgid "Tailscale logged out."
 msgstr "已退出 Tailscale。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:140
+msgid "Tailscale settings"
+msgstr "Tailscale 设置"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:111
 msgid "Target"
 msgstr "目标"
@@ -3449,6 +3717,10 @@ msgstr "目标"
 msgid ""
 "Tell the client to use the BBR flow control algorithm instead of Hysteria CC."
 msgstr "让客户端使用 BBR 流控算法。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:115
+msgid "Temporary storage available"
+msgstr "临时存储可用空间"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:282
 msgid "Tencent Public DNS (DoH)"
@@ -3599,6 +3871,15 @@ msgstr "用于解析国内域名的 DNS 服务器。支持 UDP、TCP、DoH、DoQ
 msgid "The domain strategy for resolving the domain name in the address."
 msgstr "用于解析 DNS 服务器地址中域名的策略。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:39
+msgid "The downloaded core package failed SHA-256 verification."
+msgstr "下载的核心软件包未通过 SHA-256 校验。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:38
+msgid ""
+"The downloaded package failed metadata, feature, or configuration validation."
+msgstr "下载的软件包未通过元数据、功能或配置兼容性校验。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1505
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:565
 msgid ""
@@ -3621,6 +3902,16 @@ msgstr "当 TLS 分段无法自动确定等待时间时使用的回退值（单�
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:672
 msgid "The idle timeout in seconds."
 msgstr "空闲超时时间（单位：秒）。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:276
+msgid "The installed core is already the latest stable package (%s)."
+msgstr "已安装核心已经是最新稳定版软件包（%s）。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:52
+msgid ""
+"The installed core package is no longer in the trusted release, so a safe "
+"rollback cannot be prepared."
+msgstr "受信任的发布中已没有当前核心软件包，因此无法准备安全回滚。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:492
 msgid "The installed sing-box build does not include Tailscale support."
@@ -3656,6 +3947,17 @@ msgstr "为 ARM64/AMD64 设计的现代 ImmortalWrt 代理平台。—— AI Edi
 msgid "The network interface to bind to."
 msgstr "绑定到的网络接口。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:57
+msgid ""
+"The new core failed and automatic rollback also failed. Check the core "
+"manager log immediately."
+msgstr "新核心应用失败，自动回滚也失败，请立即检查核心管理日志。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:58
+msgid ""
+"The new core failed to install or start; the previous core was restored."
+msgstr "新核心安装或启动失败，已恢复上一版核心。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1099
 msgid "The path of the DNS server."
 msgstr "DNS 服务器的路径。"
@@ -3678,9 +3980,35 @@ msgstr "必须是唯一端口。"
 msgid "The port of the DNS server."
 msgstr "DNS 服务器的端口。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:173
+msgid ""
+"The previous core was restored automatically and SBProxy has been restarted."
+msgstr "已自动恢复上一版核心并重新启动 SBProxy。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1380
 msgid "The response code."
 msgstr "响应代码。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:37
+msgid "The rollback core is already installed."
+msgstr "回滚目标核心已经安装。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:47
+msgid "The rollback package failed SHA-256 verification."
+msgstr "回滚软件包未通过 SHA-256 校验。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:51
+msgid ""
+"The rollback package failed metadata, feature, or configuration validation."
+msgstr "回滚软件包未通过元数据、功能或配置兼容性校验。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:54
+msgid "The selected core package is no longer available."
+msgstr "选择的核心软件包已不可用。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:44
+msgid "The selected package is not newer than the installed core."
+msgstr "选择的软件包不比已安装核心新。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:754
 msgid "The server private key, in PEM format."
@@ -3689,6 +4017,14 @@ msgstr "服务端私钥，需要 PEM 格式。"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:735
 msgid "The server public key, in PEM format."
 msgstr "服务端公钥，需要 PEM 格式。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:290
+msgid "The sing-box core was rolled back to %s successfully."
+msgstr "sing-box 核心已成功回滚到 %s。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:251
+msgid "The sing-box core was upgraded to %s successfully."
+msgstr "sing-box 核心已成功升级到 %s。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:568
 msgid ""
@@ -3834,6 +4170,10 @@ msgstr "网址"
 msgid "URLTest"
 msgstr "URLTest"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:136
+msgid "URLTest and adaptive routing"
+msgstr "URLTest 和自适应路由"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:194
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:603
 msgid "URLTest nodes"
@@ -3853,14 +4193,39 @@ msgstr "URLTest: %s"
 msgid "UUID"
 msgstr "UUID"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:55
+msgid "Unable to create a temporary directory."
+msgstr "无法创建临时目录。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:40
+msgid "Unable to determine the installed core package version."
+msgstr "无法确定已安装核心的软件包版本。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:48
+msgid "Unable to download the current core package for rollback."
+msgstr "无法下载当前核心软件包以准备回滚。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:41
+msgid "Unable to download the selected core package."
+msgstr "无法下载选择的核心软件包。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:248
 msgid "Unable to inspect system routing"
 msgstr "无法检查系统路由"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:46
+msgid "Unable to query the SBProxy package release."
+msgstr "无法查询 SBProxy 软件包发布。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:164
+msgid "Unable to read core status."
+msgstr "无法读取核心状态。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:360
 msgid "Unable to read peer details."
 msgstr "无法读取对端详细信息。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:105
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:268
 msgid "Unavailable"
 msgstr "不可用"
@@ -3873,6 +4238,7 @@ msgstr "后端状态不可用；已配置路由仍会保留"
 msgid "Underlay interface"
 msgstr "底层接口"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:94
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:265
 msgid "Unknown error."
 msgstr "未知错误。"
@@ -3921,6 +4287,20 @@ msgstr "通过代理更新资源和订阅。"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1815
 msgid "Update via proxy"
 msgstr "使用代理更新"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:253
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:316
+msgid "Upgrade"
+msgstr "升级"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:248
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:250
+msgid "Upgrade sing-box core"
+msgstr "升级 sing-box 核心"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:249
+msgid "Upgrade the sing-box core to %s?"
+msgstr "将 sing-box 核心升级到 %s？"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1544
 msgid "Upload ECH config"
@@ -4057,6 +4437,10 @@ msgstr "白名单模式"
 msgid "WireGuard"
 msgstr "WireGuard"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:142
+msgid "WireGuard endpoint"
+msgstr "WireGuard 端点"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1350
 msgid "WireGuard peer public key."
 msgstr "WireGuard 对端公钥。"
@@ -4074,6 +4458,7 @@ msgstr "WireGuard 要求 base64 编码的私钥。"
 msgid "XUDP (Xray-core)"
 msgstr "XUDP (Xray-core)"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:153
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:205
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:347
 msgid "Yes"
@@ -4124,6 +4509,10 @@ msgstr "gRPC 允许无活动连接"
 msgid "gRPC service name"
 msgstr "gRPC 服务名称"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:138
+msgid "gVisor network stack"
+msgstr "gVisor 网络栈"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:421
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:444
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:207
@@ -4173,6 +4562,10 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1553
 msgid "uTLS fingerprint"
+msgstr "uTLS 指纹"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:141
+msgid "uTLS fingerprints"
 msgstr "uTLS 指纹"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1554

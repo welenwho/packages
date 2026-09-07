@@ -15,6 +15,7 @@ LUCI_DEPENDS:= \
 	+kmod-nft-tproxy \
 	+curl \
 	+flock \
+	+jsonfilter \
 	+unzip \
 	+ucode-mod-digest \
 	+ucode-mod-math
@@ -22,7 +23,7 @@ LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0)
 
 PKG_NAME:=luci-app-sbproxy
 PKG_VERSION:=1.0.0
-PKG_RELEASE:=20
+PKG_RELEASE:=21
 PKG_PO_VERSION:=$(PKG_VERSION)-r$(PKG_RELEASE)
 
 define Package/luci-app-sbproxy/conffiles
@@ -31,6 +32,7 @@ define Package/luci-app-sbproxy/conffiles
 /etc/sbproxy/adaptive/
 /etc/sbproxy/cache/
 /etc/sbproxy/certs/
+/etc/sbproxy/core/
 /etc/sbproxy/dashboard/
 /etc/sbproxy/ruleset/
 /etc/sbproxy/resources/direct_list.txt

@@ -36,6 +36,53 @@ function runCommand(command) {
 	return { code: int(code) || 0, output };
 }
 
+function coreManagerCall(action, target) {
+	let command = `/usr/libexec/sbproxy-core-manager ${shellQuote(action)}`;
+	if (target)
+		command += ` ${shellQuote(target)}`;
+	const result = runCommand(command);
+	let response = {
+		code: result.code,
+		output: result.output,
+		assets: []
+	};
+	const booleans = [
+		'automatic_rollback', 'busy', 'manager_supported', 'rollback_available',
+		'rolled_back', 'service_running', 'upgraded'
+	];
+	const integers = [ 'overlay_available_kb', 'tmp_available_kb' ];
+
+	for (let line in split(result.output || '', '\n')) {
+		const pair = match(line, /^([^=]+)=(.*)$/);
+		if (!pair)
+			continue;
+		const key = pair[1];
+		const value = pair[2];
+		if (key === 'asset') {
+			const fields = split(value, '\t');
+			if (length(fields) >= 6)
+				push(response.assets, {
+					filename: fields[0],
+					package_version: fields[1],
+					relation: fields[2],
+					size: int(fields[3]) || 0,
+					created_at: fields[4],
+					sha256: fields[5]
+				});
+		} else if (index(booleans, key) !== -1) {
+			response[key] = value === '1';
+		} else if (index(integers, key) !== -1) {
+			response[key] = int(value) || 0;
+		} else if (key === 'tags' || key === 'required_tags') {
+			response[key] = value ? split(value, ',') : [];
+		} else {
+			response[key] = value || null;
+		}
+	}
+
+	return response;
+}
+
 function tailscaleAPICommand(arguments) {
 	const sbpuci = cursor();
 	sbpuci.load('sbproxy');
@@ -477,6 +524,34 @@ function mutateAdaptiveRules(remove_target) {
 }
 
 const methods = {
+	core_status: {
+		call: function() {
+			return coreManagerCall('status');
+		}
+	},
+
+	core_check_update: {
+		call: function() {
+			return coreManagerCall('check');
+		}
+	},
+
+	core_upgrade: {
+		args: { target: 'target' },
+		call: function(req) {
+			const target = trim(req.args?.target || '');
+			if (!match(target, /^sing-box-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.apk$/))
+				return { code: 2, error_code: 'invalid_target', error: 'Invalid core package selection.' };
+			return coreManagerCall('upgrade', target);
+		}
+	},
+
+	core_rollback: {
+		call: function() {
+			return coreManagerCall('rollback');
+		}
+	},
+
 	tailscale_status: {
 		call: function() {
 			const sbpuci = cursor();
