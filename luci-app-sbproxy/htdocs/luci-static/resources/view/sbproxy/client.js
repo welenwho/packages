@@ -15,7 +15,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-0-r21 as adaptive';
+'require sbproxy-adaptive-1-0-1-r1 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -178,6 +178,7 @@ return view.extend({
 
 		s.tab('routing', _('Routing Settings'));
 		s.tab('dashboard', _('Dashboard'));
+		s.tab('advanced', _('Advanced Settings'));
 		adaptive.addForm(m, s, data[3]);
 
 		o = s.taboption('routing', form.ListValue, 'main_node', _('Main node'));
@@ -427,17 +428,98 @@ return view.extend({
 		o.depends('dashboard_enabled', '1');
 		o.rmempty = false;
 
+		o = s.taboption('dashboard', form.Flag, 'dashboard_tls_tailscale', _('Use Tailscale HTTPS certificate'),
+			_('Serve the dashboard with a certificate issued for this device by Tailscale. Embedded Tailscale and HTTPS certificates in the Tailnet DNS settings must be enabled, and the dashboard must be opened with the device MagicDNS name.'));
+		o.default = o.disabled;
+		o.depends({ dashboard_enabled: '1', dashboard_allow_tailscale: '1' });
+		o.rmempty = false;
+		o.validate = function(section_id, value) {
+			if (value !== '1')
+				return true;
+			if (uci.get('sbproxy', 'tailscale', 'enabled') !== '1')
+				return _('Enable embedded Tailscale before using its HTTPS certificate.');
+			return this.section.formvalue(section_id, 'dashboard_secret') ? true :
+				_('Set an API secret before exposing the dashboard through Tailscale.');
+		};
+
+		o = s.taboption('dashboard', form.Value, 'dashboard_tls_name', _('Dashboard MagicDNS name'),
+			_('Fully qualified Tailscale DNS name used to request the HTTPS certificate and open the dashboard.'));
+		o.datatype = 'hostname';
+		o.depends({ dashboard_enabled: '1', dashboard_allow_tailscale: '1', dashboard_tls_tailscale: '1' });
+		o.rmempty = false;
+
 		o = s.taboption('dashboard', form.Button, '_open_dashboard', _('sing-box dashboard'));
 		o.inputtitle = _('Open dashboard');
 		o.inputstyle = 'apply';
 		o.depends('dashboard_enabled', '1');
 		o.onclick = function() {
-			let host = window.location.hostname,
+			let host = uci.get('sbproxy', 'config', 'dashboard_tls_tailscale') === '1' ?
+					uci.get('sbproxy', 'config', 'dashboard_tls_name') : window.location.hostname,
 			    port = uci.get('sbproxy', 'config', 'dashboard_port') || '9095';
 			if (host.includes(':') && !host.startsWith('['))
 				host = '[' + host + ']';
-			window.open('http://' + host + ':' + port + '/dashboard/', '_blank', 'noopener,noreferrer');
+			const scheme = uci.get('sbproxy', 'config', 'dashboard_tls_tailscale') === '1' ? 'https://' : 'http://';
+			window.open(scheme + host + ':' + port + '/dashboard/', '_blank', 'noopener,noreferrer');
 		};
+
+		o = s.taboption('advanced', form.Flag, 'memory_guard_enabled', _('Memory pressure guard'),
+			_('Monitor sing-box memory pressure, release unused memory and rebuild network state before the process exhausts router memory. Applied independently to the client and server processes.'));
+		o.default = o.disabled;
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'memory_guard_limit', _('Memory limit per process'),
+			_('Soft memory limit in MiB for each sing-box process. The guard acts before this limit is reached.'));
+		o.default = '256';
+		o.datatype = 'range(32,4096)';
+		o.depends('memory_guard_enabled', '1');
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'memory_guard_safety_margin', _('Memory safety margin'),
+			_('The guard starts reclaiming memory when usage is this many MiB below the configured limit.'));
+		o.default = '32';
+		o.datatype = 'range(4,2048)';
+		o.depends('memory_guard_enabled', '1');
+		o.rmempty = false;
+		o.validate = function(section_id, value) {
+			const limit = Number(this.section.formvalue(section_id, 'memory_guard_limit'));
+			return !section_id || Number(value) < limit ? true :
+				_('The safety margin must be smaller than the memory limit.');
+		};
+
+		o = s.taboption('advanced', form.Flag, 'dns_disable_cache', _('Disable DNS cache'));
+		o.default = o.disabled;
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Flag, 'dns_disable_cache_expire', _('Disable DNS cache expiration'));
+		o.default = o.disabled;
+		o.depends('dns_disable_cache', '0');
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Flag, 'dns_optimistic', _('Optimistic DNS cache'),
+			_('Serve expired DNS entries while refreshing them in the background.'));
+		o.default = o.disabled;
+		o.depends({ dns_disable_cache: '0', dns_disable_cache_expire: '0' });
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'dns_optimistic_timeout', _('Optimistic cache timeout'),
+			_('Maximum time in seconds to serve an expired DNS entry while it is refreshed.'));
+		o.default = '259200';
+		o.datatype = 'uinteger';
+		o.depends({ dns_disable_cache: '0', dns_disable_cache_expire: '0', dns_optimistic: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'dns_cache_capacity', _('DNS cache capacity'),
+			_('Maximum number of cached DNS entries. The sing-box minimum is 1024.'));
+		o.default = '1024';
+		o.datatype = 'range(1024,1048576)';
+		o.depends('dns_disable_cache', '0');
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'dns_timeout', _('DNS query timeout'),
+			_('The default timeout for DNS queries, in seconds.'));
+		o.default = '10';
+		o.datatype = 'uinteger';
+		o.rmempty = false;
 
 		/* Custom routing settings start */
 		/* Routing settings start */
@@ -1028,20 +1110,6 @@ return view.extend({
 		so.default = 'default-dns';
 		so.rmempty = false;
 
-		so = ss.option(form.Flag, 'disable_cache', _('Disable DNS cache'));
-
-		so = ss.option(form.Flag, 'disable_cache_expire', _('Disable cache expire'));
-		so.depends('disable_cache', '0');
-
-		so = ss.option(form.Flag, 'optimistic', _('Optimistic DNS cache'),
-			_('Serve expired DNS entries while refreshing them in the background.'));
-		so.depends({ disable_cache: '0', disable_cache_expire: '0' });
-
-		so = ss.option(form.Value, 'timeout', _('DNS query timeout'),
-			_('The default timeout for DNS queries, in seconds.'));
-		so.datatype = 'uinteger';
-		so.placeholder = '10';
-
 		so = ss.option(form.Value, 'client_subnet', _('EDNS Client subnet'),
 			_('Append a <code>edns0-subnet</code> OPT extra record with the specified IP prefix to every query by default.<br/>' +
 			'If value is an IP address instead of prefix, <code>/32</code> or <code>/128</code> will be appended automatically.'));
@@ -1082,6 +1150,8 @@ return view.extend({
 		so.value('https', _('HTTPS'));
 		so.value('h3', _('HTTP/3'));
 		so.value('quic', _('QUIC'));
+		if (features.with_dhcp)
+			so.value('dhcp', _('DHCP'));
 		so.default = 'udp';
 		so.rmempty = false;
 
@@ -1089,11 +1159,22 @@ return view.extend({
 			_('The address of the dns server.'));
 		so.datatype = 'or(hostname, ipaddr)';
 		so.rmempty = false;
+		for (const type of [ 'udp', 'tcp', 'tls', 'https', 'h3', 'quic' ])
+			so.depends('type', type);
+
+		so = ss.option(widgets.DeviceSelect, 'interface', _('DHCP interface'),
+			_('Discover DNS servers dynamically from this interface. Leave empty to use the default interface.'));
+		so.multiple = false;
+		so.noaliases = true;
+		so.depends('type', 'dhcp');
+		so.modalonly = true;
 
 		so = ss.option(form.Value, 'server_port', _('Port'),
 			_('The port of the DNS server.'));
 		so.placeholder = 'auto';
 		so.datatype = 'port';
+		for (const type of [ 'udp', 'tcp', 'tls', 'https', 'h3', 'quic' ])
+			so.depends('type', type);
 
 		so = ss.option(form.Value, 'path', _('Path'),
 			_('The path of the DNS server.'));
@@ -1146,13 +1227,16 @@ return view.extend({
 
 			return true;
 		}
+		for (const type of [ 'udp', 'tcp', 'tls', 'https', 'h3', 'quic' ])
+			so.depends('type', type);
 		so.modalonly = true;
 
 		so = ss.option(form.ListValue, 'domain_strategy', _('Domain strategy'),
 			_('The domain strategy for resolving the domain name in the address.'));
 		for (let i in sb.dns_strategy)
 			so.value(i, sb.dns_strategy[i]);
-		so.depends({'domain_resolver': '', '!reverse': true});
+		for (const type of [ 'udp', 'tcp', 'tls', 'https', 'h3', 'quic' ])
+			so.depends({ type, domain_resolver: '', '!reverse': true });
 		so.modalonly = true;
 
 		so = ss.option(form.ListValue, 'outbound', _('Outbound'),

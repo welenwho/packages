@@ -382,6 +382,10 @@ export function renderEndpoint(node) {
 			}
 		] : null,
 		system: (node.type === 'wireguard') ? false : null,
+		connect_timeout: strToTime(node.connect_timeout),
+		disable_tcp_keep_alive: strToBool(node.disable_tcp_keep_alive),
+		tcp_keep_alive: strToTime(node.tcp_keep_alive),
+		tcp_keep_alive_interval: strToTime(node.tcp_keep_alive_interval),
 		tcp_fast_open: strToBool(node.tcp_fast_open),
 		tcp_multi_path: strToBool(node.tcp_multi_path),
 		udp_fragment: strToBool(node.udp_fragment)
@@ -451,6 +455,8 @@ export function renderOutbound(node, routingMark) {
 			min_version: node.tls_min_version,
 			max_version: node.tls_max_version,
 			cipher_suites: node.tls_cipher_suites,
+			curve_preferences: node.tls_curve_preferences,
+			handshake_timeout: strToTime(node.tls_handshake_timeout),
 			certificate_path: node.tls_cert_path,
 			ech: (node.tls_ech === '1') ? {
 				enabled: true,
@@ -491,6 +497,10 @@ export function renderOutbound(node, routingMark) {
 		type: node.type,
 		tag: 'cfg-' + node['.name'] + '-out',
 		routing_mark: strToInt(routingMark),
+		connect_timeout: strToTime(node.connect_timeout),
+		disable_tcp_keep_alive: strToBool(node.disable_tcp_keep_alive),
+		tcp_keep_alive: strToTime(node.tcp_keep_alive),
+		tcp_keep_alive_interval: strToTime(node.tcp_keep_alive_interval),
 		tcp_fast_open: strToBool(node.tcp_fast_open),
 		tcp_multi_path: strToBool(node.tcp_multi_path),
 		udp_fragment: strToBool(node.udp_fragment)
@@ -516,6 +526,8 @@ export function renderOutbound(node, routingMark) {
 	case 'hysteria2':
 		outbound.server_ports = node.hysteria_hopping_port;
 		outbound.hop_interval = strToTime(node.hysteria_hop_interval);
+		outbound.hop_interval_max = node.type === 'hysteria2' ?
+			strToTime(node.hysteria_hop_interval_max) : null;
 		outbound.up_mbps = strToInt(node.hysteria_up_mbps);
 		outbound.down_mbps = strToInt(node.hysteria_down_mbps);
 		outbound.network = node.hysteria_network;
@@ -524,8 +536,13 @@ export function renderOutbound(node, routingMark) {
 		outbound.disable_path_mtu_discovery = strToBool(node.hysteria_disable_path_mtu_discovery);
 		outbound.obfs = (node.type === 'hysteria2' && node.hysteria_obfs_type) ? {
 			type: node.hysteria_obfs_type,
-			password: node.hysteria_obfs_password
+			password: node.hysteria_obfs_password,
+			min_packet_size: node.hysteria_obfs_type === 'gecko' ?
+				strToInt(node.hysteria_gecko_min_packet_size) : null,
+			max_packet_size: node.hysteria_obfs_type === 'gecko' ?
+				strToInt(node.hysteria_gecko_max_packet_size) : null
 		} : node.hysteria_obfs_password;
+		outbound.bbr_profile = node.type === 'hysteria2' ? node.hysteria_bbr_profile : null;
 		if (node.type === 'hysteria') {
 			outbound.auth = (node.hysteria_auth_type === 'base64') ? node.hysteria_auth_payload : null;
 			outbound.auth_str = (node.hysteria_auth_type === 'string') ? node.hysteria_auth_payload : null;

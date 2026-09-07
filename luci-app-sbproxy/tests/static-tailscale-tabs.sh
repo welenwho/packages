@@ -14,14 +14,14 @@ if grep -Fq "s.tab('tailscale'" "$CLIENT"; then
 	exit 1
 fi
 
-for tab in general routing dns security relay authentication advanced status; do
+for tab in general routing dns security relay derp authentication advanced status; do
 	test "$(printf '%s\n' "$tailscale_form" | grep -Fc "s.tab('$tab'")" -eq 1
 done
 
-test "$(printf '%s\n' "$tailscale_form" | grep -Fc 's.tab(')" -eq 8
+test "$(printf '%s\n' "$tailscale_form" | grep -Fc 's.tab(')" -eq 9
 
 previous_line=0
-for tab in general routing dns security relay authentication advanced status; do
+for tab in general routing dns security relay derp authentication advanced status; do
 	current_line="$(printf '%s\n' "$tailscale_form" | grep -n "s.tab('$tab'" | head -n1 | cut -d: -f1)"
 	test "$current_line" -gt "$previous_line"
 	previous_line="$current_line"
@@ -104,6 +104,10 @@ done
 
 for field in relay_server_enabled relay_server_port relay_server_static_endpoints; do
 	printf '%s\n' "$tailscale_form" | grep -Eq "s\.taboption\('relay', [^,]+, '$field'"
+done
+
+for field in derp_server_enabled derp_listen derp_port derp_firewall derp_tls_mode derp_stun_enabled derp_stun_port; do
+	printf '%s\n' "$tailscale_form" | grep -Eq "s\.taboption\('derp', [^,]+, '$field'"
 done
 
 for field in control_url auth_key auth_key_file ephemeral advertise_tags; do

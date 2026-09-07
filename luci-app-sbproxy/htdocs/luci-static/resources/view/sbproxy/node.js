@@ -977,6 +977,12 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 	o.depends({'type': 'hysteria2', 'hysteria_hopping_port': /[\s\S]/});
 	o.modalonly = true;
 
+	o = s.option(form.Value, 'hysteria_hop_interval_max', _('Maximum hop interval'),
+		_('Maximum randomized port hopping interval in seconds. Leave empty to use the regular interval.'));
+	o.datatype = 'uinteger';
+	o.depends({'type': 'hysteria2', 'hysteria_hopping_port': /[\s\S]/});
+	o.modalonly = true;
+
 	o = s.option(form.ListValue, 'hysteria_network', _('Network'));
 	o.value('', _('TCP and UDP'));
 	o.value('udp');
@@ -1002,6 +1008,30 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 	o = s.option(form.ListValue, 'hysteria_obfs_type', _('Obfuscate type'));
 	o.value('', _('Disable'));
 	o.value('salamander', _('Salamander'));
+	o.value('gecko', _('Gecko'));
+	o.depends('type', 'hysteria2');
+	o.modalonly = true;
+
+	o = s.option(form.Value, 'hysteria_gecko_min_packet_size', _('Gecko minimum packet size'));
+	o.datatype = 'range(1,65535)';
+	o.depends({'type': 'hysteria2', 'hysteria_obfs_type': 'gecko'});
+	o.modalonly = true;
+
+	o = s.option(form.Value, 'hysteria_gecko_max_packet_size', _('Gecko maximum packet size'));
+	o.datatype = 'range(1,65535)';
+	o.depends({'type': 'hysteria2', 'hysteria_obfs_type': 'gecko'});
+	o.validate = function(section_id, value) {
+		const minimum = Number(this.section.formvalue(section_id, 'hysteria_gecko_min_packet_size'));
+		return !section_id || !minimum || Number(value) >= minimum ? true :
+			_('The maximum packet size must not be smaller than the minimum packet size.');
+	};
+	o.modalonly = true;
+
+	o = s.option(form.ListValue, 'hysteria_bbr_profile', _('Hysteria2 BBR profile'));
+	o.value('', _('Default'));
+	o.value('standard', _('Standard'));
+	o.value('conservative', _('Conservative'));
+	o.value('aggressive', _('Aggressive'));
 	o.depends('type', 'hysteria2');
 	o.modalonly = true;
 
@@ -1556,6 +1586,11 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 		o.value('360');
 		o.value('android');
 		o.value('chrome');
+		o.value('chrome_padding_psk_shuffle');
+		o.value('chrome_pq');
+		o.value('chrome_pq_psk');
+		o.value('chrome_psk');
+		o.value('chrome_psk_shuffle');
 		o.value('edge');
 		o.value('firefox');
 		o.value('ios');
@@ -1595,9 +1630,47 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 		o.depends('tls_reality', '1');
 		o.modalonly = true;
 	}
+
+	o = s.option(sb.CBIStaticList, 'tls_curve_preferences', _('TLS curve preferences'),
+		_('Preferred TLS key exchange curves. Leave empty to use the core default.'));
+	o.value('X25519');
+	o.value('X25519MLKEM768');
+	o.value('P256');
+	o.value('P384');
+	o.value('P521');
+	o.depends('tls', '1');
+	o.optional = true;
+	o.modalonly = true;
+
+	o = s.option(form.Value, 'tls_handshake_timeout', _('TLS handshake timeout'),
+		_('Maximum TLS handshake duration in seconds. Leave empty for the core default.'));
+	o.datatype = 'uinteger';
+	o.depends('tls', '1');
+	o.modalonly = true;
 	/* TLS config end */
 
 	/* Extra settings start */
+	o = s.option(form.Value, 'connect_timeout', _('Connection timeout'),
+		_('Maximum outbound connection establishment time in seconds. Leave empty for the core default.'));
+	o.datatype = 'uinteger';
+	o.modalonly = true;
+
+	o = s.option(form.Flag, 'disable_tcp_keep_alive', _('Disable TCP keepalive'));
+	o.depends('type', /^(anytls|direct|http|shadowsocks|shadowtls|socks|ssh|trojan|vless|vmess)$/);
+	o.modalonly = true;
+
+	o = s.option(form.Value, 'tcp_keep_alive', _('TCP keepalive idle time'),
+		_('Idle time in seconds before TCP keepalive probes begin. Leave empty for the core default.'));
+	o.datatype = 'uinteger';
+	o.depends({'type': /^(anytls|direct|http|shadowsocks|shadowtls|socks|ssh|trojan|vless|vmess)$/, 'disable_tcp_keep_alive': '0'});
+	o.modalonly = true;
+
+	o = s.option(form.Value, 'tcp_keep_alive_interval', _('TCP keepalive interval'),
+		_('Interval in seconds between TCP keepalive probes. Leave empty for the core default.'));
+	o.datatype = 'uinteger';
+	o.depends({'type': /^(anytls|direct|http|shadowsocks|shadowtls|socks|ssh|trojan|vless|vmess)$/, 'disable_tcp_keep_alive': '0'});
+	o.modalonly = true;
+
 	o = s.option(form.Flag, 'tcp_fast_open', _('TCP fast open'));
 	o.modalonly = true;
 

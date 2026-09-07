@@ -16,7 +16,8 @@ import {
 } from 'sbproxy';
 
 /* UCI config start */
-const uci = cursor();
+const uci_config_dir = getenv('SBPROXY_UCI_CONFIG_DIR');
+const uci = uci_config_dir ? cursor(uci_config_dir) : cursor();
 
 const uciconfig = 'sbproxy';
 uci.load(uciconfig);
@@ -44,6 +45,18 @@ config.log = {
 
 config.inbounds = [];
 
+if (uci.get(uciconfig, 'config', 'memory_guard_enabled') === '1')
+	config.services = [
+		{
+			type: 'oom-killer',
+			tag: 'sbproxy-memory-guard',
+			memory_limit: uci.get(uciconfig, 'config', 'memory_guard_limit') ?
+				`${uci.get(uciconfig, 'config', 'memory_guard_limit')} MB` : null,
+			safety_margin: uci.get(uciconfig, 'config', 'memory_guard_safety_margin') ?
+				`${uci.get(uciconfig, 'config', 'memory_guard_safety_margin')} MB` : null
+		}
+	];
+
 function render_server_tls(cfg) {
 	if (cfg.tls !== '1' || !(cfg.type in [
 		'anytls', 'http', 'hysteria', 'hysteria2', 'naive',
@@ -60,6 +73,8 @@ function render_server_tls(cfg) {
 		min_version: cfg.tls_min_version,
 		max_version: cfg.tls_max_version,
 		cipher_suites: cfg.tls_cipher_suites,
+		curve_preferences: cfg.tls_curve_preferences,
+		handshake_timeout: strToTime(cfg.tls_handshake_timeout),
 		certificate_path: (!use_acme && !use_reality) ? cfg.tls_cert_path : null,
 		key_path: (!use_acme && !use_reality) ? cfg.tls_key_path : null,
 		certificate_provider: use_acme ? {
@@ -157,8 +172,13 @@ uci.foreach(uciconfig, uciserver, (cfg) => {
 		inbound.disable_path_mtu_discovery = strToBool(cfg.hysteria_disable_path_mtu_discovery);
 		inbound.obfs = (cfg.type === 'hysteria2' && cfg.hysteria_obfs_type) ? {
 			type: cfg.hysteria_obfs_type,
-			password: cfg.hysteria_obfs_password
+			password: cfg.hysteria_obfs_password,
+			min_packet_size: cfg.hysteria_obfs_type === 'gecko' ?
+				strToInt(cfg.hysteria_gecko_min_packet_size) : null,
+			max_packet_size: cfg.hysteria_obfs_type === 'gecko' ?
+				strToInt(cfg.hysteria_gecko_max_packet_size) : null
 		} : cfg.hysteria_obfs_password;
+		inbound.bbr_profile = cfg.type === 'hysteria2' ? cfg.hysteria_bbr_profile : null;
 		inbound.masquerade = cfg.hysteria_masquerade;
 		if (cfg.type === 'hysteria') {
 			user.auth = (cfg.hysteria_auth_type === 'base64') ? cfg.hysteria_auth_payload : null;

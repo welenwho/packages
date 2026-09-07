@@ -86,18 +86,11 @@ function coreManagerCall(action, target) {
 function tailscaleAPICommand(arguments) {
 	const sbpuci = cursor();
 	sbpuci.load('sbproxy');
-	const dashboardEnabled = sbpuci.get('sbproxy', 'config', 'dashboard_enabled') === '1' &&
-	      !!readfile(`${SB_DIR}/dashboard/index.html`);
-	const port = dashboardEnabled ?
-		sbpuci.get('sbproxy', 'config', 'dashboard_port') :
-		sbpuci.get('sbproxy', 'infra', 'tailscale_api_port');
+	const port = sbpuci.get('sbproxy', 'infra', 'tailscale_api_port');
 	if (!port || !match(port, /^[0-9]+$/))
 		return null;
 
 	let command = `/usr/bin/sing-box api --url ${shellQuote(`http://127.0.0.1:${port}`)}`;
-	const secret = dashboardEnabled ? sbpuci.get('sbproxy', 'config', 'dashboard_secret') : null;
-	if (secret)
-		command += ` --secret ${shellQuote(secret)}`;
 	for (let argument in arguments)
 		command += ` ${shellQuote(argument)}`;
 	return command;

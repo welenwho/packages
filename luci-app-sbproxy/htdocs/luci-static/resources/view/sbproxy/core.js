@@ -134,12 +134,13 @@ function featureTable(status) {
 	const features = [
 		[ 'with_acme', _('ACME certificates'), _('Server Settings'), true ],
 		[ 'with_clash_api', _('Clash API'), _('URLTest and adaptive routing'), true ],
-		[ 'with_dhcp', _('DHCP DNS transport'), _('Not exposed in LuCI'), false ],
+		[ 'with_dhcp', _('DHCP DNS transport'), _('Client DNS settings'), true ],
 		[ 'with_gvisor', _('gVisor network stack'), _('Client TUN settings'), true ],
 		[ 'with_quic', _('QUIC protocols'), _('Hysteria, Hysteria2, TUIC and QUIC DNS'), true ],
-		[ 'with_tailscale', _('Tailscale'), _('Tailscale settings'), true ],
+		[ 'with_tailscale', _('Tailscale'), _('Tailscale, HTTPS certificates and DERP'), true ],
 		[ 'with_utls', _('uTLS fingerprints'), _('Node TLS settings'), true ],
-		[ 'with_wireguard', _('WireGuard endpoint'), _('Node Settings'), true ]
+		[ 'with_wireguard', _('WireGuard endpoint'), _('Node Settings'), true ],
+		[ null, _('Memory pressure guard'), _('Client advanced settings'), true ]
 	];
 	const table = E('table', { 'class': 'table' }, [
 		E('tr', { 'class': 'tr table-titles' }, [
@@ -150,7 +151,7 @@ function featureTable(status) {
 	]);
 	cbi_update_table(table, features.map((feature) => [
 		feature[1],
-		statusText(compiledTags.includes(feature[0]), _('Yes'), _('No')),
+		statusText(feature[0] === null || compiledTags.includes(feature[0]), _('Yes'), _('No')),
 		statusText(feature[3], feature[2], feature[2])
 	]));
 	return table;

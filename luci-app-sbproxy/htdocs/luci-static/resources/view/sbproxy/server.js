@@ -260,6 +260,30 @@ return view.extend({
 		o = s.option(form.ListValue, 'hysteria_obfs_type', _('Obfuscate type'));
 		o.value('', _('Disable'));
 		o.value('salamander', _('Salamander'));
+		o.value('gecko', _('Gecko'));
+		o.depends('type', 'hysteria2');
+		o.modalonly = true;
+
+		o = s.option(form.Value, 'hysteria_gecko_min_packet_size', _('Gecko minimum packet size'));
+		o.datatype = 'range(1,65535)';
+		o.depends({'type': 'hysteria2', 'hysteria_obfs_type': 'gecko'});
+		o.modalonly = true;
+
+		o = s.option(form.Value, 'hysteria_gecko_max_packet_size', _('Gecko maximum packet size'));
+		o.datatype = 'range(1,65535)';
+		o.depends({'type': 'hysteria2', 'hysteria_obfs_type': 'gecko'});
+		o.validate = function(section_id, value) {
+			const minimum = Number(this.section.formvalue(section_id, 'hysteria_gecko_min_packet_size'));
+			return !section_id || !minimum || Number(value) >= minimum ? true :
+				_('The maximum packet size must not be smaller than the minimum packet size.');
+		};
+		o.modalonly = true;
+
+		o = s.option(form.ListValue, 'hysteria_bbr_profile', _('Hysteria2 BBR profile'));
+		o.value('', _('Default'));
+		o.value('standard', _('Standard'));
+		o.value('conservative', _('Conservative'));
+		o.value('aggressive', _('Aggressive'));
 		o.depends('type', 'hysteria2');
 		o.modalonly = true;
 
@@ -567,6 +591,23 @@ return view.extend({
 			o.value(i);
 		o.depends('tls', '1');
 		o.optional = true;
+		o.modalonly = true;
+
+		o = s.option(sb.CBIStaticList, 'tls_curve_preferences', _('TLS curve preferences'),
+			_('Preferred TLS key exchange curves. Leave empty to use the core default.'));
+		o.value('X25519');
+		o.value('X25519MLKEM768');
+		o.value('P256');
+		o.value('P384');
+		o.value('P521');
+		o.depends('tls', '1');
+		o.optional = true;
+		o.modalonly = true;
+
+		o = s.option(form.Value, 'tls_handshake_timeout', _('TLS handshake timeout'),
+			_('Maximum TLS handshake duration in seconds. Leave empty for the core default.'));
+		o.datatype = 'uinteger';
+		o.depends('tls', '1');
 		o.modalonly = true;
 
 		if (features.with_acme) {

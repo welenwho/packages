@@ -49,6 +49,15 @@ function migrateOption(section, oldOption, newOption) {
 	uci.delete(uciconfig, section, oldOption);
 }
 
+function migrateSectionOption(sourceSection, sourceOption, targetSection, targetOption) {
+	const value = uci.get(uciconfig, sourceSection, sourceOption);
+	if (value === null)
+		return;
+	if (uci.get(uciconfig, targetSection, targetOption) === null)
+		uci.set(uciconfig, targetSection, targetOption, value);
+	uci.delete(uciconfig, sourceSection, sourceOption);
+}
+
 function mergeListOption(section, sourceOption, targetOption) {
 	const source = normalizeList(uci.get(uciconfig, section, sourceOption));
 	const target = normalizeList(uci.get(uciconfig, section, targetOption));
@@ -223,6 +232,23 @@ setDefault('config', 'main_urltest_interval', '180');
 setDefault('config', 'main_urltest_tolerance', '50');
 setDefault('config', 'main_urltest_interrupt_exist_connections', '0');
 setDefault('config', 'dashboard_allow_tailscale', '0');
+setDefault('config', 'dashboard_tls_tailscale', '0');
+setDefault('config', 'dashboard_tls_name', '');
+setDefault('config', 'memory_guard_enabled', '0');
+setDefault('config', 'memory_guard_limit', '256');
+setDefault('config', 'memory_guard_safety_margin', '32');
+migrateSectionOption('dns', 'disable_cache', 'config', 'dns_disable_cache');
+migrateSectionOption('dns', 'disable_cache_expire', 'config', 'dns_disable_cache_expire');
+migrateSectionOption('dns', 'optimistic', 'config', 'dns_optimistic');
+migrateSectionOption('dns', 'optimistic_timeout', 'config', 'dns_optimistic_timeout');
+migrateSectionOption('dns', 'cache_capacity', 'config', 'dns_cache_capacity');
+migrateSectionOption('dns', 'timeout', 'config', 'dns_timeout');
+setDefault('config', 'dns_disable_cache', '0');
+setDefault('config', 'dns_disable_cache_expire', '0');
+setDefault('config', 'dns_optimistic', '0');
+setDefault('config', 'dns_optimistic_timeout', '259200');
+setDefault('config', 'dns_cache_capacity', '1024');
+setDefault('config', 'dns_timeout', '10');
 setDefault('config', 'log_level', 'warn');
 setDefault('routing', 'tcpip_stack', 'mixed');
 if (isEmpty(uci.get(uciconfig, 'routing', 'udp_timeout')))
@@ -232,10 +258,6 @@ setDefault('routing', 'default_outbound', 'nil');
 setDefault('routing', 'default_outbound_dns', 'default-dns');
 setDefault('dns', 'default_strategy', 'prefer_ipv4');
 setDefault('dns', 'default_server', 'default-dns');
-setDefault('dns', 'disable_cache', '0');
-setDefault('dns', 'disable_cache_expire', '0');
-setDefault('dns', 'optimistic', '0');
-setDefault('dns', 'timeout', '10');
 setDefault('dns', 'cache_file_store_dns', '0');
 setDefault('server', 'log_level', 'warn');
 
@@ -254,6 +276,20 @@ setDefault('tailscale', 'exit_node_allow_lan_access', '0');
 setDefault('tailscale', 'disable_snat_subnet_routes', '0');
 setDefault('tailscale', 'relay_server_enabled', '0');
 setDefault('tailscale', 'relay_server_port', '0');
+setDefault('tailscale', 'derp_server_enabled', '0');
+setDefault('tailscale', 'derp_listen', '::');
+setDefault('tailscale', 'derp_port', '8443');
+setDefault('tailscale', 'derp_firewall', '1');
+setDefault('tailscale', 'derp_config_path', '/etc/sbproxy/tailscale/derp.json');
+setDefault('tailscale', 'derp_verify_tailscale', '1');
+setDefault('tailscale', 'derp_tls_mode', 'manual');
+setDefault('tailscale', 'derp_cert_path', '/etc/sbproxy/certs/server_publickey.pem');
+setDefault('tailscale', 'derp_key_path', '/etc/sbproxy/certs/server_privatekey.pem');
+setDefault('tailscale', 'derp_acme_provider', 'letsencrypt');
+setDefault('tailscale', 'derp_home', '');
+setDefault('tailscale', 'derp_stun_enabled', '1');
+setDefault('tailscale', 'derp_stun_listen', '::');
+setDefault('tailscale', 'derp_stun_port', '3478');
 setDefault('tailscale', 'ephemeral', '0');
 setDefault('tailscale', 'ssh_server', '0');
 setDefault('tailscale', 'ssh_disable_pty', '0');

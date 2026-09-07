@@ -122,8 +122,16 @@ const ipv6_support = uci.get(uciconfig, ucimain, 'ipv6_support') || '0';
 let main_node, default_outbound, default_outbound_dns,
     domain_strategy, dns_server, china_dns_server, dns_default_strategy,
     dns_default_server, dns_disable_cache, dns_disable_cache_expire,
-    dns_client_subnet, dns_optimistic, dns_timeout, cache_file_store_dns,
+    dns_client_subnet, dns_optimistic, dns_optimistic_timeout, dns_cache_capacity,
+    dns_timeout, cache_file_store_dns,
     direct_domain_list = [], proxy_domain_list = [];
+
+dns_disable_cache = uci.get(uciconfig, ucimain, 'dns_disable_cache');
+dns_disable_cache_expire = uci.get(uciconfig, ucimain, 'dns_disable_cache_expire');
+dns_optimistic = uci.get(uciconfig, ucimain, 'dns_optimistic');
+dns_optimistic_timeout = uci.get(uciconfig, ucimain, 'dns_optimistic_timeout');
+dns_cache_capacity = uci.get(uciconfig, ucimain, 'dns_cache_capacity');
+dns_timeout = uci.get(uciconfig, ucimain, 'dns_timeout');
 
 if (routing_mode !== 'custom') {
 	main_node = uci.get(uciconfig, ucimain, 'main_node') || 'nil';
@@ -153,10 +161,6 @@ if (routing_mode !== 'custom') {
 	/* DNS settings */
 	dns_default_strategy = uci.get(uciconfig, ucidnssetting, 'default_strategy');
 	dns_default_server = uci.get(uciconfig, ucidnssetting, 'default_server');
-	dns_disable_cache = uci.get(uciconfig, ucidnssetting, 'disable_cache');
-	dns_disable_cache_expire = uci.get(uciconfig, ucidnssetting, 'disable_cache_expire');
-	dns_optimistic = uci.get(uciconfig, ucidnssetting, 'optimistic');
-	dns_timeout = uci.get(uciconfig, ucidnssetting, 'timeout');
 	dns_client_subnet = uci.get(uciconfig, ucidnssetting, 'client_subnet');
 	cache_file_store_dns = uci.get(uciconfig, ucidnssetting, 'cache_file_store_dns');
 
@@ -202,6 +206,11 @@ const dashboard_enabled = uci.get(uciconfig, ucimain, 'dashboard_enabled') === '
       !isEmpty(readfile(dashboard_path + '/index.html')),
       dashboard_port = strToInt(uci.get(uciconfig, ucimain, 'dashboard_port')),
       dashboard_secret = uci.get(uciconfig, ucimain, 'dashboard_secret');
+const dashboard_tls_tailscale = dashboard_enabled &&
+      uci.get(uciconfig, ucimain, 'dashboard_tls_tailscale') === '1';
+const memory_guard_enabled = uci.get(uciconfig, ucimain, 'memory_guard_enabled') === '1';
+const memory_guard_limit = uci.get(uciconfig, ucimain, 'memory_guard_limit');
+const memory_guard_safety_margin = uci.get(uciconfig, ucimain, 'memory_guard_safety_margin');
 const force_proxy_rules = hasForceProxyRules(uci, uciconfig, proxy_domain_list);
 const fast_bypass_mainland = routing_mode === 'bypass_mainland_china' && !force_proxy_rules;
 const proxy_client_enabled = !isEmpty(main_node) || !isEmpty(default_outbound);
@@ -224,6 +233,8 @@ const tailscale_exit_node = uci.get(uciconfig, ucitailscale, 'exit_node');
 const tailscale_use_exit_node = tailscale_enabled && !isEmpty(tailscale_exit_node);
 const tailscale_disable_snat = uci.get(uciconfig, ucitailscale, 'disable_snat_subnet_routes') === '1';
 const tailscale_ssh_enabled = uci.get(uciconfig, ucitailscale, 'ssh_server') === '1';
+const derp_server_enabled = tailscale_enabled &&
+      uci.get(uciconfig, ucitailscale, 'derp_server_enabled') === '1';
 const tailscale_endpoint = tailscale_enabled ? {
 	type: 'tailscale',
 	tag: tailscale_endpoint_tag,
@@ -278,6 +289,8 @@ const tailscale_endpoint = tailscale_enabled ? {
 		(uci.get(uciconfig, ucitailscale, 'taildrop_directory') ||
 		 SB_DIR + '/tailscale/Taildrop') : null
 } : null;
+if (dashboard_tls_tailscale && !tailscale_enabled)
+	die('The Tailscale dashboard certificate requires embedded Tailscale.');
 if (tailscale_endpoint?.advertise_exit_node && !isEmpty(tailscale_endpoint?.exit_node))
 	die('Tailscale cannot advertise and use an exit node at the same time.');
 if (tailscale_endpoint?.advertise_exit_node && tailscale_disable_snat)
@@ -647,6 +660,67 @@ function add_tailscale_exit_node_rule(rules) {
 		outbound: tailscale_endpoint_tag
 	});
 }
+
+function render_derp_mesh_peer(value) {
+	value = trim(value || '');
+	let parsed = match(value, /^\[([0-9A-Fa-f:]+)\]:(\d+)$/);
+	if (!parsed)
+		parsed = match(value, /^([^:]+):(\d+)$/);
+	if (!parsed)
+		return null;
+	const port = int(parsed[2]);
+	if (port < 1 || port > 65535)
+		return null;
+	return {
+		server: parsed[1],
+		server_port: port,
+		host: parsed[1],
+		tls: {
+			enabled: true,
+			server_name: parsed[1]
+		},
+		domain_resolver: 'default-dns'
+	};
+}
+
+function render_derp_tls() {
+	const mode = uci.get(uciconfig, ucitailscale, 'derp_tls_mode') || 'manual';
+	if (mode === 'tailscale')
+		return {
+			enabled: true,
+			certificate_provider: {
+				type: 'tailscale',
+				endpoint: tailscale_endpoint_tag
+			}
+		};
+	if (mode === 'acme') {
+		const domains = normalizeList(uci.get(uciconfig, ucitailscale, 'derp_acme_domain'));
+		return {
+			enabled: true,
+			certificate_provider: {
+				type: 'acme',
+				domain: domains,
+				data_directory: SB_DIR + '/certs/derp',
+				default_server_name: domains[0],
+				email: uci.get(uciconfig, ucitailscale, 'derp_acme_email'),
+				provider: uci.get(uciconfig, ucitailscale, 'derp_acme_provider') ||
+					'letsencrypt',
+				alternative_http_port: strToInt(
+					uci.get(uciconfig, ucitailscale, 'derp_acme_http_port')
+				),
+				alternative_tls_port: strToInt(
+					uci.get(uciconfig, ucitailscale, 'derp_acme_tls_port')
+				),
+				http_client: 'direct-http'
+			}
+		};
+	}
+	return {
+		enabled: true,
+		certificate_path: uci.get(uciconfig, ucitailscale, 'derp_cert_path'),
+		key_path: uci.get(uciconfig, ucitailscale, 'derp_key_path')
+	};
+}
 /* Config helper end */
 
 const config = {};
@@ -697,8 +771,12 @@ config.dns = {
 	strategy: dns_default_strategy,
 	disable_cache: strToBool(dns_disable_cache),
 	disable_expire: strToBool(dns_disable_cache_expire),
-	optimistic: (!strToBool(dns_disable_cache) && !strToBool(dns_disable_cache_expire)) ?
-		strToBool(dns_optimistic) : null,
+	optimistic: (!strToBool(dns_disable_cache) && !strToBool(dns_disable_cache_expire) &&
+		dns_optimistic === '1') ? (dns_optimistic_timeout ? {
+			enabled: true,
+			timeout: strToTime(dns_optimistic_timeout)
+		} : true) : null,
+	cache_capacity: strToInt(dns_cache_capacity),
 	timeout: strToTime(dns_timeout),
 	client_subnet: dns_client_subnet
 };
@@ -798,18 +876,20 @@ if (!isEmpty(main_node)) {
 		if (outbound === 'direct-out' && isEmpty(self_mark))
 			outbound = null;
 
+		const remote_server = cfg.type in ['udp', 'tcp', 'tls', 'https', 'h3', 'quic'];
 		push(config.dns.servers, {
 			tag: 'cfg-' + cfg['.name'] + '-dns',
 			type: cfg.type,
-			server: cfg.server,
-			server_port: strToInt(cfg.server_port),
-			path: cfg.path,
-			headers: cfg.headers,
-			tls: cfg.tls_sni ? {
+			server: remote_server ? cfg.server : null,
+			server_port: remote_server ? strToInt(cfg.server_port) : null,
+			interface: cfg.type === 'dhcp' ? cfg.interface : null,
+			path: remote_server ? cfg.path : null,
+			headers: remote_server ? cfg.headers : null,
+			tls: remote_server && cfg.tls_sni ? {
 				enabled: true,
 				server_name: cfg.tls_sni
 			} : null,
-			domain_resolver: (cfg.domain_resolver || cfg.domain_strategy) ? {
+			domain_resolver: remote_server && (cfg.domain_resolver || cfg.domain_strategy) ? {
 				server: get_resolver(cfg.domain_resolver || dns_default_server),
 				strategy: cfg.domain_strategy
 			} : null,
@@ -1420,20 +1500,75 @@ if (enable_clash_api || enable_cache_file) {
 /* Experimental end */
 
 /* Services */
-if (dashboard_enabled || tailscale_enabled)
-	config.services = [
-		{
-			type: 'api',
-			tag: 'api',
-			listen: dashboard_enabled ? '::' : '127.0.0.1',
-			listen_port: dashboard_enabled ? dashboard_port : tailscale_api_port,
-			secret: dashboard_enabled ? dashboard_secret : null,
-			dashboard: dashboard_enabled ? {
-				enabled: true,
-				path: dashboard_path
-			} : null
-		}
-	];
+config.services = [];
+if (tailscale_enabled)
+	push(config.services, {
+		type: 'api',
+		tag: 'api-internal',
+		listen: '127.0.0.1',
+		listen_port: tailscale_api_port
+	});
+if (dashboard_enabled)
+	push(config.services, {
+		type: 'api',
+		tag: 'api',
+		listen: '::',
+		listen_port: dashboard_port,
+		secret: dashboard_secret,
+		dashboard: {
+			enabled: true,
+			path: dashboard_path
+		},
+		tls: dashboard_tls_tailscale ? {
+			enabled: true,
+			server_name: uci.get(uciconfig, ucimain, 'dashboard_tls_name'),
+			certificate_provider: {
+				type: 'tailscale',
+				endpoint: tailscale_endpoint_tag
+			}
+		} : null
+	});
+if (derp_server_enabled) {
+	const mesh_with = filter(map(
+		normalizeList(uci.get(uciconfig, ucitailscale, 'derp_mesh_server')),
+		render_derp_mesh_peer
+	), (peer) => peer !== null);
+	push(config.services, {
+		type: 'derp',
+		tag: 'sbproxy-derp',
+		listen: uci.get(uciconfig, ucitailscale, 'derp_listen') || '::',
+		listen_port: strToInt(uci.get(uciconfig, ucitailscale, 'derp_port')) || 8443,
+		config_path: uci.get(uciconfig, ucitailscale, 'derp_config_path') ||
+			SB_DIR + '/tailscale/derp.json',
+		verify_client_endpoint:
+			uci.get(uciconfig, ucitailscale, 'derp_verify_tailscale') !== '0' ?
+			[ tailscale_endpoint_tag ] : null,
+		verify_client_url: normalizeList(
+			uci.get(uciconfig, ucitailscale, 'derp_verify_url')
+		),
+		home: uci.get(uciconfig, ucitailscale, 'derp_home'),
+		mesh_with: length(mesh_with) ? mesh_with : null,
+		mesh_psk: uci.get(uciconfig, ucitailscale, 'derp_mesh_psk'),
+		mesh_psk_file: uci.get(uciconfig, ucitailscale, 'derp_mesh_psk_file'),
+		stun: uci.get(uciconfig, ucitailscale, 'derp_stun_enabled') !== '0' ? {
+			enabled: true,
+			listen: uci.get(uciconfig, ucitailscale, 'derp_stun_listen') || '::',
+			listen_port: strToInt(
+				uci.get(uciconfig, ucitailscale, 'derp_stun_port')
+			) || 3478
+		} : null,
+		tls: render_derp_tls()
+	});
+}
+if (memory_guard_enabled)
+	push(config.services, {
+		type: 'oom-killer',
+		tag: 'sbproxy-memory-guard',
+		memory_limit: memory_guard_limit ? `${memory_guard_limit} MB` : null,
+		safety_margin: memory_guard_safety_margin ? `${memory_guard_safety_margin} MB` : null
+	});
+if (!length(config.services))
+	config.services = null;
 
 system('mkdir -p ' + RUN_DIR);
 const output_path = getenv('SBPROXY_CLIENT_CONFIG_PATH') || RUN_DIR + '/sing-box-c.json.new';

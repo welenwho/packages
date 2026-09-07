@@ -476,6 +476,7 @@ return view.extend({
 		s.tab('dns', _('DNS Settings'));
 		s.tab('security', _('Security'));
 		s.tab('relay', _('Peer Relay'));
+		s.tab('derp', _('DERP Server'));
 		s.tab('authentication', _('Authentication'));
 		s.tab('advanced', _('Extra Settings'),
 			_('tailscale0 is the standard Tailscale kernel device; sbproxy_ts is the OpenWrt logical interface used by netifd and firewall integration.'));
@@ -742,6 +743,179 @@ return view.extend({
 		o.placeholder = '192.0.2.1:40000';
 		o.depends({ enabled: '1', relay_server_enabled: '1' });
 		o.rmempty = true;
+
+		o = s.taboption('derp', form.Flag, 'derp_server_enabled', _('Enable DERP server'),
+			_('Run a complete TLS-protected DERP and optional STUN server inside sing-box. Add this server to the Tailnet DERP map in Tailscale Access Controls before clients can use it.'));
+		o.default = o.disabled;
+		o.depends('enabled', '1');
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_listen', _('DERP listen address'));
+		o.default = '::';
+		o.datatype = 'ipaddr';
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_port', _('DERP HTTPS port'),
+			_('Defaults to 8443 to avoid the LuCI HTTPS listener. Publish this exact port in the Tailnet DERP map, or forward an external port to it.'));
+		o.default = '8443';
+		o.datatype = 'port';
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Flag, 'derp_firewall', _('Open DERP firewall ports'),
+			_('Accept the configured DERP TCP port and STUN UDP port from all firewall zones. Only enable this for an intentionally public server.'));
+		o.default = o.enabled;
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_config_path', _('DERP identity path'),
+			_('The DERP node private identity is generated automatically when this file does not exist.'));
+		o.default = '/etc/sbproxy/tailscale/derp.json';
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = false;
+		o.validate = function(sectionId, value) {
+			return value?.startsWith('/') ? true : _('Expecting: %s').format(_('absolute path'));
+		};
+
+		o = s.taboption('derp', form.Flag, 'derp_verify_tailscale', _('Verify Tailnet clients'),
+			_('Authorize DERP clients through the embedded Tailscale endpoint.'));
+		o.default = o.enabled;
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.DynamicList, 'derp_verify_url', _('Additional client verification URLs'));
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = true;
+		o.validate = function(sectionId, value) {
+			if (!value)
+				return true;
+			try {
+				const url = new URL(value);
+				return [ 'http:', 'https:' ].includes(url.protocol) && !!url.hostname ? true :
+					_('Expecting: %s').format(_('valid URL'));
+			} catch (e) {
+				return _('Expecting: %s').format(_('valid URL'));
+			}
+		};
+
+		o = s.taboption('derp', form.ListValue, 'derp_tls_mode', _('DERP certificate source'),
+			_('Use certificate files or ACME for a public DERP server. The Tailscale certificate option is intended for Tailnet-only deployments and requires HTTPS certificates enabled in Tailnet DNS settings.'));
+		o.value('manual', _('Certificate files'));
+		if (features.with_acme)
+			o.value('acme', _('ACME'));
+		o.value('tailscale', _('Tailscale certificate'));
+		o.default = 'manual';
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_cert_path', _('DERP certificate path'));
+		o.default = '/etc/sbproxy/certs/server_publickey.pem';
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_tls_mode: 'manual' });
+		o.validate = sb.validateCertificatePath;
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_key_path', _('DERP private key path'));
+		o.default = '/etc/sbproxy/certs/server_privatekey.pem';
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_tls_mode: 'manual' });
+		o.validate = sb.validateCertificatePath;
+		o.rmempty = false;
+
+	if (features.with_acme) {
+		o = s.taboption('derp', form.DynamicList, 'derp_acme_domain', _('DERP domains'));
+		o.datatype = 'hostname';
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_tls_mode: 'acme' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_acme_email', _('DERP ACME email'));
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_tls_mode: 'acme' });
+		o.rmempty = false;
+		o.validate = function(sectionId, value) {
+			return !sectionId || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '') ? true :
+				_('Expecting: %s').format(_('valid email address'));
+		};
+
+		o = s.taboption('derp', form.ListValue, 'derp_acme_provider', _('DERP ACME provider'));
+		o.value('letsencrypt', _('Let\'s Encrypt'));
+		o.value('zerossl', _('ZeroSSL'));
+		o.default = 'letsencrypt';
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_tls_mode: 'acme' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_acme_http_port', _('DERP ACME alternative HTTP port'));
+		o.datatype = 'port';
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_tls_mode: 'acme' });
+
+		o = s.taboption('derp', form.Value, 'derp_acme_tls_port', _('DERP ACME alternative TLS port'));
+		o.datatype = 'port';
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_tls_mode: 'acme' });
+	}
+
+		o = s.taboption('derp', form.ListValue, 'derp_home', _('DERP home page'));
+		o.value('', _('Default information page'));
+		o.value('blank', _('Blank page'));
+		o.default = '';
+		o.editable = true;
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.validate = function(sectionId, value) {
+			if (!value || value === 'blank')
+				return true;
+			try {
+				const url = new URL(value);
+				return [ 'http:', 'https:' ].includes(url.protocol) && !!url.hostname ? true :
+					_('Expecting: %s').format(_('blank or valid URL'));
+			} catch (e) {
+				return _('Expecting: %s').format(_('blank or valid URL'));
+			}
+		};
+
+		o = s.taboption('derp', form.DynamicList, 'derp_mesh_server', _('DERP mesh peers'),
+			_('Other DERP servers in host:port format. All mesh peers share the configured PSK.'));
+		o.placeholder = 'derp2.example.com:443';
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = true;
+		o.validate = function(sectionId, value) {
+			const match = String(value || '').match(/^(?:\[[0-9A-Fa-f:]+\]|[A-Za-z0-9._-]+):(\d{1,5})$/);
+			if (value && (!match || Number(match[1]) < 1 || Number(match[1]) > 65535))
+				return _('Expecting: %s').format(_('host:port'));
+			if (value && !this.section.formvalue(sectionId, 'derp_mesh_psk') &&
+			    !this.section.formvalue(sectionId, 'derp_mesh_psk_file'))
+				return _('A mesh PSK or PSK file is required when DERP mesh peers are configured.');
+			return true;
+		};
+
+		o = s.taboption('derp', form.Value, 'derp_mesh_psk', _('DERP mesh PSK'));
+		o.password = true;
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_mesh_psk_file: '' });
+		o.rmempty = true;
+		o.validate = function(sectionId, value) {
+			return !value || /^[0-9a-f]{64}$/.test(value) ? true :
+				_('Expecting: %s').format(_('64 lowercase hexadecimal characters'));
+		};
+
+		o = s.taboption('derp', form.Value, 'derp_mesh_psk_file', _('DERP mesh PSK file'));
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_mesh_psk: '' });
+		o.rmempty = true;
+		o.validate = function(sectionId, value) {
+			return !value || value.startsWith('/') ? true : _('Expecting: %s').format(_('absolute path'));
+		};
+
+		o = s.taboption('derp', form.Flag, 'derp_stun_enabled', _('Enable DERP STUN'));
+		o.default = o.enabled;
+		o.depends({ enabled: '1', derp_server_enabled: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_stun_listen', _('DERP STUN listen address'));
+		o.default = '::';
+		o.datatype = 'ipaddr';
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_stun_enabled: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('derp', form.Value, 'derp_stun_port', _('DERP STUN port'));
+		o.default = '3478';
+		o.datatype = 'port';
+		o.depends({ enabled: '1', derp_server_enabled: '1', derp_stun_enabled: '1' });
+		o.rmempty = false;
 
 		o = s.taboption('authentication', form.Value, 'control_url', _('Control server'),
 			_('Leave blank for the official Tailscale control plane, or enter a Headscale URL.'));
