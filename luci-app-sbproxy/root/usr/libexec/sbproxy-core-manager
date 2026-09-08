@@ -120,42 +120,43 @@ curl_to_file() {
 	return 1
 }
 
-fetch_assets() {
-	tag="$(release_tag)" || return 2
-	api_file="$work_dir/release.json"
-	api_url="https://api.github.com/repos/$REPOSITORY/releases/tags/$tag"
+core_arch() {
+	case "$(apk --print-arch 2>/dev/null)" in
+	aarch64*) printf '%s\n' arm64 ;;
+	x86_64*) printf '%s\n' amd64 ;;
+	*) return 1 ;;
+	esac
+}
 
-	curl_to_file "$api_url" "$api_file" || return 1
-	jsonfilter -i "$api_file" -e '@.assets[*].name' > "$work_dir/names"
-	jsonfilter -i "$api_file" -e '@.assets[*].browser_download_url' > "$work_dir/urls"
-	jsonfilter -i "$api_file" -e '@.assets[*].digest' > "$work_dir/digests"
-	jsonfilter -i "$api_file" -e '@.assets[*].size' > "$work_dir/sizes"
-	jsonfilter -i "$api_file" -e '@.assets[*].created_at' > "$work_dir/created"
+fetch_assets() {
+	arch="$(core_arch)" || return 2
 	assets_file="$work_dir/assets"
 	: > "$assets_file"
-
-	asset_index=0
-	while IFS= read -r name; do
-		asset_index=$((asset_index + 1))
-		url="$(sed -n "${asset_index}p" "$work_dir/urls")"
-		digest="$(sed -n "${asset_index}p" "$work_dir/digests")"
-		size="$(sed -n "${asset_index}p" "$work_dir/sizes")"
-		created="$(sed -n "${asset_index}p" "$work_dir/created")"
-		printf '%s\n' "$name" | grep -Eq \
-			'^sing-box-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.apk$' || continue
-		case "$url" in
-		"https://github.com/$REPOSITORY/releases/download/$tag/"*) ;;
-		*) continue ;;
-		esac
-		printf '%s\n' "$digest" | grep -Eq '^sha256:[0-9a-f]{64}$' || continue
-		case "$size" in
-		''|*[!0-9]*) continue ;;
-		esac
-		printf '%s\t%s\t%s\t%s\t%s\n' \
-			"$name" "$url" "$digest" "$size" "$created" >> "$assets_file"
-	done < "$work_dir/names"
-
+	page=1
+	while :; do
+		api_file="$work_dir/releases-$page.json"
+		curl_to_file "https://api.github.com/repos/$REPOSITORY/releases?per_page=100&page=$page" "$api_file" || return 1
+		ucode /usr/libexec/sbproxy-core-catalog.uc "$api_file" "$arch" >> "$assets_file" || return 1
+		count="$(jsonfilter -i "$api_file" -e '@[*].id' | wc -l | tr -d ' ')"
+		[ "$count" -ge 100 ] || break
+		page=$((page + 1))
+		# Bound router work; do not silently treat a truncated history as complete.
+		[ "$page" -le 100 ] || return 1
+	done
 	[ -s "$assets_file" ]
+}
+
+find_recovery_asset() {
+	wanted="$1"
+	asset_by_name "$wanted" && return 0
+	# One-time transition from firmware/rolling APK builds. This source is ONLY
+	# used to prepare an emergency recovery, never offered for normal installs.
+	tag="$(release_tag)" || return 1
+	arch="$(core_arch)" || return 1
+	legacy_file="$work_dir/legacy-release.json"
+	curl_to_file "https://api.github.com/repos/$REPOSITORY/releases/tags/$tag" "$legacy_file" || return 1
+	ucode /usr/libexec/sbproxy-core-catalog.uc "$legacy_file" "$arch" legacy >> "$assets_file" || return 1
+	asset_by_name "$wanted"
 }
 
 asset_by_name() {
@@ -206,6 +207,7 @@ validate_binary() {
 			return 1
 		}
 	done
+	"$binary" api tailscale route list --help >>"$LOG_FILE" 2>&1 || return 1
 	return 0
 }
 
@@ -222,9 +224,9 @@ validate_configs() {
 	client_config="$work_dir/generated-client.json"
 	server_config="$work_dir/generated-server.json"
 	SBPROXY_CLIENT_CONFIG_PATH="$client_config" \
-		ucode -S /etc/sbproxy/scripts/generate_client.uc >>"$LOG_FILE" 2>&1 || true
+		ucode -S /etc/sbproxy/scripts/generate_client.uc >>"$LOG_FILE" 2>&1 || return 1
 	SBPROXY_SERVER_CONFIG_PATH="$server_config" \
-		ucode -S /etc/sbproxy/scripts/generate_server.uc >>"$LOG_FILE" 2>&1 || true
+		ucode -S /etc/sbproxy/scripts/generate_server.uc >>"$LOG_FILE" 2>&1 || return 1
 	for config in "$client_config" "$server_config"; do
 		[ -s "$config" ] || continue
 		"$binary" check --config "$config" >>"$LOG_FILE" 2>&1 || return 1
@@ -249,6 +251,7 @@ validate_apk() {
 	apk --allow-untrusted extract --destination "$extract_dir" "$file" \
 		>>"$LOG_FILE" 2>&1 || return 1
 	[ -x "$extract_dir/usr/bin/sing-box" ] || return 1
+	[ "$("$extract_dir/usr/bin/sing-box" version -n 2>>"$LOG_FILE")" = "${expected_version%-r*}" ] || return 1
 	validate_binary "$extract_dir/usr/bin/sing-box" || return 1
 	validate_configs "$extract_dir/usr/bin/sing-box" || return 1
 	rm -rf -- "$extract_dir"
@@ -257,8 +260,10 @@ validate_apk() {
 
 wait_for_service() {
 	count=0
+	stable=0
 	while [ "$count" -lt 30 ]; do
-		service_running && return 0
+		if service_running; then stable=$((stable + 1)); else stable=0; fi
+		[ "$stable" -ge 5 ] && return 0
 		sleep 1
 		count=$((count + 1))
 	done
@@ -305,7 +310,7 @@ emit_status() {
 
 	emit manager_supported "$([ -n "$tag" ] && printf 1 || printf 0)"
 	emit repository "$REPOSITORY"
-	emit release_tag "$tag"
+	emit release_tag ""
 	emit system_arch "$system_arch"
 	emit package_arch "$installed_arch"
 	emit package_version "$current_package"
@@ -398,11 +403,9 @@ EOF
 	target_version="${target_version%.apk}"
 	current="$(package_version)"
 	[ -n "$current" ] || fail current_version_unknown 'Unable to determine the installed core package version.'
-	[ "$(apk version --test "$current" "$target_version" 2>/dev/null || true)" = '<' ] || \
-		fail not_an_upgrade 'The selected package is not newer than the installed core.'
 
 	current_name="sing-box-$current.apk"
-	current_asset="$(asset_by_name "$current_name")" || \
+	current_asset="$(find_recovery_asset "$current_name")" || \
 		fail rollback_source_unavailable \
 		'The installed core package is no longer in the trusted release, so a safe rollback cannot be prepared.'
 	IFS="$TAB" read -r current_name current_url current_digest current_size current_created <<EOF
@@ -449,46 +452,12 @@ EOF
 	fi
 
 	log "Core upgrade completed: $current -> $target_version."
-	emit upgraded 1
+	if [ "$action" = 'rollback' ]; then emit rolled_back 1; else emit upgraded 1; fi
 	emit previous_package_version "$current"
 	emit package_version "$target_version"
 	emit download_mode "$last_download_mode"
 }
 
-rollback_core() {
-	[ -s "$ROLLBACK_APK" ] && [ -s "$ROLLBACK_META" ] || \
-		fail rollback_unavailable 'No rollback package is available.'
-	target_version="$(meta_value package_version)"
-	expected_sha="$(meta_value sha256)"
-	[ -n "$target_version" ] && [ -n "$expected_sha" ] || \
-		fail rollback_metadata_invalid 'Rollback metadata is incomplete.'
-	verify_digest "$ROLLBACK_APK" "sha256:$expected_sha" || \
-		fail rollback_checksum_mismatch 'The rollback package failed SHA-256 verification.'
-	rollback_size="$(wc -c < "$ROLLBACK_APK" | tr -d ' ')"
-	ensure_persistent_storage $((rollback_size * 3 + 8 * 1024 * 1024)) || \
-		fail insufficient_storage 'Not enough persistent storage is available to validate the rollback package.'
-	validate_apk "$ROLLBACK_APK" "$target_version" || \
-		fail rollback_rejected 'The rollback package failed metadata, feature, or configuration validation.'
-	current="$(package_version)"
-	[ "$current" != "$target_version" ] || \
-		fail already_rolled_back 'The rollback core is already installed.'
-
-	was_running=0
-	service_running && was_running=1
-	log "Rolling core back from $current to $target_version."
-	if ! install_apk "$ROLLBACK_APK" || \
-	   [ "$(package_version)" != "$target_version" ] || \
-	   ! validate_binary /usr/bin/sing-box || \
-	   ! restart_if_needed "$was_running"; then
-		fail rollback_failed 'Core rollback failed. Check the core manager log immediately.'
-	fi
-
-	rm -f -- "$ROLLBACK_APK" "$ROLLBACK_META"
-	log "Core rollback completed: $current -> $target_version."
-	emit rolled_back 1
-	emit previous_package_version "$current"
-	emit package_version "$target_version"
-}
 
 action="${1:-status}"
 mkdir -p "$STATE_DIR" "$(dirname "$LOCK_FILE")" "$(dirname "$LOG_FILE")"
@@ -510,12 +479,8 @@ upgrade|rollback)
 	: > "$LOG_FILE"
 	work_dir="$(mktemp -d "$STATE_DIR/.work.XXXXXX")" || fail temporary_directory_failed \
 		'Unable to create a temporary directory.'
-	if [ "$action" = 'upgrade' ]; then
-		[ "$#" -eq 2 ] || fail invalid_target 'A core package must be selected.'
-		upgrade_core "$2"
-	else
-		rollback_core
-	fi
+	[ "$#" -eq 2 ] || fail invalid_target 'A repository core version must be selected.'
+	upgrade_core "$2"
 	;;
 *)
 	fail invalid_action 'Unsupported core manager action.'

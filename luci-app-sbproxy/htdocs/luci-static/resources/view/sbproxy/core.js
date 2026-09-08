@@ -30,6 +30,7 @@ const callCoreUpgrade = rpc.declare({
 const callCoreRollback = rpc.declare({
 	object: 'luci.sbproxy',
 	method: 'core_rollback',
+	params: [ 'target' ],
 	expect: { '': {} }
 });
 
@@ -95,8 +96,7 @@ function resultMessage(result) {
 }
 
 function statusTable(status) {
-	const sourceUrl = status.release_tag ?
-		'https://github.com/%s/releases/tag/%s'.format(status.repository, status.release_tag) : null;
+	const sourceUrl = 'https://github.com/%s/releases'.format(status.repository);
 	const required = status.required_tags || [];
 	const tags = status.tags || [];
 	const featuresReady = required.length > 0 && required.every((tag) => tags.includes(tag));
@@ -110,7 +110,7 @@ function statusTable(status) {
 		[ _('SBProxy service'), statusText(status.service_running, _('Running'), _('Stopped')) ],
 		[ _('Build features'), tags.length ? tags.join(', ') : '-' ],
 		[ _('Required features'), statusText(featuresReady, _('Complete'), _('Missing')) ],
-		[ _('Rollback package'), rollback ],
+		[ _('Emergency recovery package'), rollback ],
 		[ _('Persistent storage available'), formatKiB(status.overlay_available_kb) ],
 		[ _('Temporary storage available'), formatKiB(status.tmp_available_kb) ],
 		[ _('Package source'), sourceUrl ? E('a', {
@@ -231,7 +231,7 @@ return view.extend({
 
 	render(status) {
 		const updateInfo = E('div', { 'class': 'cbi-section-descr' }, [
-			_('Check for a newer stable core from the trusted SBProxy package release.')
+			_('Select a published SBProxy core version to upgrade, reinstall or roll back. Historical versions are downloaded from GitHub; no local rollback backup is required.')
 		]);
 		const selector = E('select', {
 			'class': 'cbi-input-select',
@@ -251,7 +251,7 @@ return view.extend({
 						this.runOperation(_('Upgrade sing-box core'), callCoreUpgrade(target),
 							_('The sing-box core was upgraded to %s successfully.')));
 			}
-		}, [ _('Upgrade') ]);
+		}, [ _('Install / reinstall') ]);
 		const checkButton = E('button', {
 			'class': 'btn cbi-button cbi-button-action',
 			'disabled': (status.busy || status.manager_supported === false) ? '' : null,
@@ -263,19 +263,22 @@ return view.extend({
 						dom.content(updateInfo, E('span', { 'style': 'color:red' }, [ resultMessage(result) ]));
 						return;
 					}
-					const newer = (result.assets || []).filter((asset) => asset.relation === 'newer')
-						.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
-					dom.content(selector, newer.length ? newer.map((asset) => E('option', {
+					const versions = (result.assets || []).sort((a, b) =>
+						b.package_version.localeCompare(a.package_version, undefined, { numeric: true }));
+					dom.content(selector, versions.length ? versions.map((asset) => E('option', {
 						'value': asset.filename
 					}, [ _('%s · %s · %s').format(asset.package_version,
 						formatBytes(asset.size), formatDate(asset.created_at)) ])) :
-						E('option', { 'value': '' }, [ _('Already at the latest stable version') ]));
-					selector.disabled = newer.length ? false : true;
-					upgradeButton.disabled = newer.length ? false : true;
-					dom.content(updateInfo, newer.length ?
-						_('Latest stable package: %s').format(result.latest_package_version || newer[0].package_version) :
-						_('The installed core is already the latest stable package (%s).')
-							.format(result.package_version || result.latest_package_version || '-'));
+						E('option', { 'value': '' }, [ _('No published compatible core versions were found.') ]));
+					selector.disabled = !versions.length;
+					const selectionChanged = () => {
+						const selected = versions.find((asset) => asset.filename === selector.value);
+						upgradeButton.disabled = !selected || selected.relation === 'older';
+						rollbackButton.disabled = !selected || selected.relation !== 'older';
+					};
+					selector.onchange = selectionChanged;
+					selectionChanged();
+					dom.content(updateInfo, _('Latest stable package: %s').format(result.latest_package_version || '-'));
 				}).finally(() => {
 					checkButton.disabled = false;
 				});
@@ -283,11 +286,11 @@ return view.extend({
 		}, [ _('Check for updates') ]);
 		const rollbackButton = E('button', {
 			'class': 'btn cbi-button cbi-button-negative',
-			'disabled': (!status.rollback_available || status.busy || status.manager_supported === false) ? '' : null,
+			'disabled': '',
 			'click': () => this.confirmOperation(_('Roll back sing-box core'),
 				_('Roll back the sing-box core to %s?').format(
-					status.rollback_package_version || status.rollback_version || '-'), () =>
-					this.runOperation(_('Roll back sing-box core'), callCoreRollback(),
+					selector.options[selector.selectedIndex]?.textContent || selector.value), () =>
+					this.runOperation(_('Roll back sing-box core'), callCoreRollback(selector.value),
 						_('The sing-box core was rolled back to %s successfully.')))
 		}, [ _('Roll back') ]);
 
@@ -319,17 +322,15 @@ return view.extend({
 				E('div', { 'style': 'display:flex;gap:.5em;align-items:center;flex-wrap:wrap;margin-top:1em' }, [
 					checkButton,
 					selector,
-					upgradeButton
+					upgradeButton,
+					rollbackButton
 				])
 			]),
 			E('div', { 'class': 'cbi-section' }, [
 				E('h3', {}, [ _('Rollback') ]),
 				E('div', { 'class': 'cbi-section-descr' }, [
-					status.rollback_available ?
-						_('One previous verified package is stored locally for rollback.') :
-						_('A rollback package will be created automatically before the first managed upgrade.')
+					_('Select an older version above to roll back from GitHub. Before switching, an emergency recovery package is downloaded so a failed core can be restored without network access. Incompatible configurations block installation.')
 				]),
-				E('div', { 'style': 'margin-top:1em' }, [ rollbackButton ])
 			])
 		]);
 	},

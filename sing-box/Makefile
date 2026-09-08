@@ -14,12 +14,33 @@ PKG_SOURCE_URL:=https://codeload.github.com/SagerNet/sing-box/tar.gz/v$(PKG_UPST
 PKG_HASH:=87baf6852e37941cbe40bdd94bec81c957c88a56751cecd6bbf0e6108bc69398
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_UPSTREAM_VERSION)
 
+# Written only after both architectures have been published successfully.
+# No pin yet (bootstrap), unsupported targets and tiny/custom builds use source.
+-include ./core-prebuilt.mk
+CORE_ARCH:=$(if $(filter aarch64,$(ARCH)),arm64,$(if $(filter x86_64,$(ARCH)),amd64))
+CORE_PREBUILT:=$(if $(filter $(PKG_VERSION)-r$(PKG_RELEASE),$(CORE_PIN_VERSION)),$(CORE_SHA256_$(CORE_ARCH)))
+ifneq ($(filter 1 y,$(SBPROXY_CORE_SOURCE_BUILD) $(CONFIG_SING_BOX_BUILD_FROM_SOURCE)),)
+  CORE_PREBUILT:=
+endif
+ifneq ($(filter tiny,$(BUILD_VARIANT)),)
+  CORE_PREBUILT:=
+endif
+ifneq ($(CORE_PREBUILT),)
+  PKG_SOURCE:=sing-box-$(PKG_VERSION)-r$(PKG_RELEASE)-linux-$(CORE_ARCH).tar.gz
+  PKG_SOURCE_URL:=https://github.com/welenwho/packages/releases/download/sbproxy-core-v$(CORE_PIN_VERSION)
+  PKG_HASH:=$(CORE_PREBUILT)
+  PKG_BUILD_DIR:=$(BUILD_DIR)/sing-box-$(PKG_VERSION)-r$(PKG_RELEASE)-linux-$(CORE_ARCH)
+  # The archive already contains the patched core.
+  PATCH_DIR:=/nonexistent-sbproxy-prebuilt-patches
+endif
+
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 PKG_CPE_ID:=cpe:/a:sagernet:sing-box
 
 PKG_CONFIG_DEPENDS:= \
+	CONFIG_SING_BOX_BUILD_FROM_SOURCE \
 	CONFIG_SING_BOX_TINY_BUILD_ACME \
 	CONFIG_SING_BOX_TINY_BUILD_CLASH_API \
 	CONFIG_SING_BOX_TINY_BUILD_DHCP \
@@ -32,7 +53,9 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_SING_BOX_TINY_BUILD_V2RAY_API \
 	CONFIG_SING_BOX_TINY_BUILD_WIREGUARD
 
-PKG_BUILD_DEPENDS:=golang/host
+ifeq ($(CORE_PREBUILT),)
+  PKG_BUILD_DEPENDS:=golang/host
+endif
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
@@ -45,7 +68,21 @@ TAILSCALE_MODULE_VERSION:=v1.102.1-sing-box-1.14-mod.3
 TAILSCALE_MODULE:=github.com/sagernet/tailscale@$(TAILSCALE_MODULE_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
+ifeq ($(CORE_PREBUILT),)
 include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
+# Release binaries use a baseline CPU and no libc dependency. Firmware builds
+# of other packages remain unaffected by these package-local overrides.
+ifeq ($(SBPROXY_CORE_SOURCE_BUILD),1)
+GO_PKG_TARGET_VARS+=CGO_ENABLED=0 GOAMD64=v1 GOARM64=v8.0
+GO_PKG_DEFAULT_LDFLAGS:=
+GO_PKG_ENABLE_PIE:=
+endif
+else
+GO_ARCH_DEPENDS:=@aarch64||x86_64
+# SDK Go packaging has already stripped this binary. Generic sstrip corrupts
+# Go ELF headers on some targets; do not strip a verified archive a second time.
+STRIP:=true
+endif
 
 TAILSCALE_MODULE_DIR:=$(GO_MOD_CACHE_DIR)/github.com/sagernet/tailscale@$(TAILSCALE_MODULE_VERSION)
 
@@ -75,6 +112,9 @@ endef
 
 define Package/sing-box/config
   depends on $(subst @,,$(GO_ARCH_DEPENDS))
+  config SING_BOX_BUILD_FROM_SOURCE
+    bool "Build sing-box from source instead of using the pinned SBProxy core"
+    default n
 endef
 
 define Package/sing-box-tiny
@@ -87,7 +127,7 @@ endef
 Package/sing-box-tiny/description:=$(Package/sing-box/description)
 
 define Package/sing-box-tiny/config
-  $(call Package/sing-box/config)
+  depends on $(subst @,,$(GO_ARCH_DEPENDS))
 
   if PACKAGE_sing-box-tiny
     config SING_BOX_TINY_BUILD_ACME
@@ -158,6 +198,7 @@ endif
 # the private connPool symbol referenced by sing-box's v2ray HTTP transport.
 GO_PKG_TAGS:=http2legacy,$(GO_PKG_TAGS)
 
+ifeq ($(CORE_PREBUILT),)
 define Build/Configure
 	cd $(PKG_BUILD_DIR) && \
 		$(GO_BIN_PATH) $(GO_PKG_BUILD_VARS) go mod download $(GO_MOD_ARGS) $(TAILSCALE_MODULE)
@@ -171,6 +212,12 @@ define Build/Configure
 		-replace github.com/sagernet/tailscale=./third_party/tailscale
 	$(call GoPackage/Build/Configure)
 endef
+else
+define Build/Configure
+endef
+define Build/Compile
+endef
+endif
 
 define Package/sing-box/conffiles
 /etc/config/sing-box
@@ -180,6 +227,10 @@ endef
 Package/sing-box-tiny/conffiles=$(Package/sing-box/conffiles)
 
 define Package/sing-box/install
+	$(if $(CORE_PREBUILT),$(INSTALL_DIR) $(1)/usr/bin)
+	$(if $(CORE_PREBUILT),$(INSTALL_BIN) $(PKG_BUILD_DIR)/sing-box $(1)/usr/bin/sing-box)
+	$(if $(CORE_PREBUILT),$(INSTALL_DIR) $(1)/usr/share/sbproxy)
+	$(if $(CORE_PREBUILT),$(INSTALL_DATA) $(PKG_BUILD_DIR)/SBP_BUILD_INFO $(1)/usr/share/sbproxy/core-build.json)
 	$(call GoPackage/Package/Install/Bin,$(1))
 
 	$(INSTALL_DIR) $(1)/etc/sing-box

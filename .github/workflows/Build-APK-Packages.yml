@@ -14,6 +14,15 @@ on:
         type: string
   workflow_call:
     inputs:
+      core_version:
+        description: Internal versioned core build; blank uses pinned packages
+        required: false
+        default: ''
+        type: string
+      core_revision:
+        required: false
+        default: ''
+        type: string
       source_sha:
         description: 待编译的精确提交 SHA
         required: true
@@ -99,7 +108,14 @@ jobs:
           sudo apt-get -qq install --no-install-recommends \
             build-essential clang flex bison g++ gawk gettext git \
             libelf-dev libncurses-dev libssl-dev python3 python3-setuptools \
-            rsync swig time unzip wget xsltproc zip zlib1g-dev zstd
+            rsync swig time unzip wget xsltproc zip zlib1g-dev zstd qemu-user-static
+
+      - name: 准备独立核心源码版本
+        if: inputs.core_version != ''
+        env:
+          CORE_VERSION: ${{ inputs.core_version }}
+          CORE_REVISION: ${{ inputs.core_revision }}
+        run: python3 .github/scripts/core-release.py prepare "$CORE_VERSION" "$CORE_REVISION"
 
       - name: 验证软件包文件权限
         env:
@@ -107,7 +123,7 @@ jobs:
         run: |
           IFS=',' read -ra selected_packages <<< "$PACKAGES"
           .github/scripts/fix-package-permissions.sh "${selected_packages[@]}"
-          git diff --exit-code
+          git diff --exit-code -- . ':!sing-box/Makefile'
 
       - name: 确定 ImmortalWrt SDK
         id: sdk
@@ -184,6 +200,7 @@ jobs:
       - name: 编译 ${{ matrix.platform_name }} APK
         env:
           PACKAGES: ${{ needs.resolve.outputs.packages }}
+          SBPROXY_CORE_SOURCE_BUILD: ${{ inputs.core_version != '' && '1' || '0' }}
         run: |
           IFS=',' read -ra selected_packages <<< "$PACKAGES"
           .github/scripts/build-apk-packages.sh \
@@ -192,6 +209,27 @@ jobs:
             '${{ matrix.target }}' \
             '${{ matrix.subtarget }}' \
             "${selected_packages[@]}"
+
+      - name: 导出并验证独立核心
+        if: inputs.core_version != ''
+        env:
+          CORE_VERSION: ${{ inputs.core_version }}
+          CORE_REVISION: ${{ inputs.core_revision }}
+          CORE_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          bash .github/scripts/export-core.sh "$SDK_ROOT" "$RUNNER_TEMP/apk-output" \
+            "$RUNNER_TEMP/core-output" '${{ matrix.platform }}' "$CORE_VERSION" "$CORE_REVISION"
+
+      - uses: actions/upload-artifact@v4
+        if: inputs.core_version != ''
+        with:
+          name: sbproxy-core-${{ matrix.platform }}
+          path: |
+            ${{ runner.temp }}/core-output/*.tar.gz
+            ${{ runner.temp }}/core-output/*.apk
+            ${{ runner.temp }}/core-output/core-*.json
+          if-no-files-found: error
+          retention-days: 7
 
       - name: 上传 ${{ matrix.platform_name }} 编译结果
         uses: actions/upload-artifact@main
@@ -203,6 +241,7 @@ jobs:
 
   publish:
     name: 发布 ${{ matrix.platform_name }} APK
+    if: inputs.core_version == ''
     needs:
       - resolve
       - build
