@@ -1,0 +1,5 @@
+# Generated after successful immutable core publication. Do not edit hashes.
+CORE_PIN_VERSION:=1.14.0-r2
+CORE_FINGERPRINT:=8a2604afac3c70fd9225293a4cdd467789b8136a285c338a7459d8d325b265e7
+CORE_SHA256_arm64:=3a64fbccbf6be22ac4a2a37e40660755a3d08fba1645c2c13cb1e0d319ae4fe5
+CORE_SHA256_amd64:=ba5360e1d783031a556fcfb2577838c801d64be71d3c57080e36a74b8f13492d

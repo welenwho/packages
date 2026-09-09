@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=sing-box
 PKG_UPSTREAM_VERSION:=1.14.0
 PKG_VERSION:=1.14.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/SagerNet/sing-box/tar.gz/v$(PKG_UPSTREAM_VERSION)?
@@ -64,7 +64,7 @@ GO_PKG_BUILD_PKG:=$(GO_PKG)/cmd/sing-box
 GO_PKG_LDFLAGS_X:=$(GO_PKG)/constant.Version=$(PKG_UPSTREAM_VERSION)
 GO_PKG_INSTALL_EXTRA:=third_party/tailscale
 
-TAILSCALE_MODULE_VERSION:=v1.102.1-sing-box-1.14-mod.3
+TAILSCALE_MODULE_VERSION:=v1.102.1-sing-box-1.14-mod.4
 TAILSCALE_MODULE:=github.com/sagernet/tailscale@$(TAILSCALE_MODULE_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
