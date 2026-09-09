@@ -513,6 +513,13 @@ function mutateAdaptiveRules(remove_target) {
 }
 
 const methods = {
+	ingress_status: {
+		call: function() {
+			const result = runCommand('ucode /etc/sbproxy/scripts/ingress_status.uc');
+			try { return json(result.output); }
+			catch(e) { return { error: 'Unable to read ingress policy status' }; }
+		}
+	},
 	core_status: {
 		call: function() {
 			return coreManagerCall('status');

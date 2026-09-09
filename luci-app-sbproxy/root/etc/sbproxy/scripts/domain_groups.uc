@@ -22,10 +22,15 @@ export function loadDomainGroups(uci, config, mode) {
 		if (!length(domains)) return;
 		let node = section.node || '_main';
 		if (!(node in ['_main', '_direct']) && uci.get(config, node) !== 'node') {
-			if (section.missing_node_action !== 'main')
-				die('Diversion group selects an unavailable node: ' + (section.label || section['.name']));
-			warn('Diversion group explicitly falls back to main node: ' + section['.name'] + '\n');
-			node = '_main';
+			if (section.missing_node_action === 'reject') {
+				warn('Rejecting unavailable diversion group: ' + section['.name'] + '\n');
+				node = '_reject';
+			} else {
+				if (section.missing_node_action !== 'main')
+					die('Diversion group selects an unavailable node: ' + (section.label || section['.name']));
+				warn('Diversion group explicitly falls back to main node: ' + section['.name'] + '\n');
+				node = '_main';
+			}
 		}
 		push(groups, { id: section['.name'], label: section.label || section['.name'], node,
 			suffixes: filter(domains, (d) => index(d, '.') !== -1),

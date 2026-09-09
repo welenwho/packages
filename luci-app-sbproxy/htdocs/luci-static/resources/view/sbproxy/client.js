@@ -6,6 +6,7 @@
 
 'use strict';
 'require form';
+'require dom';
 'require network';
 'require poll';
 'require rpc';
@@ -15,9 +16,70 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-1-r6 as adaptive';
+'require sbproxy-adaptive-1-0-1-r7 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
+
+/* Diversion helpers start — also exercised by frontend regression tests. */
+function normalizeDiversionDomains(value) {
+	const content = Array.isArray(value) ? value.join('\n') : String(value || '');
+	return Array.from(new Set(content.split(/[\r\n]+/)
+		.map((v) => v.trim()).filter((v) => v && !v.startsWith('#'))
+		.map((v) => v.toLowerCase().replace(/^\.+|\.+$/g, ''))));
+}
+
+function diversionOverlap(groups) {
+	const suffixes = new Map(), descendants = new Map(), keywords = [];
+	const conflict = (old, group, domain) => ({ first: old.label || old.id, second: group.label || group.id, domain });
+	for (const group of groups) {
+		if (!group.enabled) continue;
+		for (const value of normalizeDiversionDomains(group.domains)) {
+			if (value.includes('.')) {
+				const child = descendants.get(value);
+				if (child && child.id !== group.id) return conflict(child, group, value);
+				const parts = value.split('.');
+				for (let i = 0; i < parts.length; i++) {
+					const parent = parts.slice(i).join('.');
+					const old = suffixes.get(parent);
+					if (old && old.id !== group.id) return conflict(old, group, value);
+					if (!descendants.has(parent)) descendants.set(parent, group);
+				}
+				for (const old of keywords)
+					if (old.id !== group.id && value.includes(old.value)) return conflict(old, group, value);
+				if (!suffixes.has(value)) suffixes.set(value, group);
+			} else {
+				for (const [suffix, old] of suffixes)
+					if (old.id !== group.id && suffix.includes(value)) return conflict(old, group, value);
+				for (const old of keywords)
+					if (old.id !== group.id && (value.includes(old.value) || old.value.includes(value))) return conflict(old, group, value);
+				keywords.push({ ...group, value });
+			}
+		}
+	}
+	return null;
+}
+/* Diversion helpers end */
+
+const callIngressStatus = rpc.declare({ object: 'luci.sbproxy', method: 'ingress_status', expect: { '': {} } });
+
+function ingressStatusContent(status) {
+	const rows = (status.sources || []).map((source) => E('tr', { 'class': 'tr' }, [
+		E('td', { 'class': 'td' }, [source.label]),
+		E('td', { 'class': 'td' }, [source.device || '-']),
+		E('td', { 'class': 'td' }, [source.online ? _('Online') : (source.present ? _('Offline') : _('Waiting for interface'))])
+	]));
+	return [
+		E('p', {}, [_('Ingress rules: %s').format(status.applied ? _('Applied') : _('Not applied'))]),
+		E('table', { 'class': 'table' }, [
+			E('tr', { 'class': 'tr table-titles' }, [_('Source'), _('Device'), _('Status')].map((s) => E('th', { 'class': 'th' }, [s]))),
+			...rows
+		]),
+		E('p', {}, [_('Bridge matches: %s; bypassed packets: %s; DNS redirections: %s').format(status.bridge_packets || 0, status.bypassed_packets || 0, status.dns_redirections || 0)]),
+		E('p', { 'class': 'cbi-section-descr' }, [_('Counters cover packets seen by nftables; hardware-offloaded packets may not be counted.')]),
+		E('p', {}, [_('Last applied: %s').format(status.last_applied ? new Date(status.last_applied * 1000).toLocaleString() : '-')]),
+		status.error || status.last_error ? E('p', { 'class': 'alert-message warning' }, [status.error || status.last_error]) : ''
+	];
+}
 
 const callReadDomainList = rpc.declare({
 	object: 'luci.sbproxy',
@@ -86,12 +148,14 @@ let stubValidator = {
 
 return view.extend({
 	load() {
+		const config = uci.load('sbproxy');
 		return Promise.all([
-			uci.load('sbproxy'),
+			config,
 			sb.getBuiltinFeatures(),
 			network.getHostHints(),
 			adaptive.loadStatus(),
-			uci.load('wireless')
+			uci.load('wireless'),
+			config.then(() => uci.get('sbproxy', 'control', 'ingress_enabled') === '1' ? L.resolveDefault(callIngressStatus(), {}) : {})
 		]);
 	},
 
@@ -537,25 +601,45 @@ return view.extend({
 		go.rmempty = false;
 		go = groups.option(form.ListValue, 'missing_node_action', _('When the selected node is unavailable'));
 		go.value('error', _('Stop with a configuration error'));
+		go.value('reject', _('Reject only this group'));
 		go.value('main', _('Use the main node'));
 		go.default = 'error';
 		go.rmempty = false;
 		go.modalonly = true;
+		function updateDiversionWarning(section_id, value) {
+			const rows = groups.cfgsections().map((id) => ({
+				id, label: groups.formvalue(id, 'label') ?? uci.get('sbproxy', id, 'label'),
+				enabled: (groups.formvalue(id, 'enabled') ?? uci.get('sbproxy', id, 'enabled')) === '1',
+				domains: id === section_id ? value : (groups.formvalue(id, 'domains') ?? uci.get('sbproxy', id, 'domains'))
+			}));
+			const overlap = diversionOverlap(rows);
+			const message = overlap ? _('Overlap at %s: %s takes priority over %s.').format(overlap.domain, overlap.first, overlap.second) :
+				_('No overlapping groups detected.');
+			for (const el of document.querySelectorAll('[data-sbproxy-diversion-warning]')) {
+				el.textContent = message;
+				el.className = overlap ? 'alert-message warning' : 'cbi-section-descr';
+			}
+			return message;
+		}
+		let warning = groups.option(form.DummyValue, '_diversion_warning', _('Group overlap'));
+		warning.modalonly = true;
+		warning.renderWidget = function() {
+			return E('div', { 'data-sbproxy-diversion-warning': '', 'class': 'cbi-section-descr' }, [updateDiversionWarning()]);
+		};
 		go = groups.option(form.TextValue, 'domains', _('Domain List'),
 			_('One domain per line. Dotted entries match domain suffixes; other entries match keywords. Comments beginning with # are ignored. Overlapping groups are allowed: the first match wins and a warning is logged.'));
 		go.rows = 10;
 		go.monospace = true;
 		go.modalonly = true;
-		const normalizeGroup = (value) => Array.from(new Set(String(value || '').split(/[\\r\\n]+/)
-			.map((v) => v.trim()).filter((v) => v && !v.startsWith('#'))
-			.map((v) => v.toLowerCase().replace(/^\\.+|\\.+$/g, ''))));
+
 		go.cfgvalue = function(section_id) {
-			return L.toArray(uci.get('sbproxy', section_id, 'domains')).join('\\n');
+			return L.toArray(uci.get('sbproxy', section_id, 'domains')).join('\n');
 		};
-		go.write = function(section_id, value) { uci.set('sbproxy', section_id, 'domains', normalizeGroup(value)); };
+		go.write = function(section_id, value) { uci.set('sbproxy', section_id, 'domains', normalizeDiversionDomains(value)); };
 		go.validate = function(section_id, value) {
 			if (this.section.formvalue(section_id, 'enabled') !== '1') return true;
-			for (const d of normalizeGroup(value))
+			updateDiversionWarning(section_id, value);
+			for (const d of normalizeDiversionDomains(value))
 				if (!d || !stubValidator.apply('hostname', d)) return _('Invalid domain entry: %s').format(d);
 			return true;
 		};
@@ -1728,6 +1812,18 @@ return view.extend({
 		so.depends('ingress_enabled', '1');
 		so.rawhtml = false;
 		so.cfgvalue = () => _('Selected sources use direct upstream DNS for ordinary port-53 queries; local names and reverse lookups remain with dnsmasq. Existing or hardware-accelerated connections may keep their previous path: reconnect clients after changing policy. Disabling this option removes only SBProxy ingress rules.');
+
+		so = ss.taboption('ingress', form.DummyValue, '_ingress_status', _('Ingress policy status'));
+		so.depends('ingress_enabled', '1');
+		so.renderWidget = function() {
+			return E('div', { id: 'sbproxy-ingress-runtime' }, ingressStatusContent(data[5] || {}));
+		};
+		poll.add(function() {
+			const element = document.getElementById('sbproxy-ingress-runtime');
+			if (!element || element.offsetParent === null || document.hidden) return Promise.resolve();
+			return L.resolveDefault(callIngressStatus(), { error: _('Unable to read ingress policy status') })
+				.then((status) => { if (element.isConnected) dom.content(element, ingressStatusContent(status)); });
+		}, 10);
 
 		/* LAN IP policy start */
 		ss.tab('lan_ip_policy', _('LAN IP Policy'));

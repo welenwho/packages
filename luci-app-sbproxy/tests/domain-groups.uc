@@ -21,4 +21,6 @@ try { loadDomainGroups(uci, 'sbproxy', 'bypass_mainland_china'); } catch(e) { re
 assert(rejected, 'Missing node must not silently change egress');
 sections[0].missing_node_action = 'main';
 assert(loadDomainGroups(uci, 'sbproxy', 'bypass_mainland_china')[0].node === '_main', 'Explicit fallback failed');
+sections[0].missing_node_action = 'reject';
+assert(loadDomainGroups(uci, 'sbproxy', 'bypass_mainland_china')[0].node === '_reject', 'Reject-only group must not stop the client');
 print('Domain group tests passed\n');

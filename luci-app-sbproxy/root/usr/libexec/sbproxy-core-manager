@@ -17,6 +17,8 @@ TAB="$(printf '\t')"
 work_dir=''
 assets_file=''
 last_download_mode=''
+expected_instances=''
+expected_health=''
 
 cleanup() {
 	[ -z "$work_dir" ] || rm -rf -- "$work_dir"
@@ -65,7 +67,19 @@ core_tags() {
 }
 
 service_running() {
-	/etc/init.d/sbproxy running >/dev/null 2>&1
+	/etc/init.d/sbproxy running sing-box-c >/dev/null 2>&1 ||
+		/etc/init.d/sbproxy running sing-box-s >/dev/null 2>&1
+}
+
+capture_expected_cores() {
+	expected_health="$work_dir/expected-cores.json"
+	ucode /etc/sbproxy/scripts/check_core_health.uc snapshot > "$expected_health" 2>>"$LOG_FILE" || return 1
+	jsonfilter -i "$expected_health" -e '@.instances' >/dev/null || return 1
+	expected_instances="$(jsonfilter -i "$expected_health" -e '@.instances[*].name' || true)"
+}
+
+health_signature() {
+	ucode /etc/sbproxy/scripts/check_core_health.uc check "$expected_health" 2>>"$LOG_FILE"
 }
 
 release_tag() {
@@ -87,7 +101,7 @@ preferred_proxy() {
 	case "$port" in
 	''|*[!0-9]*) return 1 ;;
 	esac
-	service_running || return 1
+	/etc/init.d/sbproxy running sing-box-c >/dev/null 2>&1 || return 1
 	printf 'http://127.0.0.1:%s\n' "$port"
 }
 
@@ -261,8 +275,15 @@ validate_apk() {
 wait_for_service() {
 	count=0
 	stable=0
+	last_signature=''
 	while [ "$count" -lt 30 ]; do
-		if service_running; then stable=$((stable + 1)); else stable=0; fi
+		if signature="$(health_signature)" && [ -n "$signature" ]; then
+			if [ "$signature" = "$last_signature" ]; then stable=$((stable + 1)); else stable=1; fi
+			last_signature="$signature"
+		else
+			stable=0
+			last_signature=''
+		fi
 		[ "$stable" -ge 5 ] && return 0
 		sleep 1
 		count=$((count + 1))
@@ -435,8 +456,9 @@ EOF
 	save_rollback "$work_dir/rollback.apk" "$current" "$current_digest" \
 		"$current_url" "$current_created"
 
+	capture_expected_cores || fail health_snapshot_failed 'Unable to capture the expected core instances.'
 	was_running=0
-	service_running && was_running=1
+	[ -z "$expected_instances" ] || was_running=1
 	if ! install_apk "$candidate_apk" || \
 	   [ "$(package_version)" != "$target_version" ] || \
 	   ! validate_binary /usr/bin/sing-box || \

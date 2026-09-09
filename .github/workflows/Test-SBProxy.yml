@@ -1,0 +1,35 @@
+name: SBProxy regression tests
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'luci-app-sbproxy/**'
+      - 'sing-box/tests/**'
+      - '.github/scripts/prepare-rule-set-tool.sh'
+      - '.github/workflows/Test-SBProxy.yml'
+  pull_request:
+    paths:
+      - 'luci-app-sbproxy/**'
+      - 'sing-box/tests/**'
+      - '.github/scripts/prepare-rule-set-tool.sh'
+      - '.github/workflows/Test-SBProxy.yml'
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Frontend conversion, save/read and overlap tests
+        run: node luci-app-sbproxy/tests/test-diversion-frontend.mjs
+      - name: Core health, rollback, ingress and resource transaction tests
+        run: |
+          set -e
+          for test_file in luci-app-sbproxy/tests/test-*.py; do python3 "$test_file"; done
+      - name: Verified tool cache tests
+        run: python3 sing-box/tests/test-rule-tool-cache.py
+      - name: Static integration tests
+        run: |
+          set -e
+          for test_file in luci-app-sbproxy/tests/static-*.sh; do sh "$test_file"; done

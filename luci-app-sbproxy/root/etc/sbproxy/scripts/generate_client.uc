@@ -819,8 +819,12 @@ if (ingress_enabled) {
 }
 
 if (length(domain_groups)) {
-	let group_resolvers = {};
+	let group_resolvers = { 'main-out': 'main-dns' };
 	for (let group in domain_groups) {
+		if (group.node === '_reject') {
+			push(config.dns.rules, { ...group_match(group), action: 'predefined', rcode: 'REFUSED' });
+			continue;
+		}
 		const outbound = group_outbound(group);
 		let server = 'default-dns';
 		if (outbound !== 'direct-out') {
@@ -1238,6 +1242,7 @@ if (adaptive_enabled) {
 }
 
 for (let group in domain_groups) {
+	if (group.node === '_reject') continue;
 	const tag = group_outbound(group);
 	if (length(filter([...config.outbounds, ...config.endpoints], (out) => out.tag === tag))) continue;
 	const node = uci.get_all(uciconfig, group.node);
@@ -1299,7 +1304,8 @@ if (!isEmpty(main_node)) {
 	if (!groups_need_sniff) {
 		for (let group in domain_groups) {
 			const match = tun_match(group_match(group));
-			if (group.node === '_direct') push_bypass(config.route.rules, match);
+			if (group.node === '_reject') push(config.route.rules, { ...match, action: 'reject' });
+			else if (group.node === '_direct') push_bypass(config.route.rules, match);
 			else push_route(config.route.rules, match, group_outbound(group));
 		}
 		if (length(direct_domain_list))
@@ -1316,7 +1322,9 @@ if (!isEmpty(main_node)) {
 	add_control_rules(config.route.rules, 'main-out');
 
 	for (let group in domain_groups)
-		push(config.route.rules, { ...group_match(group), action: 'route', outbound: group_outbound(group) });
+		push(config.route.rules, group.node === '_reject' ?
+			{ ...group_match(group), action: 'reject' } :
+			{ ...group_match(group), action: 'route', outbound: group_outbound(group) });
 
 	/* Direct list */
 	if (length(direct_domain_list))

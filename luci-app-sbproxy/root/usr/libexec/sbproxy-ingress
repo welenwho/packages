@@ -39,16 +39,23 @@ if [ "$action" = start ]; then touch "$active"; fi
 [ -f "$active" ] || exit 0
 temp="$(mktemp "$runtime/ingress.XXXXXX")"
 batch="${temp}.batch"
-trap 'rm -f "$temp" "$batch"' EXIT
-ucode "$generator" > "$temp"
+error="${temp}.error"
+trap 'rm -f "$temp" "$batch" "$error"' EXIT
+if ! ucode "$generator" > "$temp" 2>"$error"; then
+	cp "$error" "$runtime/ingress.error"
+	cat "$error" >&2
+	exit 1
+fi
 if [ ! -s "$temp" ]; then
 	remove_tables
 	rm -f "$rules"
+	rm -f "$runtime/ingress.error"
 	exit 0
 fi
 if cmp -s "$temp" "$rules" &&
    nft list table bridge sbproxy_ingress >/dev/null 2>&1 &&
    nft list table inet sbproxy_ingress >/dev/null 2>&1; then
+	rm -f "$runtime/ingress.error"
 	exit 0
 fi
 for family in bridge inet; do
@@ -57,6 +64,12 @@ for family in bridge inet; do
 	fi
 done
 cat "$temp" >> "$batch"
-nft -c -f "$batch"
-nft -f "$batch"
+if ! nft -c -f "$batch" 2>"$error" || ! nft -f "$batch" 2>"$error"; then
+	[ -s "$error" ] || printf '%s\n' 'Unable to apply ingress nftables rules' > "$error"
+	cp "$error" "$runtime/ingress.error"
+	cat "$error" >&2
+	exit 1
+fi
 mv "$temp" "$rules"
+date +%s > "$runtime/ingress.applied_at"
+rm -f "$runtime/ingress.error"

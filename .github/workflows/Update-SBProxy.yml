@@ -65,6 +65,15 @@ jobs:
           sudo apt-get -qq update
           sudo apt-get -qq install --no-install-recommends curl jq unzip
 
+      - name: 确定规则校验工具缓存版本
+        id: rule_tool
+        run: bash .github/scripts/prepare-rule-set-tool.sh resolve
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/sbproxy-rule-cache
+          key: sbproxy-rule-tool-${{ runner.os }}-${{ steps.rule_tool.outputs.version }}-${{ steps.rule_tool.outputs.sha256 }}
+
       - name: 准备与锁定核心版本一致的规则校验工具
         run: bash .github/scripts/prepare-rule-set-tool.sh
 

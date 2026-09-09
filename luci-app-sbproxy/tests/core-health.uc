@@ -1,0 +1,21 @@
+import { requiredPorts, coreHealthPlan, assessCoreHealth } from 'core_health';
+function assert(ok, text) { if (!ok) die(text); }
+const config = { inbounds: [{ type: 'direct', listen_port: 5333 }, { type: 'mixed', listen_port: 5330 }], services: [{ type: 'api', listen_port: 9096 }] };
+const client = { running: true, pid: 123 };
+const instances = { 'sing-box-c': client, 'log-cleaner': { running: true, pid: 456 } };
+const plan = coreHealthPlan(instances, { 'sing-box-c': config });
+assert(length(plan.instances) === 1, 'Auxiliary instance must not be part of the health plan');
+assert(length(coreHealthPlan({ 'log-cleaner': instances['log-cleaner'] }, {}).instances) === 0, 'Auxiliary-only service is not a core');
+const ports = requiredPorts(config);
+assert(index(ports, 'udp:5333') >= 0 && index(ports, 'tcp:5333') >= 0, 'DNS needs both transports');
+assert(index(ports, 'udp:5330') < 0, 'SOCKS UDP associations do not have a permanent listener');
+const inspect = (pid) => ({ pid, start: '100', ports });
+assert(assessCoreHealth(plan, instances, inspect).ok, 'Healthy client rejected');
+assert(!assessCoreHealth(plan, { 'log-cleaner': instances['log-cleaner'] }, inspect).ok, 'Logger cannot substitute for client');
+assert(!assessCoreHealth(plan, { 'sing-box-c': { running: false, pid: 123 } }, inspect).ok, 'Dead core accepted');
+assert(!assessCoreHealth(plan, instances, () => null).ok, 'Wrong executable accepted');
+assert(!assessCoreHealth(plan, instances, (pid) => ({ pid, start: '100', ports: ['tcp:5330'] })).ok, 'Missing ports accepted');
+const both = coreHealthPlan({ ...instances, 'sing-box-s': { running: true, pid: 789 } }, { 'sing-box-c': config, 'sing-box-s': { inbounds: [{ type: 'hysteria2', listen_port: 443 }] } });
+assert(!assessCoreHealth(both, instances, inspect).ok, 'Client alone cannot satisfy client+server plan');
+assert(assessCoreHealth(plan, instances, inspect).signature !== assessCoreHealth(plan, instances, (pid) => ({ pid, start: '200', ports })).signature, 'Process restarts must reset the stable window');
+print('Core health tests passed\n');

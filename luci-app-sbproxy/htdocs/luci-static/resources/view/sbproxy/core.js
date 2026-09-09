@@ -35,6 +35,7 @@ const callCoreRollback = rpc.declare({
 });
 
 const coreErrors = {
+	health_snapshot_failed: _('Unable to capture the expected core instances.'),
 	already_rolled_back: _('The rollback core is already installed.'),
 	candidate_rejected: _('The downloaded package failed metadata, feature, or configuration validation.'),
 	checksum_mismatch: _('The downloaded core package failed SHA-256 verification.'),

@@ -57,3 +57,7 @@ sh luci-app-sbproxy/tests/static-core-management.sh
 ```
 
 实际双架构源码编译及 QEMU 核心检查在 GitHub Actions 中执行。
+
+在线切换前记录本次应运行的客户端/服务端实例及监听端口。切换后检查对应核心进程
+（含 ujail 子进程）与它持有的 TCP/UDP socket，连续 5 次 PID/启动时间稳定才通过。
+日志清理、接口同步等辅助进程不能代替核心健康状态；失败仍进入自动恢复流程。

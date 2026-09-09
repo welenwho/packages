@@ -38,6 +38,7 @@ verify_digest() {{ [ "$FAILURE" != checksum ]; }}
 validate_apk() {{ [ "$FAILURE" != config ]; }}
 validate_binary() {{ return 0; }}
 service_running() {{ return 0; }}
+capture_expected_cores() {{ expected_instances=sing-box-c; return 0; }}
 install_apk() {{
     echo "install:$TARGET_VERSION"
     test -f "$ROLLBACK_APK" && test -f "$ROLLBACK_META" || exit 92

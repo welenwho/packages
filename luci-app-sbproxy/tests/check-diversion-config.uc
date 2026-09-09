@@ -7,7 +7,7 @@ assert(length(filter(c.inbounds, (i) => i.type === 'tun')) === 1, 'TUN inbound m
 const group_dns = filter(c.dns.servers, (s) => index(s.tag, 'diversion-') === 0);
 if (mode === 'custom' || mode === 'global') assert(!length(group_dns), 'Groups leaked into other routing modes');
 else {
-	assert(length(group_dns) === 2, 'Expected one DNS resolver per selected proxy outbound');
+	assert(length(group_dns) === 1, 'Main DNS must be reused; only the other outbound needs a resolver');
 	const tags = map([...c.outbounds, ...(c.endpoints || [])], (o) => o.tag);
 	for (let s in group_dns) assert(index(tags, s.detour) !== -1, 'DNS detour target missing');
 	assert(!c.inbounds[length(c.inbounds)-1].route_exclude_address_set, 'Fast CIDR bypass hides explicit group rules');
