@@ -27,17 +27,9 @@ jobs:
     with:
       build_apks: false
 
-  axonhub:
-    name: AxonHub 更新
-    needs: singbox
-    if: ${{ always() }}
-    uses: ./.github/workflows/Update-AxonHub.yml
-    with:
-      build_apks: false
-
   sbproxy:
     name: SBProxy 更新
-    needs: axonhub
+    needs: singbox
     if: ${{ always() }}
     uses: ./.github/workflows/Update-SBProxy.yml
     with:
@@ -58,19 +50,17 @@ jobs:
     name: 编译本轮变更的软件包
     needs:
       - singbox
-      - axonhub
       - sbproxy
       - translation
     if: >-
       always() && (
         needs.singbox.outputs.packages != '' ||
-        needs.axonhub.outputs.packages != '' ||
         needs.sbproxy.outputs.packages != '' ||
         needs.translation.outputs.packages != ''
       )
     uses: ./.github/workflows/Build-APK-Packages.yml
     with:
       source_sha: >-
-        ${{ needs.translation.outputs.source_sha || needs.sbproxy.outputs.source_sha || needs.axonhub.outputs.source_sha || needs.singbox.outputs.source_sha }}
+        ${{ needs.translation.outputs.source_sha || needs.sbproxy.outputs.source_sha || needs.singbox.outputs.source_sha }}
       packages: >-
-        ${{ needs.singbox.outputs.packages }},${{ needs.axonhub.outputs.packages }},${{ needs.sbproxy.outputs.packages }},${{ needs.translation.outputs.packages }}
+        ${{ needs.singbox.outputs.packages }},${{ needs.sbproxy.outputs.packages }},${{ needs.translation.outputs.packages }}
