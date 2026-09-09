@@ -53,6 +53,7 @@ config sbproxy 'config'
 	option dns_timeout '10'
 
 config sbproxy 'control'
+	option ingress_enabled '0'
 
 config sbproxy 'routing'
 	option tcpip_stack 'mixed'

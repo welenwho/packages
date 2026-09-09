@@ -15,7 +15,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-1-r4 as adaptive';
+'require sbproxy-adaptive-1-0-1-r5 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -90,7 +90,8 @@ return view.extend({
 			uci.load('sbproxy'),
 			sb.getBuiltinFeatures(),
 			network.getHostHints(),
-			adaptive.loadStatus()
+			adaptive.loadStatus(),
+			uci.load('wireless')
 		]);
 	},
 
@@ -1663,6 +1664,34 @@ return view.extend({
 		so.multiple = false;
 		so.noaliases = true;
 		/* Interface control end */
+
+		ss.tab('ingress', _('Ingress interface policy'));
+		so = ss.taboption('ingress', form.Flag, 'ingress_enabled', _('Enable ingress interface policy'),
+			_('Optional: bypass SBProxy for selected incoming WiFi networks or devices. Unselected sources keep the existing listen-interface and routing behavior. No subnet or DHCP changes are required.'));
+		so.default = so.disabled;
+		so.rmempty = false;
+		so = ss.taboption('ingress', sb.CBIEmptySafeMultiValue, 'ingress_bypass_wifi', _('WiFi networks to bypass'),
+			_('WiFi selections follow their configuration sections when device names change. Networks with identical SSIDs are distinguished by radio and section.'));
+		uci.sections('wireless', 'wifi-iface', (wifi) => {
+			if (wifi.mode === 'ap' || !wifi.mode)
+				so.value(wifi['.name'], '%s — %s (%s)'.format(wifi.ssid || wifi['.name'], wifi.device || '-', wifi['.name']));
+		});
+		for (const selected of L.toArray(uci.get('sbproxy', 'control', 'ingress_bypass_wifi')))
+			if (!uci.get('wireless', selected))
+				so.value(selected, selected);
+		so.depends('ingress_enabled', '1');
+		so = ss.taboption('ingress', widgets.DeviceSelect, 'ingress_bypass_devices', _('Devices to bypass'),
+			_('Select a bridge to bypass all its members, or select individual wired ports. Prefer the WiFi selector for wireless networks. This overrides proxy rules for the selected incoming traffic, but does not disable upstream-router proxies.'));
+		so.multiple = true;
+		so.noaliases = true;
+		so.filter = function(section_id, value) {
+			return value !== 'lo' && value !== (uci.get('sbproxy', 'infra', 'tun_name') || 'singtun0');
+		};
+		so.depends('ingress_enabled', '1');
+		so = ss.taboption('ingress', form.DummyValue, '_ingress_note', _('Policy notes'));
+		so.depends('ingress_enabled', '1');
+		so.rawhtml = false;
+		so.cfgvalue = () => _('Selected sources use direct upstream DNS for ordinary port-53 queries; local names and reverse lookups remain with dnsmasq. Existing or hardware-accelerated connections may keep their previous path: reconnect clients after changing policy. Disabling this option removes only SBProxy ingress rules.');
 
 		/* LAN IP policy start */
 		ss.tab('lan_ip_policy', _('LAN IP Policy'));

@@ -1,0 +1,62 @@
+#!/bin/sh
+set -eu
+runtime=/var/run/sbproxy
+active="$runtime/ingress.active"
+rules="$runtime/ingress.nft"
+generator=/etc/sbproxy/scripts/generate_ingress.uc
+action="${1:-refresh}"
+
+remove_tables() {
+	for family in bridge inet; do
+		if nft list table "$family" sbproxy_ingress >/dev/null 2>&1; then
+			nft delete table "$family" sbproxy_ingress
+		fi
+	done
+}
+
+case "$action" in
+watch)
+	while [ -f "$active" ]; do
+		"$0" refresh || logger -t sbproxy 'Unable to refresh ingress policy; keeping last applied rules'
+		sleep 5
+	done
+	exit 0
+	;;
+start|refresh|stop) ;;
+*) exit 2 ;;
+esac
+
+mkdir -p "$runtime" /var/lock
+exec 9>/var/lock/sbproxy-ingress.lock
+flock -x 9
+if [ "$action" = stop ]; then
+	rm -f "$active"
+	remove_tables
+	rm -f "$rules"
+	exit 0
+fi
+if [ "$action" = start ]; then touch "$active"; fi
+[ -f "$active" ] || exit 0
+temp="$(mktemp "$runtime/ingress.XXXXXX")"
+batch="${temp}.batch"
+trap 'rm -f "$temp" "$batch"' EXIT
+ucode "$generator" > "$temp"
+if [ ! -s "$temp" ]; then
+	remove_tables
+	rm -f "$rules"
+	exit 0
+fi
+if cmp -s "$temp" "$rules" &&
+   nft list table bridge sbproxy_ingress >/dev/null 2>&1 &&
+   nft list table inet sbproxy_ingress >/dev/null 2>&1; then
+	exit 0
+fi
+for family in bridge inet; do
+	if nft list table "$family" sbproxy_ingress >/dev/null 2>&1; then
+		printf 'delete table %s sbproxy_ingress\n' "$family" >> "$batch"
+	fi
+done
+cat "$temp" >> "$batch"
+nft -c -f "$batch"
+nft -f "$batch"
+mv "$temp" "$rules"

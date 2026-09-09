@@ -10,6 +10,7 @@
 import { readfile, writefile } from 'fs';
 import { isnan } from 'math';
 import { connect } from 'ubus';
+import { ingressEnabled } from 'ingress';
 import { cursor } from 'uci';
 
 import {
@@ -214,6 +215,10 @@ const memory_guard_safety_margin = uci.get(uciconfig, ucimain, 'memory_guard_saf
 const force_proxy_rules = hasForceProxyRules(uci, uciconfig, proxy_domain_list);
 const fast_bypass_mainland = routing_mode === 'bypass_mainland_china' && !force_proxy_rules;
 const proxy_client_enabled = !isEmpty(main_node) || !isEmpty(default_outbound);
+const ingress_enabled = proxy_client_enabled && ingressEnabled(uci.get_all(uciconfig, ucicontrol));
+const ingress_dns_port = strToInt(uci.get(uciconfig, uciinfra, 'ingress_dns_port'));
+if (ingress_enabled && (!ingress_dns_port || ingress_dns_port === int(dns_port)))
+	die('Ingress DNS port is unavailable or conflicts with the normal DNS listener.');
 
 let tailscale_auth_key = uci.get(uciconfig, ucitailscale, 'auth_key');
 const tailscale_auth_key_file = uci.get(uciconfig, ucitailscale, 'auth_key_file');
@@ -796,6 +801,22 @@ if (tailscale_magic_dns) {
 	});
 }
 
+// Route bypass-source DNS before user proxy DNS rules. Keep local names and
+// reverse lookup with dnsmasq, and preserve the preferred Tailscale DNS rule.
+if (ingress_enabled) {
+	push(config.dns.servers, {
+		tag: 'ingress-local-dns', type: 'udp', server: '127.0.0.1',
+		server_port: int(uci.get('dhcp', '@dnsmasq[0]', 'port') || '53'), detour: 'direct-out'
+	});
+	const local_domain = uci.get('dhcp', '@dnsmasq[0]', 'domain') || 'lan';
+	push(config.dns.rules,
+		{ inbound: ['ingress-dns-in'], domain_suffix: [local_domain, 'in-addr.arpa', 'ip6.arpa'],
+		  action: 'route', server: 'ingress-local-dns', disable_cache: true },
+		{ inbound: ['ingress-dns-in'], domain_regex: ['^[^.]+\\.?$'],
+		  action: 'route', server: 'ingress-local-dns', disable_cache: true },
+		{ inbound: ['ingress-dns-in'], action: 'route', server: 'default-dns', disable_cache: true });
+}
+
 if (!isEmpty(main_node)) {
 	/* Main DNS */
 	push(config.dns.servers, {
@@ -950,6 +971,8 @@ if (!isEmpty(main_node)) {
 
 /* Inbound start */
 config.inbounds = [];
+if (ingress_enabled)
+	push(config.inbounds, { type: 'direct', tag: 'ingress-dns-in', listen: '::', listen_port: ingress_dns_port });
 
 if (proxy_client_enabled || tailscale_magic_dns)
 	push(config.inbounds, {
@@ -1011,6 +1034,8 @@ if (proxy_client_enabled && tun_enabled) {
 		mtu: strToInt(tun_mtu),
 		auto_route: true,
 		auto_redirect: true,
+		/* Pin the bypass mark used by the optional ingress firewall. */
+		auto_redirect_output_mark: ingress_enabled ? 8228 : null,
 		/* dnsmasq already redirects LAN DNS to dns-in; avoid an earlier TUN DNAT. */
 		dns_mode: 'disabled',
 		route_exclude_address: length(route_exclude_address) ? route_exclude_address : null,
@@ -1221,6 +1246,8 @@ if (proxy_client_enabled || tailscale_magic_dns)
 		inbound: 'dns-in',
 		action: 'hijack-dns'
 	});
+if (ingress_enabled)
+	push(config.route.rules, { inbound: 'ingress-dns-in', action: 'hijack-dns' });
 if (tailscale_enabled)
 	push(config.route.rules, {
 		preferred_by: tailscale_endpoint_tag,

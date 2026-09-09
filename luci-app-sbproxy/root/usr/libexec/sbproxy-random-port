@@ -7,7 +7,7 @@ port_in_use() {
 	awk -v suffix=":$hex" '
 		FNR > 1 && substr($2, length($2) - 4) == suffix { found = 1 }
 		END { exit(found ? 0 : 1) }
-	' /proc/net/tcp /proc/net/tcp6 2>/dev/null
+	' /proc/net/tcp /proc/net/tcp6 /proc/net/udp /proc/net/udp6 2>/dev/null
 }
 
 random="$(hexdump -n 2 -e '1/1 "%02x"' /dev/urandom 2>/dev/null)"

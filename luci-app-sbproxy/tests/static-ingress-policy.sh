@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+module="$root/root/etc/sbproxy/scripts/ingress.uc"
+generator="$root/root/etc/sbproxy/scripts/generate_client.uc"
+helper="$root/root/usr/libexec/sbproxy-ingress"
+init="$root/root/etc/init.d/sbproxy"
+grep -Fq "control?.ingress_enabled === '1'" "$module"
+grep -Fq 'sbproxy_ingress' "$module"
+grep -Fq 'priority -170' "$module"
+grep -Fq 'priority -165' "$module"
+grep -Fq 'priority -160' "$module"
+grep -Fq 'ingress-dns-in' "$generator"
+grep -Fq "server: 'default-dns', disable_cache: true" "$generator"
+grep -Fq "server: 'ingress-local-dns'" "$generator"
+grep -Fq '/usr/libexec/sbproxy-ingress stop' "$init"
+grep -Fq '/usr/libexec/sbproxy-ingress watch' "$init"
+grep -Fq 'nft -c -f "$batch"' "$helper"
+! grep -q 'flush ruleset' "$helper"
+sh -n "$helper"
+sh -n "$init"
+echo 'Ingress wiring tests passed'

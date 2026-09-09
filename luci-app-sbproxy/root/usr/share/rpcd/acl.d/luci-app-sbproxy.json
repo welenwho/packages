@@ -17,7 +17,7 @@
 					"singbox_generator", "singbox_get_features"
 				]
 			},
-			"uci": [ "sbproxy", "sbproxy-adaptive", "tailscale" ]
+			"uci": [ "sbproxy", "sbproxy-adaptive", "tailscale", "wireless" ]
 		},
 		"write": {
 			"file": {
