@@ -11,6 +11,7 @@ import { readfile, writefile } from 'fs';
 import { isnan } from 'math';
 import { connect } from 'ubus';
 import { ingressEnabled } from 'ingress';
+import { loadDomainGroups, domainGroupOverlap } from 'domain_groups';
 import { cursor } from 'uci';
 
 import {
@@ -171,35 +172,20 @@ if (routing_mode !== 'custom') {
 	domain_strategy = uci.get(uciconfig, uciroutingsetting, 'domain_strategy');
 }
 
-const proxy_mode = uci.get(uciconfig, ucimain, 'proxy_mode') || 'tun',
-      default_interface = uci.get(uciconfig, ucicontrol, 'bind_interface'),
+const default_interface = uci.get(uciconfig, ucicontrol, 'bind_interface'),
       listen_interfaces = normalizeList(uci.get(uciconfig, ucicontrol, 'listen_interfaces'));
 
 const mixed_port = uci.get(uciconfig, uciinfra, 'mixed_port') || '5330';
 const clash_api_port = strToInt(uci.get(uciconfig, uciinfra, 'clash_api_port'));
 
-let self_mark, tproxy_port, tun_name,
-    tun_addr4, tun_addr6, tun_mtu, tcpip_stack, udp_timeout;
-const tproxy_enabled = proxy_mode === 'tproxy';
-const tun_enabled = proxy_mode === 'tun';
-
-if (routing_mode === 'custom')
-	udp_timeout = uci.get(uciconfig, uciroutingsetting, 'udp_timeout');
-else
-	udp_timeout = uci.get(uciconfig, 'infra', 'udp_timeout');
-
-if (tproxy_enabled)
-	self_mark = uci.get(uciconfig, 'infra', 'self_mark') || '100';
-
-if (tproxy_enabled)
-	tproxy_port = uci.get(uciconfig, 'infra', 'tproxy_port') || '5332';
-if (tun_enabled) {
-	tun_name = uci.get(uciconfig, uciinfra, 'tun_name') || 'singtun0';
-	tun_addr4 = uci.get(uciconfig, uciinfra, 'tun_addr4') || '172.19.0.1/30';
-	tun_addr6 = uci.get(uciconfig, uciinfra, 'tun_addr6') || 'fdfe:dcba:9876::1/126';
-	tun_mtu = uci.get(uciconfig, uciinfra, 'tun_mtu') || '9000';
-	tcpip_stack = uci.get(uciconfig, uciroutingsetting, 'tcpip_stack') || 'mixed';
-}
+const tun_name = uci.get(uciconfig, uciinfra, 'tun_name') || 'singtun0';
+const tun_addr4 = uci.get(uciconfig, uciinfra, 'tun_addr4') || '172.19.0.1/30';
+const tun_addr6 = uci.get(uciconfig, uciinfra, 'tun_addr6') || 'fdfe:dcba:9876::1/126';
+const tun_mtu = uci.get(uciconfig, uciinfra, 'tun_mtu') || '9000';
+const tcpip_stack = (routing_mode === 'custom' ?
+	uci.get(uciconfig, uciroutingsetting, 'tcpip_stack') : uci.get(uciconfig, ucimain, 'tcpip_stack')) ||
+	uci.get(uciconfig, uciroutingsetting, 'tcpip_stack') || 'mixed';
+const udp_timeout = uci.get(uciconfig, routing_mode === 'custom' ? uciroutingsetting : uciinfra, 'udp_timeout');
 
 const log_level = uci.get(uciconfig, ucimain, 'log_level') || 'warn';
 const dashboard_path = SB_DIR + '/dashboard';
@@ -212,7 +198,23 @@ const dashboard_tls_tailscale = dashboard_enabled &&
 const memory_guard_enabled = uci.get(uciconfig, ucimain, 'memory_guard_enabled') === '1';
 const memory_guard_limit = uci.get(uciconfig, ucimain, 'memory_guard_limit');
 const memory_guard_safety_margin = uci.get(uciconfig, ucimain, 'memory_guard_safety_margin');
-const force_proxy_rules = hasForceProxyRules(uci, uciconfig, proxy_domain_list);
+const domain_groups = isEmpty(main_node) ? [] : loadDomainGroups(uci, uciconfig, routing_mode);
+const groups_need_sniff = length(filter(domain_groups, (g) => length(g.keywords))) > 0;
+const overlap = domainGroupOverlap(domain_groups);
+if (overlap) warn('Diversion groups overlap at ' + overlap + '; first group wins.\n');
+function group_outbound(group) {
+	if (group.node === '_direct') return 'direct-out';
+	if (group.node === '_main' || group.node === main_node) return 'main-out';
+	return get_node_outbound_tag(group.node);
+}
+function group_match(group) {
+	let rules = [];
+	if (length(group.suffixes)) push(rules, { domain_suffix: group.suffixes });
+	if (length(group.keywords)) push(rules, { domain_keyword: group.keywords });
+	return length(rules) === 1 ? rules[0] : { type: 'logical', mode: 'or', rules };
+}
+const force_proxy_rules = hasForceProxyRules(uci, uciconfig, proxy_domain_list) ||
+	groups_need_sniff || length(filter(domain_groups, (g) => g.node !== '_direct')) > 0;
 const fast_bypass_mainland = routing_mode === 'bypass_mainland_china' && !force_proxy_rules;
 const proxy_client_enabled = !isEmpty(main_node) || !isEmpty(default_outbound);
 const ingress_enabled = proxy_client_enabled && ingressEnabled(uci.get_all(uciconfig, ucicontrol));
@@ -525,8 +527,8 @@ function add_mainland_rule_sets(rule_sets) {
 	push(rule_sets, {
 		type: 'local',
 		tag: 'geoip-cn',
-		format: 'source',
-		path: SB_DIR + '/resources/geoip_cn.json'
+		format: 'binary',
+		path: SB_DIR + '/resources/geoip_cn.srs'
 	});
 	push(rule_sets, {
 		type: 'local',
@@ -588,7 +590,7 @@ function render_dns_rule_match(cfg) {
 }
 
 function generate_outbound(node) {
-	const outbound = renderOutbound(node, self_mark);
+	const outbound = renderOutbound(node);
 	if (outbound && node['.name'])
 		outbound.tag = get_node_outbound_tag(node['.name']);
 	return outbound;
@@ -742,7 +744,6 @@ config.log = {
 config.http_clients = [
 	{
 		tag: 'direct-http',
-		routing_mark: strToInt(self_mark)
 	}
 ];
 
@@ -763,12 +764,12 @@ config.dns = {
 			tag: 'default-dns',
 			type: 'udp',
 			server: wan_dns,
-			detour: self_mark ? 'direct-out' : null
+			detour: null
 		},
 		{
 			tag: 'system-dns',
 			type: 'local',
-			detour: self_mark ? 'direct-out' : null
+			detour: null
 		}
 	],
 	rules: [],
@@ -817,6 +818,26 @@ if (ingress_enabled) {
 		{ inbound: ['ingress-dns-in'], action: 'route', server: 'default-dns', disable_cache: true });
 }
 
+if (length(domain_groups)) {
+	let group_resolvers = {};
+	for (let group in domain_groups) {
+		const outbound = group_outbound(group);
+		let server = 'default-dns';
+		if (outbound !== 'direct-out') {
+			server = group_resolvers[outbound];
+			if (!server) {
+				server = 'diversion-' + group.id + '-dns';
+				group_resolvers[outbound] = server;
+				push(config.dns.servers, {
+					tag: server, domain_resolver: 'default-dns', detour: outbound,
+					...parse_dnsserver(dns_server, 'tcp')
+				});
+			}
+		}
+		push(config.dns.rules, { ...group_match(group), action: 'route', server });
+	}
+}
+
 if (!isEmpty(main_node)) {
 	/* Main DNS */
 	push(config.dns.servers, {
@@ -852,7 +873,7 @@ if (!isEmpty(main_node)) {
 				server: 'default-dns',
 				strategy: 'prefer_ipv6'
 			},
-			detour: self_mark ? 'direct-out' : null,
+			detour: null,
 			...parse_dnsserver(china_dns_server)
 		});
 
@@ -894,7 +915,7 @@ if (!isEmpty(main_node)) {
 			return;
 
 		let outbound = get_outbound(cfg.outbound);
-		if (outbound === 'direct-out' && isEmpty(self_mark))
+		if (outbound === 'direct-out')
 			outbound = null;
 
 		const remote_server = cfg.type in ['udp', 'tcp', 'tls', 'https', 'h3', 'quic'];
@@ -1010,16 +1031,7 @@ if (proxy_client_enabled && adaptive_enabled) {
 	});
 }
 
-if (proxy_client_enabled && tproxy_enabled)
-	push(config.inbounds, {
-		type: 'tproxy',
-		tag: 'tproxy-in',
-
-		listen: '::',
-		listen_port: int(tproxy_port),
-		udp_timeout: strToTime(udp_timeout)
-	});
-if (proxy_client_enabled && tun_enabled) {
+if (proxy_client_enabled) {
 	const route_exclude_address = filter(unique_cidrs([
 		...normalizeList(uci.get(uciconfig, ucimain, 'tun_route_exclude_ipv4_ips')),
 		...normalizeList(uci.get(uciconfig, ucimain, 'tun_route_exclude_ipv6_ips')),
@@ -1057,14 +1069,12 @@ config.outbounds = [
 	{
 		type: 'direct',
 		tag: 'direct-out',
-		routing_mark: strToInt(self_mark)
 	}
 ];
 if (adaptive_enabled)
 	push(config.outbounds, {
 		type: 'direct',
 		tag: adaptive_final_direct_tag,
-		routing_mark: strToInt(self_mark)
 	});
 
 /* Main outbounds */
@@ -1227,6 +1237,15 @@ if (adaptive_enabled) {
 	});
 }
 
+for (let group in domain_groups) {
+	const tag = group_outbound(group);
+	if (length(filter([...config.outbounds, ...config.endpoints], (out) => out.tag === tag))) continue;
+	const node = uci.get_all(uciconfig, group.node);
+	const entry = node.type === 'wireguard' ? generate_endpoint(node) : generate_outbound(node);
+	if (!entry) die('Unable to render diversion node: ' + group.node);
+	push(node.type === 'wireguard' ? config.endpoints : config.outbounds, entry);
+}
+
 if (isEmpty(config.endpoints))
 	config.endpoints = null;
 /* Outbound end */
@@ -1275,16 +1294,18 @@ if (!isEmpty(main_node)) {
 		strategy: (ipv6_support !== '1') ? 'prefer_ipv4' : null
 	};
 
-	/* Native auto_redirect pre-match: force exceptions first, then bypass. */
-	if (tun_enabled) {
-		add_control_pre_match_rules(config.route.rules, 'main-out');
-
+	/* Device/port exceptions are authoritative. Domain groups follow list order. */
+	add_control_pre_match_rules(config.route.rules, 'main-out');
+	if (!groups_need_sniff) {
+		for (let group in domain_groups) {
+			const match = tun_match(group_match(group));
+			if (group.node === '_direct') push_bypass(config.route.rules, match);
+			else push_route(config.route.rules, match, group_outbound(group));
+		}
 		if (length(direct_domain_list))
 			push_bypass(config.route.rules, tun_match({ rule_set: 'direct-domain' }));
-
 		if (length(proxy_domain_list))
 			push_route(config.route.rules, tun_match({ rule_set: 'proxy-domain' }), 'main-out');
-
 		if (routing_mode === 'bypass_mainland_china' && force_proxy_rules) {
 			push_bypass(config.route.rules, tun_match({ rule_set: 'geosite-cn' }));
 			push_bypass(config.route.rules, tun_match({ rule_set: 'geoip-cn' }));
@@ -1293,6 +1314,9 @@ if (!isEmpty(main_node)) {
 
 	push(config.route.rules, { action: 'sniff' });
 	add_control_rules(config.route.rules, 'main-out');
+
+	for (let group in domain_groups)
+		push(config.route.rules, { ...group_match(group), action: 'route', outbound: group_outbound(group) });
 
 	/* Direct list */
 	if (length(direct_domain_list))
@@ -1369,8 +1393,7 @@ if (!isEmpty(main_node)) {
 		server: get_resolver(default_outbound_dns)
 	};
 	const control_proxy_outbound = default_outbound === 'reject' ? null : get_outbound(default_outbound);
-	if (tun_enabled)
-		add_control_pre_match_rules(config.route.rules, control_proxy_outbound);
+			add_control_pre_match_rules(config.route.rules, control_proxy_outbound);
 	push(config.route.rules, { action: 'sniff' });
 	add_control_rules(config.route.rules, control_proxy_outbound);
 

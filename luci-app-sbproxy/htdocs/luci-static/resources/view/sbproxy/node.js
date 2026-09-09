@@ -1046,6 +1046,10 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 	o.datatype = 'uinteger';
 	o.depends('type', 'hysteria');
 	o.depends('type', 'hysteria2');
+	o.validate = function(section_id, value) {
+		return !section_id || this.section.formvalue(section_id, 'type') !== 'hysteria' || Number(value) > 0
+			? true : _('Hysteria v1 requires a positive upload and download bandwidth.');
+	};
 	o.modalonly = true;
 
 	o = s.option(form.Value, 'hysteria_up_mbps', _('Max upload speed'),
@@ -1053,6 +1057,10 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 	o.datatype = 'uinteger';
 	o.depends('type', 'hysteria');
 	o.depends('type', 'hysteria2');
+	o.validate = function(section_id, value) {
+		return !section_id || this.section.formvalue(section_id, 'type') !== 'hysteria' || Number(value) > 0
+			? true : _('Hysteria v1 requires a positive upload and download bandwidth.');
+	};
 	o.modalonly = true;
 
 	o = s.option(form.Value, 'hysteria_stream_receive_window', _('QUIC stream receive window'),

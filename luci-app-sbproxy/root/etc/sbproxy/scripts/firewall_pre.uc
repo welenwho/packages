@@ -57,9 +57,7 @@ if (derp_enabled && derp_firewall &&
 		push(input, `tcp dport ${acme_tls_port} counter accept comment "!${cfgname}: accept DERP ACME TLS"`);
 }
 
-const forward_file = RUN_DIR + '/fw4_forward.nft';
 const input_file = RUN_DIR + '/fw4_input.nft';
 
-if (writefile(forward_file, '') === null ||
-    writefile(input_file, length(input) ? join('\n', input) + '\n' : '') === null)
+if (writefile(input_file, length(input) ? join('\n', input) + '\n' : '') === null)
 	exit(1);

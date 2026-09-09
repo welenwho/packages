@@ -235,14 +235,22 @@ return view.extend({
 		o.datatype = 'uinteger';
 		o.depends('type', 'hysteria');
 		o.depends('type', 'hysteria2');
-		o.modalonly = true;
+		o.validate = function(section_id, value) {
+		return !section_id || this.section.formvalue(section_id, 'enabled') === '0' || this.section.formvalue(section_id, 'type') !== 'hysteria' || Number(value) > 0
+			? true : _('Hysteria v1 requires a positive upload and download bandwidth.');
+	};
+	o.modalonly = true;
 
 		o = s.option(form.Value, 'hysteria_up_mbps', _('Max upload speed'),
 			_('Max upload speed in Mbps.'));
 		o.datatype = 'uinteger';
 		o.depends('type', 'hysteria');
 		o.depends('type', 'hysteria2');
-		o.modalonly = true;
+		o.validate = function(section_id, value) {
+		return !section_id || this.section.formvalue(section_id, 'enabled') === '0' || this.section.formvalue(section_id, 'type') !== 'hysteria' || Number(value) > 0
+			? true : _('Hysteria v1 requires a positive upload and download bandwidth.');
+	};
+	o.modalonly = true;
 
 		o = s.option(form.ListValue, 'hysteria_auth_type', _('Authentication type'));
 		o.value('', _('Disable'));
@@ -547,7 +555,9 @@ return view.extend({
 				let transport = transport_options?.[0]?.formvalue(section_id);
 				let tls = this.map.findElement('id', 'cbid.sbproxy.%s.tls'.format(section_id)).firstElementChild;
 
-				if (['hysteria', 'hysteria2', 'tuic'].includes(type) || transport === 'quic') {
+				const network = this.map.lookupOption('network', section_id)?.[0]?.formvalue(section_id);
+				if (['hysteria', 'hysteria2', 'tuic'].includes(type) ||
+				    (type === 'naive' && network !== 'tcp') || transport === 'quic') {
 					tls.checked = true;
 					tls.disabled = true;
 				} else {

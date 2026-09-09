@@ -139,8 +139,10 @@ synchronizeNodeLabels(uci, uciconfig);
 /* Keep only the modes implemented by the 1.14 configuration generator. */
 if (!(uci.get(uciconfig, 'config', 'routing_mode') in ['bypass_mainland_china', 'custom', 'global']))
 	uci.set(uciconfig, 'config', 'routing_mode', 'bypass_mainland_china');
-if (!(uci.get(uciconfig, 'config', 'proxy_mode') in ['tun', 'tproxy']))
-	uci.set(uciconfig, 'config', 'proxy_mode', 'tun');
+// Packet capture is TUN-only. Preserve custom routing sections and their settings.
+uci.delete(uciconfig, 'config', 'proxy_mode');
+for (let option in ['tproxy_port', 'tproxy_mark', 'self_mark', 'table_mark'])
+	uci.delete(uciconfig, 'infra', option);
 
 for (let option in [
 	'main_udp_node', 'main_udp_urltest_nodes',

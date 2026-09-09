@@ -15,7 +15,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-1-r5 as adaptive';
+'require sbproxy-adaptive-1-0-1-r6 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -349,17 +349,9 @@ return view.extend({
 				? true : _('Expecting: %s').format(_('valid port value'));
 		}
 
-		o = s.taboption('routing', form.ListValue, 'proxy_mode', _('Proxy mode'));
-		o.value('tun', _('TUN TCP/UDP'));
-		o.value('tproxy', _('TProxy TCP/UDP'));
-		o.default = 'tun';
-		o.description = _('TUN uses sing-box automatic routing and redirect on Linux; TProxy uses native TCP/UDP transparent proxying.');
-		o.rmempty = false;
-
 		o = s.taboption('routing', form.DynamicList, 'tun_route_exclude_ipv4_ips', _('TUN route exclusion IPv4 addresses'),
 			_('Destinations excluded from TUN automatic redirect and handled by system routing. Applies to all routing modes.'));
 		o.datatype = 'or(ip4addr, cidr4)';
-		o.depends('proxy_mode', 'tun');
 		o.retain = true;
 		o.validate = function(section_id, value) {
 			return !value.endsWith('/0') || _('The default route cannot be excluded from TUN redirect.');
@@ -368,7 +360,7 @@ return view.extend({
 		o = s.taboption('routing', form.DynamicList, 'tun_route_exclude_ipv6_ips', _('TUN route exclusion IPv6 addresses'),
 			_('Destinations excluded from TUN automatic redirect and handled by system routing. Applies to all routing modes.'));
 		o.datatype = 'or(ip6addr, cidr6)';
-		o.depends({ proxy_mode: 'tun', ipv6_support: '1' });
+		o.depends('ipv6_support', '1');
 		o.retain = true;
 		o.validate = function(section_id, value) {
 			return !value.endsWith('/0') || _('The default route cannot be excluded from TUN redirect.');
@@ -377,7 +369,6 @@ return view.extend({
 		o = s.taboption('routing', form.Flag, 'tun_route_exclude_tailscale', _('Auto-exclude Tailscale routes'),
 			_('Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when SBProxy reloads; default routes are ignored so exit-node traffic can still use SBProxy rules.'));
 		o.default = o.disabled;
-		o.depends('proxy_mode', 'tun');
 		o.retain = true;
 		o.rmempty = false;
 
@@ -389,7 +380,6 @@ return view.extend({
 		}
 		o.value('system', 'System');
 		o.default = 'mixed';
-		o.depends('proxy_mode', 'tun');
 		o.rmempty = false;
 		o.retain = true;
 		o.onchange = function(ev, section_id, value) {
@@ -522,6 +512,54 @@ return view.extend({
 		o.datatype = 'uinteger';
 		o.rmempty = false;
 
+		o = s.taboption('routing', form.SectionValue, '_domain_groups', form.GridSection, 'domain_route', _('Domain diversion groups'),
+			_('Mainland whitelist only. Groups are evaluated in order before domain lists and geographic rules. Device and ingress bypass policies still take priority; custom routing is unchanged.'));
+		o.depends('routing_mode', 'bypass_mainland_china');
+		const groups = o.subsection;
+		o.retain = true;
+		groups.anonymous = true;
+		groups.addremove = true;
+		groups.sortable = true;
+		let go = groups.option(form.Flag, 'enabled', _('Enable'));
+		go.default = go.enabled;
+		go.rmempty = false;
+		go = groups.option(form.Value, 'label', _('Name'));
+		go.rmempty = false;
+		go = groups.option(form.ListValue, 'node', _('Target'));
+		go.value('_main', _('Main node / URLTest'));
+		go.value('_direct', _('Direct'));
+		for (const id in proxy_nodes) go.value(id, proxy_nodes[id]);
+		uci.sections('sbproxy', 'domain_route', (group) => {
+			if (group.node && !['_main', '_direct'].includes(group.node) && !proxy_nodes[group.node])
+				go.value(group.node, _('Unavailable node: %s').format(group.node));
+		});
+		go.default = '_main';
+		go.rmempty = false;
+		go = groups.option(form.ListValue, 'missing_node_action', _('When the selected node is unavailable'));
+		go.value('error', _('Stop with a configuration error'));
+		go.value('main', _('Use the main node'));
+		go.default = 'error';
+		go.rmempty = false;
+		go.modalonly = true;
+		go = groups.option(form.TextValue, 'domains', _('Domain List'),
+			_('One domain per line. Dotted entries match domain suffixes; other entries match keywords. Comments beginning with # are ignored. Overlapping groups are allowed: the first match wins and a warning is logged.'));
+		go.rows = 10;
+		go.monospace = true;
+		go.modalonly = true;
+		const normalizeGroup = (value) => Array.from(new Set(String(value || '').split(/[\\r\\n]+/)
+			.map((v) => v.trim()).filter((v) => v && !v.startsWith('#'))
+			.map((v) => v.toLowerCase().replace(/^\\.+|\\.+$/g, ''))));
+		go.cfgvalue = function(section_id) {
+			return L.toArray(uci.get('sbproxy', section_id, 'domains')).join('\\n');
+		};
+		go.write = function(section_id, value) { uci.set('sbproxy', section_id, 'domains', normalizeGroup(value)); };
+		go.validate = function(section_id, value) {
+			if (this.section.formvalue(section_id, 'enabled') !== '1') return true;
+			for (const d of normalizeGroup(value))
+				if (!d || !stubValidator.apply('hostname', d)) return _('Invalid domain entry: %s').format(d);
+			return true;
+		};
+
 		/* Custom routing settings start */
 		/* Routing settings start */
 		o = s.taboption('routing', form.SectionValue, '_routing', form.NamedSection, 'routing', 'sbproxy');
@@ -532,8 +570,6 @@ return view.extend({
 			_('In seconds.'));
 		so.datatype = 'uinteger';
 		so.placeholder = '300';
-		so.depends('sbproxy.config.proxy_mode', 'tproxy');
-		so.depends('sbproxy.config.proxy_mode', 'tun');
 
 		so = ss.option(form.Flag, 'bypass_cn_traffic', _('Bypass CN traffic'),
 			_('Bypass mainland China traffic using sing-box routing rules.'));

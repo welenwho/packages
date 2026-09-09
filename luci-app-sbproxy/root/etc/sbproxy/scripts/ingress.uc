@@ -23,15 +23,14 @@ export function ingressDevices(control, wireless) {
 	return devices;
 }
 
-export function ingressNft(control, wireless, mode, self_mark, dns_port) {
+export function ingressNft(control, wireless, dns_port) {
 	if (!ingressEnabled(control))
 		return '';
-	if (!(mode in ['tun', 'tproxy']) || !match('' + self_mark, /^(0x[0-9a-fA-F]+|[0-9]+)$/) ||
-	    !match('' + dns_port, /^[0-9]+$/) || int(dns_port) < 1 || int(dns_port) > 65535)
+	if (!match('' + dns_port, /^[0-9]+$/) || int(dns_port) < 1 || int(dns_port) > 65535)
 		die('Invalid ingress runtime parameters');
 	const devices = ingressDevices(control, wireless);
 	const device_set = '{ ' + join(', ', map(devices, (dev) => sprintf('%J', dev))) + ' }';
-	const mark = mode === 'tun' ? '0x2024' : self_mark;
+	const mark = '0x2024';
 	// This bit only carries the bridge-port decision to inet prerouting. It is
 	// cleared before normal routing; never save it into the connection mark.
 	const bit = '0x40000000';
@@ -54,12 +53,7 @@ export function ingressNft(control, wireless, mode, self_mark, dns_port) {
 		`  meta mark & ${bit} != 0 meta l4proto { tcp, udp } th dport 53 counter redirect to :${dns_port}`,
 		' }', ' chain bypass {',
 		'  type filter hook prerouting priority -160; policy accept;');
-	if (mode === 'tun')
-		push(rules, `  meta mark & ${bit} != 0 meta mark set ${mark} ct mark set meta mark counter`);
-	else
-		// TProxy's LAN ACL already excludes self_mark; do not overwrite ct marks
-		// owned by other firewall components.
-		push(rules, `  meta mark & ${bit} != 0 meta mark set ${mark} counter`);
+	push(rules, `  meta mark & ${bit} != 0 meta mark set ${mark} ct mark set meta mark counter`);
 	push(rules, ' }', '}');
 	return join('\n', rules) + '\n';
 }

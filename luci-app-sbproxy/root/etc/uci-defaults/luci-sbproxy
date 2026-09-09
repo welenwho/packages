@@ -15,12 +15,6 @@ if ! uci -q batch <<-EOF >"/dev/null"
 	delete firewall.sbproxy_pre
 
 	delete firewall.sbproxy_forward
-	set firewall.sbproxy_forward=include
-	set firewall.sbproxy_forward.type=nftables
-	set firewall.sbproxy_forward.path="/var/run/sbproxy/fw4_forward.nft"
-	set firewall.sbproxy_forward.position="chain-pre"
-	set firewall.sbproxy_forward.chain="forward"
-
 	delete firewall.sbproxy_input
 	set firewall.sbproxy_input=include
 	set firewall.sbproxy_input.type=nftables
@@ -29,10 +23,6 @@ if ! uci -q batch <<-EOF >"/dev/null"
 	set firewall.sbproxy_input.chain="input"
 
 	delete firewall.sbproxy_post
-	set firewall.sbproxy_post=include
-	set firewall.sbproxy_post.type=nftables
-	set firewall.sbproxy_post.path="/var/run/sbproxy/fw4_post.nft"
-	set firewall.sbproxy_post.position="table-post"
 	commit firewall
 EOF
 then

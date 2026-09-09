@@ -8,7 +8,7 @@ CLIENT="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client.js"
 CONFIG="$PACKAGE_ROOT/root/usr/share/sbproxy/defaults/sbproxy"
 
 grep -Fq "form.Flag, 'tun_route_exclude_tailscale'" "$CLIENT"
-grep -Fq "o.depends('proxy_mode', 'tun');" "$CLIENT"
+! grep -Fq "form.ListValue, 'proxy_mode'" "$CLIENT"
 grep -Fq "option tun_route_exclude_tailscale '0'" "$CONFIG"
 grep -Fq 'function unique_cidrs(values)' "$GENERATOR"
 grep -Fq "uci.get('tailscale', 'settings', 'subnet_routes')" "$GENERATOR"

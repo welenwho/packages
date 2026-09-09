@@ -17,7 +17,7 @@
 
 bridge prerouting 识别网桥成员，inet prerouting 同时支持网桥或独立三层接口。
 临时包标记 `0x40000000` 只传递入口分类；在正常路由前转换为 sing-box 的 TUN
-绕过标记（明确配置为 `0x2024`），或 TProxy 当前的 self_mark。不要在其他插件中复用此分类位。
+绕过标记（明确配置为 `0x2024`）。不要在其他插件中复用此分类位。
 不改写全局策略路由，也不修改 sing-box 自己的 nft 表。
 
 选中来源的 TCP/UDP 53 查询会进入独立 DNS 入口：普通域名使用 WAN 直连 DNS，
@@ -40,5 +40,5 @@ DoH/DoT 作为普通业务流量绕过，不解密也不强制替换。选中的
 
 本地：`sh luci-app-sbproxy/tests/static-ingress-policy.sh`、
 `python3 luci-app-sbproxy/tests/test-ingress-helper.py`。
-OpenWrt：用 ucode 运行 `tests/ingress-policy.uc`，可传 `tun` 或 `tproxy` 输出测试规则供 `nft -c` 校验。
+OpenWrt：用 ucode 运行 `tests/ingress-policy.uc`，可传 `tun` 输出测试规则供 `nft -c` 校验。
 测试模块需与 `scripts/ingress.uc` 位于同一模块搜索目录。

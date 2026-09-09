@@ -65,6 +65,9 @@ jobs:
           sudo apt-get -qq update
           sudo apt-get -qq install --no-install-recommends curl jq unzip
 
+      - name: 准备与锁定核心版本一致的规则校验工具
+        run: bash .github/scripts/prepare-rule-set-tool.sh
+
       - name: 检查并更新 SBProxy 数据
         id: resources
         run: .github/scripts/update-sbproxy-geodata.sh

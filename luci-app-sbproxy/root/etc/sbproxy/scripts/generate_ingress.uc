@@ -15,5 +15,4 @@ if (length(control.ingress_bypass_wifi || [])) {
 	if (type(wireless) !== 'object')
 		die('Unable to resolve wireless ingress devices');
 }
-print(ingressNft(control, wireless, uci.get('sbproxy', 'config', 'proxy_mode') || 'tun',
-	uci.get('sbproxy', 'infra', 'self_mark') || '100', uci.get('sbproxy', 'infra', 'ingress_dns_port')));
+print(ingressNft(control, wireless, uci.get('sbproxy', 'infra', 'ingress_dns_port')));

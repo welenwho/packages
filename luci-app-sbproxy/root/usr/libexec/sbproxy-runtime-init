@@ -147,7 +147,7 @@ fi
 if [ "$(uci -q get sbproxy.control.ingress_enabled)" = '1' ] &&
    [ -n "$(uci -q get sbproxy.control.ingress_bypass_devices)$(uci -q get sbproxy.control.ingress_bypass_wifi)" ]; then
 	ingress_dns_port="$(uci -q get sbproxy.infra.ingress_dns_port)"
-	ingress_reserved="$clash_api_port $dashboard_port $tailscale_api_port $direct_probe_port $proxy_probe_port $(uci -q get sbproxy.infra.dns_port) $(uci -q get sbproxy.infra.mixed_port) $(uci -q get sbproxy.infra.tproxy_port) 53"
+	ingress_reserved="$clash_api_port $dashboard_port $tailscale_api_port $direct_probe_port $proxy_probe_port $(uci -q get sbproxy.infra.dns_port) $(uci -q get sbproxy.infra.mixed_port) 53"
 	for reserved in $ingress_reserved; do
 		[ "$ingress_dns_port" != "$reserved" ] || ingress_dns_port=auto
 	done

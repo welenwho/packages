@@ -287,6 +287,13 @@ function apply_transport_opts(config, proxy) {
 	}
 }
 
+function has_required_hysteria_bandwidth(config) {
+	if (config?.type !== 'hysteria' ||
+	    (int(config.hysteria_up_mbps) > 0 && int(config.hysteria_down_mbps) > 0)) return true;
+	log(sprintf('Skipping Hysteria v1 node without positive upload/download bandwidth: %s.', config.label || config.address || 'unknown'));
+	return false;
+}
+
 function parse_mihomo_proxy(proxy) {
 	if (type(proxy) !== 'object')
 		return null;
@@ -555,7 +562,7 @@ function parse_mihomo_proxy(proxy) {
 		return null;
 	}
 
-	return config;
+	return has_required_hysteria_bandwidth(config) ? config : null;
 }
 
 function parse_uri(uri) {
@@ -951,6 +958,7 @@ function parse_uri(uri) {
 	}
 
 	if (!isEmpty(config)) {
+		if (!has_required_hysteria_bandwidth(config)) return null;
 		if (config.address)
 			config.address = replace(config.address, /\[|\]/g, '');
 
