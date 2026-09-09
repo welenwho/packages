@@ -16,7 +16,7 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-1-r7 as adaptive';
+'require sbproxy-adaptive-1-0-1-r8 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
