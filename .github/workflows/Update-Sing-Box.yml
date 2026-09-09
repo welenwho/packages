@@ -51,6 +51,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 sing-box/tests/test-core-release.py
+          python3 sing-box/tests/test-core-export.py
+          python3 sing-box/tests/test-package-sources.py
           python3 luci-app-sbproxy/tests/test-core-switch.py
           sh sing-box/tests/static-tailscale-route-api.sh
           python3 .github/scripts/core-release.py resolve

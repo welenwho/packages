@@ -198,6 +198,7 @@ jobs:
           "$SDK_ROOT/scripts/feeds" install -a
 
       - name: 编译 ${{ matrix.platform_name }} APK
+        id: compile
         env:
           PACKAGES: ${{ needs.resolve.outputs.packages }}
           SBPROXY_CORE_SOURCE_BUILD: ${{ inputs.core_version != '' && '1' || '0' }}
@@ -232,12 +233,13 @@ jobs:
           retention-days: 7
 
       - name: 上传 ${{ matrix.platform_name }} 编译结果
+        if: always() && steps.compile.outcome == 'success'
         uses: actions/upload-artifact@main
         with:
           name: apk-output-${{ matrix.platform }}
           path: ${{ runner.temp }}/apk-output
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
   publish:
     name: 发布 ${{ matrix.platform_name }} APK

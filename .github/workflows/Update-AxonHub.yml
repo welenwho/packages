@@ -284,12 +284,8 @@ jobs:
             "chore: 更新 Axonhub 至 ${BUILD_VERSION}-r${release}" \
             "$makefile"
 
-      - name: 仅保留最新 Axonhub 核心发布
-        env:
-          RELEASE_TAG: ${{ steps.version.outputs.release_tag }}
-        run: |
-          source .github/scripts/ci-common.sh
-          ci_prune_releases "$RELEASE_TAG" 'axonhub-'
+      # Keep historical binaries: fixed-commit firmware/APK builds still
+      # download their pinned release after the next daily update.
 
   build:
     name: 编译并发布 Axonhub 核心 APK

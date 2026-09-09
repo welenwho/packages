@@ -102,9 +102,6 @@ plugin_description() {
 	local package_dir="$1"
 
 	case "$package_dir" in
-		luci-app-axonhub)
-			printf 'axonhub 核心的 LuCI 管理界面与 OpenWrt 集成。\n'
-			;;
 		luci-app-gecoosac)
 			printf 'gecoosac 核心的 LuCI 管理界面与 OpenWrt 集成。\n'
 			;;
