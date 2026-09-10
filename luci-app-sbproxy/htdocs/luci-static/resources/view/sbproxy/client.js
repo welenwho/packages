@@ -244,6 +244,7 @@ return view.extend({
 		s.tab('routing', _('Routing Settings'));
 		s.tab('dashboard', _('Dashboard'));
 		s.tab('advanced', _('Advanced Settings'));
+		s.tab('diversion', _('Rule Diversion'));
 		adaptive.addForm(m, s, data[3]);
 
 		o = s.taboption('routing', form.ListValue, 'main_node', _('Main node'));
@@ -576,7 +577,7 @@ return view.extend({
 		o.datatype = 'uinteger';
 		o.rmempty = false;
 
-		o = s.taboption('routing', form.SectionValue, '_domain_groups', form.GridSection, 'domain_route', _('Domain diversion groups'),
+		o = s.taboption('diversion', form.SectionValue, '_domain_groups', form.GridSection, 'domain_route', _('Diversion groups'),
 			_('Mainland whitelist only. Groups are evaluated in order before domain lists and geographic rules. Device and ingress bypass policies still take priority; custom routing is unchanged.'));
 		o.depends('routing_mode', 'bypass_mainland_china');
 		const groups = o.subsection;
@@ -584,12 +585,17 @@ return view.extend({
 		groups.anonymous = true;
 		groups.addremove = true;
 		groups.sortable = true;
-		let go = groups.option(form.Flag, 'enabled', _('Enable'));
+		groups.tab('general', _('General Settings'));
+		groups.tab('domains', _('Domain matching'));
+		groups.tab('addresses', _('Address matching'));
+		groups.tab('ports', _('Port matching'));
+		groups.tab('other', _('Other Fields'));
+		let go = groups.taboption('general', form.Flag, 'enabled', _('Enable'));
 		go.default = go.enabled;
 		go.rmempty = false;
-		go = groups.option(form.Value, 'label', _('Name'));
+		go = groups.taboption('general', form.Value, 'label', _('Name'));
 		go.rmempty = false;
-		go = groups.option(form.ListValue, 'node', _('Target'));
+		go = groups.taboption('general', form.ListValue, 'node', _('Target'));
 		go.value('_main', _('Main node / URLTest'));
 		go.value('_direct', _('Direct'));
 		for (const id in proxy_nodes) go.value(id, proxy_nodes[id]);
@@ -599,7 +605,7 @@ return view.extend({
 		});
 		go.default = '_main';
 		go.rmempty = false;
-		go = groups.option(form.ListValue, 'missing_node_action', _('When the selected node is unavailable'));
+		go = groups.taboption('general', form.ListValue, 'missing_node_action', _('When the selected node is unavailable'));
 		go.value('error', _('Stop with a configuration error'));
 		go.value('reject', _('Reject only this group'));
 		go.value('main', _('Use the main node'));
@@ -621,12 +627,13 @@ return view.extend({
 			}
 			return message;
 		}
-		let warning = groups.option(form.DummyValue, '_diversion_warning', _('Group overlap'));
+		let warning = groups.taboption('domains', form.DummyValue, '_diversion_warning', _('Group overlap'),
+			_('This check covers the quick domain lists only. Rule sets, regular expressions and other constraints can also overlap; the first matching group wins.'));
 		warning.modalonly = true;
 		warning.renderWidget = function() {
 			return E('div', { 'data-sbproxy-diversion-warning': '', 'class': 'cbi-section-descr' }, [updateDiversionWarning()]);
 		};
-		go = groups.option(form.TextValue, 'domains', _('Domain List'),
+		go = groups.taboption('domains', form.TextValue, 'domains', _('Domain List'),
 			_('One domain per line. Dotted entries match domain suffixes; other entries match keywords. Comments beginning with # are ignored. Overlapping groups are allowed: the first match wins and a warning is logged.'));
 		go.rows = 10;
 		go.monospace = true;
@@ -643,6 +650,66 @@ return view.extend({
 				if (!d || !stubValidator.apply('hostname', d)) return _('Invalid domain entry: %s').format(d);
 			return true;
 		};
+
+
+		go = groups.taboption('general', form.DummyValue, '_match_logic', _('Matching logic'));
+		go.modalonly = true;
+		go.cfgvalue = () => _('Uses the same matching logic as routing rules. Destination selectors share a matching category; ports, source addresses and other conditions constrain it. Empty groups are ignored. Only pure domain groups automatically select a DNS outbound; connection and rule-set groups keep the existing DNS policy.');
+		go = groups.taboption('other', sb.CBIStaticList, 'rule_set', _('Rule set'), _('Match one or more enabled rule sets. Manage them in the Rule Set tab.'));
+		go.load = function(section_id) {
+			delete this.keylist;
+			delete this.vallist;
+			this.value('builtin:geoip-cn', _('China IP rules (IPv4 and IPv6)'));
+			this.value('builtin:geosite-cn', _('China domain rules'));
+			uci.sections(data[0], 'ruleset', (set) => { if (set.enabled === '1') this.value(set['.name'], set.label || set['.name']); });
+			return this.super('load', section_id);
+		};
+		go.validate = function(section_id, value) {
+			if (!section_id || !value || this.section.formvalue(section_id, 'enabled') !== '1' ||
+			    ['builtin:geoip-cn', 'builtin:geosite-cn'].includes(value)) return true;
+			const enabled = this.map.lookupOption('enabled', value)?.[0]?.formvalue(value) ?? uci.get('sbproxy', value, 'enabled');
+			return uci.get('sbproxy', value) === 'ruleset' && enabled === '1' ? true :
+				_('Rule set is missing or disabled: %s').format(value);
+		};
+		go.modalonly = true;
+		go = groups.taboption('other', form.Flag, 'rule_set_ip_cidr_match_source', _('Rule set IP CIDR as source IP'));
+		go.modalonly = true;
+		go = groups.taboption('other', form.ListValue, 'network', _('Network'));
+		go.value('', _('Both')); go.value('tcp', _('TCP')); go.value('udp', _('UDP'));
+		go.modalonly = true;
+		go = groups.taboption('other', form.ListValue, 'ip_version', _('IP version'));
+		go.value('', _('Both')); go.value('4', _('IPv4')); go.value('6', _('IPv6'));
+		go.modalonly = true;
+		go = groups.taboption('other', sb.CBIStaticList, 'protocol', _('Protocol'));
+		for (const protocol of ['http', 'tls', 'quic', 'dns', 'ssh', 'bittorrent', 'stun']) go.value(protocol);
+		go.modalonly = true;
+		go = groups.taboption('other', form.Flag, 'invert', _('Invert'), _('Invert the complete group match, not individual fields.'));
+		go.modalonly = true;
+		go = groups.taboption('domains', form.DynamicList, 'domain', _('Domains'), _('Match full domain.'));
+		go.datatype = 'hostname'; go.modalonly = true;
+		go = groups.taboption('domains', form.DynamicList, 'domain_suffix', _('Domain suffix'), _('Match domain suffix.'));
+		go.datatype = 'hostname'; go.modalonly = true;
+		go = groups.taboption('domains', form.DynamicList, 'domain_keyword', _('Domain keyword'), _('Match domain using keyword.'));
+		go.modalonly = true;
+		go = groups.taboption('domains', form.DynamicList, 'domain_regex', _('Domain regex'), _('Match domain using regular expression.'));
+		go.modalonly = true;
+		for (const field of ['ip_cidr', 'source_ip_cidr']) {
+			go = groups.taboption('addresses', form.DynamicList, field, field === 'ip_cidr' ? _('IP CIDR') : _('Source IP CIDR'));
+			go.datatype = 'or(cidr, ipaddr)'; go.modalonly = true;
+		}
+		go = groups.taboption('addresses', form.Flag, 'ip_is_private', _('Match private IP'));
+		go.modalonly = true;
+		go = groups.taboption('addresses', form.Flag, 'source_ip_is_private', _('Match private source IP'));
+		go.modalonly = true;
+		for (const field of ['port', 'source_port']) {
+			go = groups.taboption('ports', form.DynamicList, field, field === 'port' ? _('Port') : _('Source port'));
+			go.datatype = 'port'; go.modalonly = true;
+		}
+		for (const field of ['port_range', 'source_port_range']) {
+			go = groups.taboption('ports', form.DynamicList, field, field === 'port_range' ? _('Port range') : _('Source port range'),
+				_('Match port range. Format as START:/:END/START:END.'));
+			go.validate = sb.validatePortRange; go.modalonly = true;
+		}
 
 		/* Custom routing settings start */
 		/* Routing settings start */
@@ -1680,6 +1747,8 @@ return view.extend({
 		s.tab('ruleset', _('Rule Set'));
 		o = s.taboption('ruleset', form.SectionValue, '_ruleset', form.GridSection, 'ruleset');
 		o.depends('routing_mode', 'custom');
+		o.depends('routing_mode', 'bypass_mainland_china');
+		o.retain = true;
 
 		ss = o.subsection;
 		ss.addremove = true;
@@ -1757,7 +1826,17 @@ return view.extend({
 			return this.super('load', section_id);
 		}
 		so.default = 'direct-out';
-		so.depends('type', 'remote');
+		so.depends({ type: 'remote', 'sbproxy.config.routing_mode': 'custom' });
+		so.retain = true;
+
+		so = ss.option(form.ListValue, 'diversion_download_outbound', _('Rule-set download in mainland mode'),
+			_('Separate from the custom-routing download outbound. Only rule sets referenced by enabled diversion groups are loaded in mainland mode.'));
+		so.value('direct-out', _('Direct'));
+		so.value('main-out', _('Main node / URLTest'));
+		so.default = 'direct-out';
+		so.depends({ type: 'remote', 'sbproxy.config.routing_mode': 'bypass_mainland_china' });
+		so.retain = true;
+		so.modalonly = true;
 
 		so = ss.option(form.Value, 'update_interval', _('Update interval'),
 			_('Update interval of rule set.'));

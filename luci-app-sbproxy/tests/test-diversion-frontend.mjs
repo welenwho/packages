@@ -11,7 +11,7 @@ assert.deepEqual(normalize('one.example\r\ntwo.example\rthree.example'), ['one.e
 assert.deepEqual(normalize(' .Example.COM.\nexample.com\n# comment\nkeyword '), ['example.com', 'keyword']);
 assert.deepEqual(normalize(['news.example.com', 'router.example.net']), ['news.example.com', 'router.example.net']);
 assert.deepEqual(normalize('  \n# comment\n'), []);
-const cfgStart = source.indexOf('go.cfgvalue = function(section_id)', source.indexOf("groups.option(form.TextValue, 'domains'"));
+const cfgStart = source.indexOf('go.cfgvalue = function(section_id)', source.indexOf("form.TextValue, 'domains'"));
 const cfgEnd = source.indexOf('\n\t\tgo.write', cfgStart);
 const go = {};
 Function('go', 'L', 'uci', source.slice(cfgStart, cfgEnd))(go, { toArray: (v) => v }, { get: () => ['news.example.com', 'router.example.net'] });

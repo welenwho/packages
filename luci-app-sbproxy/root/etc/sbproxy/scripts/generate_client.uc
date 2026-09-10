@@ -11,6 +11,7 @@ import { readfile, writefile } from 'fs';
 import { isnan } from 'math';
 import { connect } from 'ubus';
 import { ingressEnabled } from 'ingress';
+import { renderRouteMatch } from 'route_match';
 import { loadDomainGroups, domainGroupOverlap } from 'domain_groups';
 import { cursor } from 'uci';
 
@@ -199,7 +200,7 @@ const memory_guard_enabled = uci.get(uciconfig, ucimain, 'memory_guard_enabled')
 const memory_guard_limit = uci.get(uciconfig, ucimain, 'memory_guard_limit');
 const memory_guard_safety_margin = uci.get(uciconfig, ucimain, 'memory_guard_safety_margin');
 const domain_groups = isEmpty(main_node) ? [] : loadDomainGroups(uci, uciconfig, routing_mode);
-const groups_need_sniff = length(filter(domain_groups, (g) => length(g.keywords))) > 0;
+const groups_need_sniff = length(filter(domain_groups, (g) => g.needs_sniff)) > 0;
 const overlap = domainGroupOverlap(domain_groups);
 if (overlap) warn('Diversion groups overlap at ' + overlap + '; first group wins.\n');
 function group_outbound(group) {
@@ -207,12 +208,8 @@ function group_outbound(group) {
 	if (group.node === '_main' || group.node === main_node) return 'main-out';
 	return get_node_outbound_tag(group.node);
 }
-function group_match(group) {
-	let rules = [];
-	if (length(group.suffixes)) push(rules, { domain_suffix: group.suffixes });
-	if (length(group.keywords)) push(rules, { domain_keyword: group.keywords });
-	return length(rules) === 1 ? rules[0] : { type: 'logical', mode: 'or', rules };
-}
+function group_match(group) { return group.match; }
+
 const force_proxy_rules = hasForceProxyRules(uci, uciconfig, proxy_domain_list) ||
 	groups_need_sniff || length(filter(domain_groups, (g) => g.node !== '_direct')) > 0;
 const fast_bypass_mainland = routing_mode === 'bypass_mainland_china' && !force_proxy_rules;
@@ -644,6 +641,15 @@ function get_resolver(cfg) {
 	}
 }
 
+function render_rule_set(cfg, outbound) {
+	return {
+		type: cfg.type, tag: 'cfg-' + cfg['.name'] + '-rule', format: cfg.format,
+		path: cfg.path, url: cfg.url,
+		http_client: outbound === 'direct-out' ? 'direct-http' : (outbound ? { detour: outbound } : null),
+		update_interval: cfg.update_interval
+	};
+}
+
 function get_ruleset(cfg) {
 	if (isEmpty(cfg))
 		return null;
@@ -821,8 +827,10 @@ if (ingress_enabled) {
 if (length(domain_groups)) {
 	let group_resolvers = { 'main-out': 'main-dns' };
 	for (let group in domain_groups) {
+		// Do not broaden connection-only criteria into unrelated DNS matches.
+		if (!group.dns_match) continue;
 		if (group.node === '_reject') {
-			push(config.dns.rules, { ...group_match(group), action: 'predefined', rcode: 'REFUSED' });
+			push(config.dns.rules, { ...group.dns_match, action: 'predefined', rcode: 'REFUSED' });
 			continue;
 		}
 		const outbound = group_outbound(group);
@@ -838,7 +846,7 @@ if (length(domain_groups)) {
 				});
 			}
 		}
-		push(config.dns.rules, { ...group_match(group), action: 'route', server });
+		push(config.dns.rules, { ...group.dns_match, action: 'route', server });
 	}
 }
 
@@ -1428,29 +1436,7 @@ if (!isEmpty(main_node)) {
 		const action = cfg.action || 'route';
 		const is_route_action = action in ['route', 'route-options'];
 		const rule = {
-			ip_version: strToInt(cfg.ip_version),
-			protocol: cfg.protocol,
-			client: cfg.client,
-			network: cfg.network,
-			domain: cfg.domain,
-			domain_suffix: cfg.domain_suffix,
-			domain_keyword: cfg.domain_keyword,
-			domain_regex: cfg.domain_regex,
-			source_ip_cidr: cfg.source_ip_cidr,
-			source_ip_is_private: strToBool(cfg.source_ip_is_private),
-			ip_cidr: cfg.ip_cidr,
-			ip_is_private: strToBool(cfg.ip_is_private),
-			source_port: parse_port(cfg.source_port),
-			source_port_range: cfg.source_port_range,
-			port: parse_port(cfg.port),
-			port_range: cfg.port_range,
-			process_name: cfg.process_name,
-			process_path: cfg.process_path,
-			process_path_regex: cfg.process_path_regex,
-			user: cfg.user,
-			rule_set: get_ruleset(cfg.rule_set),
-			rule_set_ip_cidr_match_source: strToBool(cfg.rule_set_ip_cidr_match_source),
-			invert: strToBool(cfg.invert),
+			...renderRouteMatch(cfg, get_ruleset(cfg.rule_set)),
 			action: action,
 			outbound: (action === 'route') ? get_outbound(cfg.outbound) : null,
 			override_address: is_route_action ? cfg.override_address : null,
@@ -1510,16 +1496,7 @@ if (!isEmpty(main_node)) {
 			return null;
 
 		const ruleset_outbound = (cfg.type === 'remote') ? (get_outbound(cfg.outbound) || 'direct-out') : null;
-		push(config.route.rule_set, {
-			type: cfg.type,
-			tag: 'cfg-' + cfg['.name'] + '-rule',
-			format: cfg.format,
-			path: cfg.path,
-			url: cfg.url,
-			http_client: (ruleset_outbound === 'direct-out') ? 'direct-http' :
-				(ruleset_outbound ? { detour: ruleset_outbound } : null),
-			update_interval: cfg.update_interval
-		});
+		push(config.route.rule_set, render_rule_set(cfg, ruleset_outbound));
 	});
 
 	if (adaptive_apply)
@@ -1537,6 +1514,22 @@ if (!isEmpty(main_node)) {
 	add_tailscale_exit_node_rule(config.route.rules);
 	config.route.final = 'direct-out';
 }
+if (length(domain_groups)) {
+	let referenced = [];
+	for (let group in domain_groups) referenced = [...referenced, ...group.rule_set_refs];
+	referenced = uniq(referenced);
+	for (let id in referenced) {
+		const cfg = uci.get_all(uciconfig, id);
+		if (!(cfg.type in ['local', 'remote']) ||
+		    (cfg.type === 'local' && !cfg.path) || (cfg.type === 'remote' && !cfg.url))
+			die('Incomplete diversion rule set: ' + id);
+		const outbound = cfg.type === 'remote' ? (cfg.diversion_download_outbound || 'direct-out') : null;
+		if (outbound && !(outbound in ['direct-out', 'main-out']))
+			die('Invalid diversion rule-set download outbound: ' + id);
+		push(config.route.rule_set, render_rule_set(cfg, outbound));
+	}
+}
+
 /* Routing rules end */
 
 /* Experimental start */

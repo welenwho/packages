@@ -22,7 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Frontend conversion, save/read and overlap tests
-        run: node luci-app-sbproxy/tests/test-diversion-frontend.mjs
+        run: |
+          node luci-app-sbproxy/tests/test-diversion-frontend.mjs
+          node luci-app-sbproxy/tests/test-diversion-fields-ui.mjs
       - name: Core health, rollback, ingress and resource transaction tests
         run: |
           set -e
