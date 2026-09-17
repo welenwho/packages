@@ -9,6 +9,8 @@ ROLLBACK_APK="$STATE_DIR/rollback.apk"
 ROLLBACK_META="$STATE_DIR/rollback.meta"
 LOCK_FILE="/var/lock/sbproxy-core-manager.lock"
 LOG_FILE="/var/run/sbproxy/core-manager.log"
+# Kept outside the service runtime directory: restart/chown must not affect jobs.
+JOB_DIR="/var/run/sbproxy-core-manager"
 REPOSITORY="welenwho/packages"
 REQUIRED_TAGS="with_acme with_clash_api with_dhcp with_gvisor with_quic with_tailscale with_utls with_wireguard"
 USER_AGENT="SBProxy-Core-Manager"
@@ -19,6 +21,93 @@ assets_file=''
 last_download_mode=''
 expected_instances=''
 expected_health=''
+job_id=''
+job_action=''
+job_target=''
+
+write_job() {
+	job_state="$1"
+	stage="$2"
+	{
+		emit operation_id "$job_id"
+		emit operation_action "$job_action"
+		emit operation_target "$job_target"
+		emit operation_state "$job_state"
+		emit operation_stage "$stage"
+		if [ "$job_state" != running ]; then
+			emit result_code "$job_exit"
+			cat "$JOB_DIR/result"
+		fi
+	} > "$JOB_DIR/status.new" && mv -f "$JOB_DIR/status.new" "$JOB_DIR/status"
+}
+
+progress() {
+	[ -n "$job_id" ] || return 0
+	write_job running "$1"
+}
+
+finish_worker() {
+	job_exit="$?"
+	trap - EXIT
+	cleanup
+	case "$job_exit" in
+	0) write_job succeeded done ;;
+	130|143) write_job unknown interrupted ;;
+	*) write_job failed done ;;
+	esac
+}
+
+emit_operation() {
+	requested_id="${1:-}"
+	snapshot="$(cat "$JOB_DIR/status" 2>/dev/null || true)"
+	if printf '%s\n' "$snapshot" | grep -qx 'operation_state=running'; then
+		# Re-read while holding a free lock, so a newly submitted job cannot
+		# race with the orphan check. A live worker keeps the lock unavailable.
+		snapshot="$(
+			exec 8>"$LOCK_FILE"
+			if flock -n 8; then
+				sed 's/^operation_state=running$/operation_state=unknown/' "$JOB_DIR/status"
+			else
+				cat "$JOB_DIR/status"
+			fi
+		)"
+	fi
+	if [ -z "$snapshot" ] || { [ -n "$requested_id" ] &&
+	   ! printf '%s\n' "$snapshot" | grep -Fxq "operation_id=$requested_id"; }; then
+		emit operation_state unknown
+		return
+	fi
+	printf '%s\n' "$snapshot"
+}
+
+start_operation() {
+	job_action="$1"
+	job_target="$2"
+	job_id="$3"
+	printf '%s\n' "$job_id" | grep -Eq '^[a-f0-9]{32}$' || fail invalid_target 'Invalid operation ID.'
+	printf '%s\n' "$job_target" | grep -Eq '^sing-box-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.apk$' ||
+		fail invalid_target 'Invalid core package selection.'
+	exec 9>"$LOCK_FILE"
+	flock -n 9 || fail operation_in_progress 'Another core operation is already in progress.'
+	mkdir -p "$JOB_DIR" || fail temporary_directory_failed 'Unable to create the operation directory.'
+	chmod 700 "$JOB_DIR"
+	# The same request must never install twice, including after a lost reply.
+	if grep -Fxq "operation_id=$job_id" "$JOB_DIR/status" 2>/dev/null; then
+		cat "$JOB_DIR/status"
+		return
+	fi
+	: > "$JOB_DIR/result"
+	write_job running queued || fail temporary_directory_failed 'Unable to save operation state.'
+	# Inherit the exclusive lock, ignore HUP and detach all RPC pipe descriptors.
+	# The RPC returns immediately; service restarts do not own this process.
+	sh -c 'trap "" HUP; exec "$@"' sh "$0" worker "$job_action" "$job_target" "$job_id" \
+		</dev/null >/dev/null 2>&1 &
+	emit operation_id "$job_id"
+	emit operation_action "$job_action"
+	emit operation_target "$job_target"
+	emit operation_state running
+	emit operation_stage queued
+}
 
 cleanup() {
 	[ -z "$work_dir" ] || rm -rf -- "$work_dir"
@@ -294,7 +383,9 @@ wait_for_service() {
 restart_if_needed() {
 	was_running="$1"
 	[ "$was_running" = '1' ] || return 0
+	progress restarting
 	/etc/init.d/sbproxy restart >>"$LOG_FILE" 2>&1 || return 1
+	progress checking_health
 	wait_for_service
 }
 
@@ -307,6 +398,7 @@ install_apk() {
 restore_rollback() {
 	was_running="$1"
 	log 'Restoring the previous core automatically.'
+	progress restoring
 	install_apk "$ROLLBACK_APK" || return 1
 	validate_binary /usr/bin/sing-box || return 1
 	restart_if_needed "$was_running"
@@ -414,6 +506,7 @@ upgrade_core() {
 	printf '%s\n' "$target" | grep -Eq \
 		'^sing-box-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.apk$' || \
 		fail invalid_target 'Invalid core package selection.'
+	progress querying
 	fetch_assets || fail release_query_failed 'Unable to query the SBProxy package release.'
 	target_asset="$(asset_by_name "$target")" || \
 		fail target_unavailable 'The selected core package is no longer available.'
@@ -440,13 +533,16 @@ EOF
 
 	log "Preparing core upgrade from $current to $target_version."
 	candidate_apk="$work_dir/candidate.apk"
+	progress downloading
 	curl_to_file "$target_url" "$candidate_apk" || \
 		fail download_failed 'Unable to download the selected core package.'
+	progress validating
 	verify_digest "$candidate_apk" "$target_digest" || \
 		fail checksum_mismatch 'The downloaded core package failed SHA-256 verification.'
 	validate_apk "$candidate_apk" "$target_version" || \
 		fail candidate_rejected 'The downloaded package failed metadata, feature, or configuration validation.'
 
+	progress preparing_recovery
 	curl_to_file "$current_url" "$work_dir/rollback.apk" || \
 		fail rollback_download_failed 'Unable to download the current core package for rollback.'
 	verify_digest "$work_dir/rollback.apk" "$current_digest" || \
@@ -459,6 +555,7 @@ EOF
 	capture_expected_cores || fail health_snapshot_failed 'Unable to capture the expected core instances.'
 	was_running=0
 	[ -z "$expected_instances" ] || was_running=1
+	progress installing
 	if ! install_apk "$candidate_apk" || \
 	   [ "$(package_version)" != "$target_version" ] || \
 	   ! validate_binary /usr/bin/sing-box || \
@@ -486,6 +583,28 @@ mkdir -p "$STATE_DIR" "$(dirname "$LOCK_FILE")" "$(dirname "$LOG_FILE")"
 chmod 700 "$STATE_DIR"
 
 case "$action" in
+operation)
+	emit_operation "${2:-}"
+	;;
+start-upgrade|start-rollback)
+	[ "$#" -eq 3 ] || fail invalid_target 'A target and operation ID are required.'
+	start_operation "${action#start-}" "$2" "$3"
+	;;
+worker)
+	[ "$#" -eq 4 ] || exit 1
+	flock -n 9 || exit 1
+	action="$2"
+	case "$action" in upgrade|rollback) ;; *) exit 1 ;; esac
+	job_action="$action"
+	job_target="$3"
+	job_id="$4"
+	exec >"$JOB_DIR/result"
+	trap finish_worker EXIT
+	: > "$LOG_FILE"
+	work_dir="$(mktemp -d "$STATE_DIR/.work.XXXXXX")" || fail temporary_directory_failed \
+		'Unable to create a temporary directory.'
+	upgrade_core "$job_target"
+	;;
 status)
 	emit_status
 	;;

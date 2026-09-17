@@ -5204,3 +5204,60 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:414
 msgid "valid port value"
 msgstr ""
+
+msgid "Preparing the core operation..."
+msgstr ""
+
+msgid "Querying published core packages..."
+msgstr ""
+
+msgid "Downloading the selected core package..."
+msgstr ""
+
+msgid "Verifying the package and current configuration..."
+msgstr ""
+
+msgid "Preparing the emergency recovery package..."
+msgstr ""
+
+msgid "Installing the core package..."
+msgstr ""
+
+msgid "Restarting SBProxy; network access may pause briefly..."
+msgstr ""
+
+msgid "Checking core process and listener stability..."
+msgstr ""
+
+msgid "Restoring the previous core..."
+msgstr ""
+
+msgid "The operation result cannot be confirmed yet. This does not mean the upgrade failed. Reconnect to the router and check again; do not repeat the installation or power off the router."
+msgstr ""
+
+msgid "Check operation status"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "Result unconfirmed"
+msgstr ""
+
+msgid "Last core operation: %s — %s"
+msgstr ""
+
+msgid "Core operation progress"
+msgstr ""
+
+msgid "View operation"
+msgstr ""
+
+msgid "Reading operation status..."
+msgstr ""
+
+msgid "The operation runs on the router. Closing this dialog or refreshing the page does not cancel it. Do not power off the router."
+msgstr ""
+
+msgid "Connection interrupted. Waiting for the router to reconnect; the core operation may still be running..."
+msgstr ""

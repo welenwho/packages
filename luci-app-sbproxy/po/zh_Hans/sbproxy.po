@@ -5325,3 +5325,60 @@ msgstr "有效端口范围（port1:port2）"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:414
 msgid "valid port value"
 msgstr "有效端口值"
+
+msgid "Preparing the core operation..."
+msgstr "正在准备核心操作…"
+
+msgid "Querying published core packages..."
+msgstr "正在查询已发布的核心软件包…"
+
+msgid "Downloading the selected core package..."
+msgstr "正在下载所选核心软件包…"
+
+msgid "Verifying the package and current configuration..."
+msgstr "正在校验软件包和当前配置…"
+
+msgid "Preparing the emergency recovery package..."
+msgstr "正在准备应急恢复包…"
+
+msgid "Installing the core package..."
+msgstr "正在安装核心软件包…"
+
+msgid "Restarting SBProxy; network access may pause briefly..."
+msgstr "正在重启 SBProxy，网络可能短暂中断…"
+
+msgid "Checking core process and listener stability..."
+msgstr "正在检查核心进程及监听端口的稳定性…"
+
+msgid "Restoring the previous core..."
+msgstr "正在恢复先前的核心…"
+
+msgid "The operation result cannot be confirmed yet. This does not mean the upgrade failed. Reconnect to the router and check again; do not repeat the installation or power off the router."
+msgstr "暂时无法确认操作结果，这不代表升级失败。请重新连接路由器后再次查询，不要重复安装或关闭路由器电源。"
+
+msgid "Check operation status"
+msgstr "查询操作状态"
+
+msgid "Completed"
+msgstr "已完成"
+
+msgid "Result unconfirmed"
+msgstr "结果未确认"
+
+msgid "Last core operation: %s — %s"
+msgstr "最近一次核心操作：%s — %s"
+
+msgid "Core operation progress"
+msgstr "核心操作进度"
+
+msgid "View operation"
+msgstr "查看操作"
+
+msgid "Reading operation status..."
+msgstr "正在读取操作状态…"
+
+msgid "The operation runs on the router. Closing this dialog or refreshing the page does not cancel it. Do not power off the router."
+msgstr "操作在路由器后台执行，关闭此弹窗或刷新页面不会取消操作。请勿关闭路由器电源。"
+
+msgid "Connection interrupted. Waiting for the router to reconnect; the core operation may still be running..."
+msgstr "连接暂时中断，正在等待路由器恢复连接；核心操作可能仍在后台进行…"

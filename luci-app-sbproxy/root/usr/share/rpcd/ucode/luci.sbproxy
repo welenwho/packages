@@ -36,10 +36,12 @@ function runCommand(command) {
 	return { code: int(code) || 0, output };
 }
 
-function coreManagerCall(action, target) {
+function coreManagerCall(action, target, operation_id) {
 	let command = `/usr/libexec/sbproxy-core-manager ${shellQuote(action)}`;
 	if (target)
 		command += ` ${shellQuote(target)}`;
+	if (operation_id)
+		command += ` ${shellQuote(operation_id)}`;
 	const result = runCommand(command);
 	let response = {
 		code: result.code,
@@ -50,7 +52,7 @@ function coreManagerCall(action, target) {
 		'automatic_rollback', 'busy', 'manager_supported', 'rollback_available',
 		'rolled_back', 'service_running', 'upgraded'
 	];
-	const integers = [ 'overlay_available_kb', 'tmp_available_kb' ];
+	const integers = [ 'overlay_available_kb', 'tmp_available_kb', 'result_code' ];
 
 	for (let line in split(result.output || '', '\n')) {
 		const pair = match(line, /^([^=]+)=(.*)$/);
@@ -532,23 +534,39 @@ const methods = {
 		}
 	},
 
+	core_operation_status: {
+		args: { operation_id: '' },
+		call: function(req) {
+			const id = trim(req.args?.operation_id || '');
+			if (id && !match(id, /^[a-f0-9]{32}$/))
+				return { code: 2, error_code: 'invalid_target' };
+			return coreManagerCall('operation', id);
+		}
+	},
+
 	core_upgrade: {
-		args: { target: 'target' },
+		args: { target: 'target', operation_id: '' },
 		call: function(req) {
 			const target = trim(req.args?.target || '');
 			if (!match(target, /^sing-box-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.apk$/))
 				return { code: 2, error_code: 'invalid_target', error: 'Invalid core package selection.' };
-			return coreManagerCall('upgrade', target);
+			const id = trim(req.args?.operation_id || '');
+			if (!match(id, /^[a-f0-9]{32}$/))
+				return { code: 2, error_code: 'invalid_target' };
+			return coreManagerCall('start-upgrade', target, id);
 		}
 	},
 
 	core_rollback: {
-		args: { target: 'target' },
+		args: { target: 'target', operation_id: '' },
 		call: function(req) {
 			const target = trim(req.args?.target || '');
 			if (!match(target, /^sing-box-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.apk$/))
 				return { code: 2, error_code: 'invalid_target', error: 'Invalid core package selection.' };
-			return coreManagerCall('rollback', target);
+			const id = trim(req.args?.operation_id || '');
+			if (!match(id, /^[a-f0-9]{32}$/))
+				return { code: 2, error_code: 'invalid_target' };
+			return coreManagerCall('start-rollback', target, id);
 		}
 	},
 

@@ -25,10 +25,12 @@ jobs:
         run: |
           node luci-app-sbproxy/tests/test-diversion-frontend.mjs
           node luci-app-sbproxy/tests/test-diversion-fields-ui.mjs
+          node luci-app-sbproxy/tests/test-core-operation-ui.mjs
       - name: Core health, rollback, ingress and resource transaction tests
         run: |
           set -e
           for test_file in luci-app-sbproxy/tests/test-*.py; do python3 "$test_file"; done
+          sh luci-app-sbproxy/tests/test-core-job-shell.sh
       - name: Verified tool cache tests
         run: python3 sing-box/tests/test-rule-tool-cache.py
       - name: Static integration tests

@@ -23,16 +23,51 @@ const callCoreCheckUpdate = rpc.declare({
 const callCoreUpgrade = rpc.declare({
 	object: 'luci.sbproxy',
 	method: 'core_upgrade',
-	params: [ 'target' ],
+	params: [ 'target', 'operation_id' ],
 	expect: { '': {} }
 });
 
 const callCoreRollback = rpc.declare({
 	object: 'luci.sbproxy',
 	method: 'core_rollback',
-	params: [ 'target' ],
+	params: [ 'target', 'operation_id' ],
 	expect: { '': {} }
 });
+
+const callCoreOperationStatus = rpc.declare({
+	object: 'luci.sbproxy',
+	method: 'core_operation_status',
+	params: [ 'operation_id' ],
+	nobatch: true,
+	expect: { '': {} }
+});
+
+const operationStages = {
+	queued: _('Preparing the core operation...'),
+	querying: _('Querying published core packages...'),
+	downloading: _('Downloading the selected core package...'),
+	validating: _('Verifying the package and current configuration...'),
+	preparing_recovery: _('Preparing the emergency recovery package...'),
+	installing: _('Installing the core package...'),
+	restarting: _('Restarting SBProxy; network access may pause briefly...'),
+	checking_health: _('Checking core process and listener stability...'),
+	restoring: _('Restoring the previous core...')
+};
+
+// Never infer success from a version match: reinstall and failed health checks
+// can both leave that version installed. Only this job's terminal result counts.
+function operationOutcome(result, id) {
+	if (result?.code || result?.operation_id !== id)
+		return 'unknown';
+	if (result.operation_state === 'running')
+		return 'running';
+	if (result.operation_state === 'succeeded' && result.result_code === 0 &&
+		(result.upgraded || result.rolled_back))
+		return 'success';
+	if (result.operation_state === 'failed')
+		return 'failure';
+	return 'unknown';
+}
 
 const coreErrors = {
 	health_snapshot_failed: _('Unable to capture the expected core instances.'),
@@ -160,11 +195,11 @@ function featureTable(status) {
 
 return view.extend({
 	load() {
-		return L.resolveDefault(callCoreStatus(), {
+		return Promise.all([ L.resolveDefault(callCoreStatus(), {
 			code: 1,
 			manager_supported: false,
 			error: _('Unable to read core status.')
-		});
+		}), L.resolveDefault(callCoreOperationStatus(''), {}) ]);
 	},
 
 	showFailure(title, result) {
@@ -195,19 +230,95 @@ return view.extend({
 		]);
 	},
 
-	runOperation(title, promise, successMessage) {
+	showUnconfirmed(title, id) {
 		ui.showModal(title, [
-			E('p', { 'class': 'spinning' }, [
-				_('Downloading, validating and applying the core package. Do not power off the router.')
+			E('p', { 'class': 'alert-message warning' }, [
+				_('The operation result cannot be confirmed yet. This does not mean the upgrade failed. Reconnect to the router and check again; do not repeat the installation or power off the router.')
+			]),
+			E('div', { 'class': 'right' }, [
+				E('button', { 'class': 'btn', 'click': ui.hideModal }, [ _('Close') ]), ' ',
+				E('button', { 'class': 'btn cbi-button-action',
+					'click': () => this.monitorOperation(title, id)
+				}, [ _('Check operation status') ])
 			])
 		]);
-		return promise.then((result) => {
-			if (result?.code || (!result?.upgraded && !result?.rolled_back))
-				return this.showFailure(title, result || {});
-			this.showSuccess(title, successMessage.format(result.package_version || '-'));
-		}).catch((error) => {
-			this.showFailure(title, { error: String(error) });
-		});
+	},
+
+	displayOperation(result) {
+		if (!result?.operation_id || !this.operationInfo)
+			return;
+		this.operationBusy = result.operation_state === 'running';
+		this.refreshButtons?.();
+		const summary = result.operation_state === 'succeeded' ? _('Completed') :
+			result.operation_state === 'failed' ? _('Failed') :
+			result.operation_state === 'running' ?
+				(operationStages[result.operation_stage] || _('Running')) : _('Result unconfirmed');
+		dom.content(this.operationInfo, [
+			E('span', {}, [ _('Last core operation: %s — %s').format(result.operation_target || '-', summary) ]), ' ',
+			E('button', { 'class': 'btn', 'click': () =>
+				this.monitorOperation(_('Core operation progress'), result.operation_id)
+			}, [ _('View operation') ])
+		]);
+	},
+
+	async monitorOperation(title, id) {
+		const token = this.monitorToken = (this.monitorToken || 0) + 1;
+		const progress = E('p', { 'class': 'spinning' }, [ _('Reading operation status...') ]);
+		ui.showModal(title, [
+			progress,
+			E('p', {}, [ _('The operation runs on the router. Closing this dialog or refreshing the page does not cancel it. Do not power off the router.') ]),
+			E('div', { 'class': 'right' }, [ E('button', {
+				'class': 'btn', 'click': () => { this.monitorToken++; ui.hideModal(); }
+			}, [ _('Close') ]) ])
+		]);
+		const deadline = Date.now() + 30 * 60 * 1000;
+		while (this.monitorToken === token && Date.now() < deadline) {
+			let result;
+			try {
+				result = await callCoreOperationStatus(id);
+			} catch (error) {
+				if (this.monitorToken !== token) return;
+				dom.content(progress, _('Connection interrupted. Waiting for the router to reconnect; the core operation may still be running...'));
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				continue;
+			}
+			if (this.monitorToken !== token) return;
+			const outcome = operationOutcome(result, id);
+			if (result.operation_id === id) this.displayOperation(result);
+			if (outcome === 'success')
+				return this.showSuccess(title, (result.rolled_back ?
+					_('The sing-box core was rolled back to %s successfully.') :
+					_('The sing-box core was upgraded to %s successfully.')).format(result.package_version || '-'));
+			if (outcome === 'failure') return this.showFailure(title, result);
+			if (outcome === 'unknown') return this.showUnconfirmed(title, id);
+			dom.content(progress, operationStages[result.operation_stage] || _('Running'));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+		}
+		if (this.monitorToken === token) this.showUnconfirmed(title, id);
+	},
+
+	async runOperation(title, operation, target) {
+		// Generate before the request so even a lost acceptance reply is recoverable.
+		const id = Array.from(window.crypto.getRandomValues(new Uint8Array(16)),
+			(byte) => byte.toString(16).padStart(2, '0')).join('');
+		this.displayOperation({ operation_id: id, operation_target: target,
+			operation_state: 'running', operation_stage: 'queued' });
+		ui.showModal(title, [ E('p', { 'class': 'spinning' }, [ _('Preparing the core operation...') ]) ]);
+		let result;
+		try {
+			result = await operation(target, id);
+		} catch (error) {
+			// A transport error says nothing about whether the router accepted the job.
+			return this.monitorOperation(title, id);
+		}
+		if (result?.code) {
+			this.operationBusy = false;
+			this.refreshButtons?.();
+			// Submission was rejected; do not leave a fictitious queued job behind.
+			if (this.operationInfo) dom.content(this.operationInfo, []);
+			return this.showFailure(title, result);
+		}
+		return this.monitorOperation(title, id);
 	},
 
 	confirmOperation(title, message, operation) {
@@ -230,7 +341,12 @@ return view.extend({
 		]);
 	},
 
-	render(status) {
+	render(data) {
+		const [ status, lastOperation ] = data;
+		this.operationBusy = status.busy || lastOperation.operation_state === 'running';
+		this.operationInfo = E('div', { 'class': 'cbi-section-descr' });
+		let selectedVersion = null;
+		let checking = false;
 		const updateInfo = E('div', { 'class': 'cbi-section-descr' }, [
 			_('Select a published SBProxy core version to upgrade, reinstall or roll back. Historical versions are downloaded from GitHub; no local rollback backup is required.')
 		]);
@@ -249,14 +365,14 @@ return view.extend({
 				const selected = selector.options[selector.selectedIndex]?.textContent || target;
 				this.confirmOperation(_('Upgrade sing-box core'),
 					_('Upgrade the sing-box core to %s?').format(selected), () =>
-						this.runOperation(_('Upgrade sing-box core'), callCoreUpgrade(target),
-							_('The sing-box core was upgraded to %s successfully.')));
+						this.runOperation(_('Upgrade sing-box core'), callCoreUpgrade, target));
 			}
 		}, [ _('Install / reinstall') ]);
 		const checkButton = E('button', {
 			'class': 'btn cbi-button cbi-button-action',
 			'disabled': (status.busy || status.manager_supported === false) ? '' : null,
 			'click': ui.createHandlerFn(this, () => {
+				checking = true;
 				checkButton.disabled = true;
 				dom.content(updateInfo, E('span', { 'class': 'spinning' }, [ _('Checking for updates...') ]));
 				return L.resolveDefault(callCoreCheckUpdate(), { code: 1 }).then((result) => {
@@ -273,15 +389,15 @@ return view.extend({
 						E('option', { 'value': '' }, [ _('No published compatible core versions were found.') ]));
 					selector.disabled = !versions.length;
 					const selectionChanged = () => {
-						const selected = versions.find((asset) => asset.filename === selector.value);
-						upgradeButton.disabled = !selected || selected.relation === 'older';
-						rollbackButton.disabled = !selected || selected.relation !== 'older';
+						selectedVersion = versions.find((asset) => asset.filename === selector.value);
+						this.refreshButtons();
 					};
 					selector.onchange = selectionChanged;
 					selectionChanged();
 					dom.content(updateInfo, _('Latest stable package: %s').format(result.latest_package_version || '-'));
 				}).finally(() => {
-					checkButton.disabled = false;
+					checking = false;
+					this.refreshButtons();
 				});
 			})
 		}, [ _('Check for updates') ]);
@@ -291,9 +407,18 @@ return view.extend({
 			'click': () => this.confirmOperation(_('Roll back sing-box core'),
 				_('Roll back the sing-box core to %s?').format(
 					selector.options[selector.selectedIndex]?.textContent || selector.value), () =>
-					this.runOperation(_('Roll back sing-box core'), callCoreRollback(selector.value),
-						_('The sing-box core was rolled back to %s successfully.')))
+					this.runOperation(_('Roll back sing-box core'), callCoreRollback, selector.value))
 		}, [ _('Roll back') ]);
+		this.refreshButtons = () => {
+			const blocked = this.operationBusy || checking || status.manager_supported === false;
+			checkButton.disabled = blocked;
+			selector.disabled = blocked || !selectedVersion;
+			upgradeButton.disabled = blocked || !selectedVersion || selectedVersion.relation === 'older';
+			rollbackButton.disabled = blocked || !selectedVersion || selectedVersion.relation !== 'older';
+		};
+		this.displayOperation(lastOperation);
+		if (lastOperation.operation_state === 'running')
+			setTimeout(() => this.monitorOperation(_('Core operation progress'), lastOperation.operation_id), 0);
 
 		return E('div', { 'class': 'cbi-map' }, [
 			E('h2', {}, [ _('Core Management') ]),
@@ -319,6 +444,7 @@ return view.extend({
 			]),
 			E('div', { 'class': 'cbi-section' }, [
 				E('h3', {}, [ _('Upgrade') ]),
+				this.operationInfo,
 				updateInfo,
 				E('div', { 'style': 'display:flex;gap:.5em;align-items:center;flex-wrap:wrap;margin-top:1em' }, [
 					checkButton,
