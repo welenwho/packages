@@ -23,7 +23,7 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 rm -rf "$TEST_ROOT"
-mkdir -p "$UCI_DIR" "$RUN_DIR" "$API_DIR/proxies/direct-out" \
+mkdir -p "$UCI_DIR" "$RUN_DIR" "$API_DIR/proxies/sbproxy-adaptive-probe-direct-out" \
 	"$API_DIR/proxies/sbproxy-adaptive-out"
 
 cat >"$UCI_DIR/sbproxy" <<-EOF
@@ -45,7 +45,7 @@ cat >"$UCI_DIR/sbproxy-adaptive" <<-'EOF'
 		option poll_interval '10'
 		option slow_seconds '5'
 		option slow_bytes '65536'
-		option min_observations '10'
+		option min_observations '2'
 		option probe_interval '30'
 		option probe_timeout '1000'
 		option probe_samples '1'
@@ -83,6 +83,8 @@ sleep 6
 printf '%s\n' \
 	'ERROR explicit: open connection to explicit.example:443 using outbound/direct[direct-out]: failed' \
 	'ERROR final: open connection to final-fail.example:443 using outbound/direct[sbproxy-adaptive-final-direct-out]: failed' \
+	'ERROR final-again: open connection to final-fail.example:443 using outbound/direct[sbproxy-adaptive-final-direct-out]: failed' \
+	'ERROR probe: open connection to probe.example:443 using outbound/direct[sbproxy-adaptive-probe-direct-out]: failed' \
 	'ERROR final-ip: open connection to 1.1.1.1:443 using outbound/direct[sbproxy-adaptive-final-direct-out]: failed' \
 	'ERROR private-ip: open connection to 192.168.8.1:443 using outbound/direct[sbproxy-adaptive-final-direct-out]: failed' \
 	>"$CORE_LOG"
@@ -100,7 +102,7 @@ targets="$(jsonfilter -i "$TEST_ROOT/learned.json" -e '@.entries[*].target')"
 [ "$targets" = 'final-fail.example' ]
 
 status_failures="$(jsonfilter -i "$RUN_DIR/status.json" -e '@.failure_count')"
-[ "$status_failures" -eq 2 ]
+[ "$status_failures" -eq 3 ]
 [ "$(jsonfilter -i "$RUN_DIR/status.json" -e '@.candidates[0].target')" = '1.1.1.1' ]
 [ "$(jsonfilter -i "$RUN_DIR/status.json" -e '@.candidates[0].target_type')" = 'ipv4' ]
 if jsonfilter -i "$RUN_DIR/status.json" -e '@.candidates[*].target' | grep -Fqx 'slow-ignored.example'; then

@@ -1087,6 +1087,9 @@ if (adaptive_enabled)
 	push(config.outbounds, {
 		type: 'direct',
 		tag: adaptive_final_direct_tag,
+	}, {
+		type: 'direct',
+		tag: 'sbproxy-adaptive-probe-direct-out',
 	});
 
 /* Main outbounds */
@@ -1290,7 +1293,7 @@ if (proxy_client_enabled && adaptive_enabled) {
 	push(config.route.rules, {
 		inbound: 'sbproxy-adaptive-direct-probe-in',
 		action: 'route',
-		outbound: adaptive_final_direct_tag
+		outbound: 'sbproxy-adaptive-probe-direct-out'
 	});
 	push(config.route.rules, {
 		inbound: 'sbproxy-adaptive-proxy-probe-in',
@@ -1473,12 +1476,24 @@ if (!isEmpty(main_node)) {
 
 		push(config.route.rules, rule);
 	});
-	if (adaptive_apply)
+	if (adaptive_apply) {
+		const protect_mainland = adaptive_policy.target_kind === 'proxy' &&
+		      uci.get('sbproxy-adaptive', 'main', 'protect_mainland') !== '0';
+		// Only constrain automatic rules. Explicit user proxy rules above
+		// retain their priority, including intentional mainland destinations.
+		if (protect_mainland && !bypass_cn_traffic)
+			add_mainland_rule_sets(config.route.rule_set);
 		push(config.route.rules, {
-			rule_set: 'sbproxy-adaptive-rule',
+			...(protect_mainland ? {
+				type: 'logical', mode: 'and', rules: [
+					{ rule_set: 'sbproxy-adaptive-rule' },
+					{ rule_set: ['geoip-cn', 'geosite-cn'], invert: true }
+				]
+			} : { rule_set: 'sbproxy-adaptive-rule' }),
 			action: 'route',
 			outbound: adaptive_target_tag
 		});
+	}
 	add_tailscale_exit_node_rule(config.route.rules);
 
 	if (default_outbound === 'reject')

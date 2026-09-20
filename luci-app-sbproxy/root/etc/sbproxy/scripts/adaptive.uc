@@ -21,11 +21,13 @@ const CORE_LOG_PATH = getenv('SBPROXY_ADAPTIVE_CORE_LOG_PATH') || '/var/run/sbpr
 const CORE_CONFIG_PATH = getenv('SBPROXY_ADAPTIVE_CORE_CONFIG_PATH') || '/var/run/sbproxy/sing-box-c.json';
 const ADAPTIVE_TAG = 'sbproxy-adaptive-out';
 const FINAL_DIRECT_TAG = 'sbproxy-adaptive-final-direct-out';
+const PROBE_DIRECT_TAG = 'sbproxy-adaptive-probe-direct-out';
 const DIRECT_TAG = 'direct-out';
 const MAX_ACTIVE = 1024;
 const MAX_CONNECTIONS_PER_POLL = 4096;
 const MAX_CANDIDATES = 256;
 const MAX_UNSUCCESSFUL_PROBES = 3;
+const PROBE_COOLDOWN = 3600;
 const CANDIDATE_MAX_IDLE = 86400;
 const PREPARE_ONLY = getenv('SBPROXY_ADAPTIVE_PREPARE') === '1';
 const STATUS_INTERVAL = int(getenv('SBPROXY_ADAPTIVE_STATUS_INTERVAL')) || 60;
@@ -78,6 +80,11 @@ const settings = {
 	max_load: configInt('max_load', 2, 0, 128),
 	exclude_suffix: normalizeList(uci.get(CONFIG, SECTION, 'exclude_suffix'))
 };
+const protect_mainland = policy.target_kind === 'proxy' &&
+      uci.get(CONFIG, SECTION, 'protect_mainland') !== '0';
+let mainland_cache = {};
+let mainland_lookup_budget = 32;
+let probe_suppressed = {};
 
 let direct_probe_port = int(getenv('SBPROXY_ADAPTIVE_DIRECT_PROBE_PORT')) ||
 	int(uci.get(CONFIG, SECTION, 'direct_probe_port'));
@@ -168,8 +175,25 @@ function setError(message) {
 		warn(`sbproxy-adaptive: ${message}\n`);
 }
 
-function validTarget(value) {
+function validTarget(value, preserve_on_lookup_error) {
 	const target = normalizeAdaptiveTarget(sprintf('%s', value || ''));
+	if (target && protect_mainland && target.type !== 'domain') {
+		// Match the shipped binary directly; cache verdicts, not a second copy
+		// of the entire GeoIP database. On lookup errors do not learn new IPs.
+		let cached = mainland_cache[target.key];
+		if (!cached || time() - cached.checked > 3600) {
+			if (mainland_lookup_budget <= 0) return preserve_on_lookup_error ? target : null;
+			mainland_lookup_budget--;
+			const result = readCommand(sprintf(
+				'/usr/bin/sing-box rule-set match -f binary /etc/sbproxy/resources/geoip_cn.srs %s 2>&1',
+				shellQuote(target.value)));
+			if (result === null) return preserve_on_lookup_error ? target : null;
+			if (length(mainland_cache) >= 512) mainland_cache = {};
+			cached = { checked: time(), mainland: !!match(result, /match rules\./) };
+			mainland_cache[target.key] = cached;
+		}
+		if (cached.mainland) return null;
+	}
 	if (!target || target.type !== 'domain')
 		return target;
 
@@ -251,7 +275,7 @@ function loadLearned() {
 			push(inactive_learned, entry);
 			continue;
 		}
-		const target = validTarget(entry?.target || entry?.domain || entry?.ip);
+		const target = validTarget(entry?.target || entry?.domain || entry?.ip, true);
 		const last_seen = int(entry?.last_seen) || int(entry?.added_at) || now;
 		if (!target || learned_by_target[target.key]) {
 			learned_dirty = true;
@@ -439,9 +463,11 @@ function pollConnections() {
 			break;
 		const id = trim(sprintf('%s', connection?.id || ''));
 		const metadata = connection?.metadata || {};
-		const target = connectionTarget(metadata);
 		const port = int(metadata.destinationPort || metadata.destination_port);
-		if (!id || !target || metadata.network !== 'tcp' || port !== 443)
+		if (!id || metadata.network !== 'tcp' || port !== 443)
+			continue;
+		const target = connectionTarget(metadata);
+		if (!target)
 			continue;
 
 		const learned_entry = learned_by_target[target.key];
@@ -583,6 +609,9 @@ function pollFastFailures() {
 	for (let line in lines) {
 		const matched = match(line,
 			/open connection to (\[[0-9a-fA-F:]+\]|[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]):443 using (outbound|endpoint)\/[^\[]+\[([^\]]+)\]:/);
+		const raw_target = matched ? normalizeAdaptiveTarget(matched[1]) : null;
+		if (raw_target && (probe_suppressed[raw_target.key] || 0) >= time())
+			continue;
 		const target = matched && failure_tags[matched[3]] ? validTarget(matched[1]) : null;
 		if (!target)
 			continue;
@@ -687,9 +716,10 @@ function promote(candidate, direct_ms, proxy_ms, reason) {
 function finishUnsuccessfulProbe(candidate) {
 	if (candidate.probe_attempts < MAX_UNSUCCESSFUL_PROBES)
 		return;
-	const target = adaptiveEntryTarget(candidate);
-	if (target)
-		deleteCandidate(target.key);
+	// Keep the negative result: deleting it allows the next failure event to
+	// recreate a fresh candidate and reset all backoff.
+	candidate.next_probe = time() + PROBE_COOLDOWN;
+	candidate.probe_attempts = 0;
 }
 
 function candidateHasPriority(candidate, selected) {
@@ -707,7 +737,7 @@ function candidateHasPriority(candidate, selected) {
 function selectCandidate(now) {
 	let selected = null;
 	for (let key, candidate in candidates) {
-		if (candidate.observations < settings.min_observations && !candidate.fast_failures)
+		if (candidate.observations < settings.min_observations)
 			continue;
 		if (now < candidate.next_probe || now - candidate.last_seen > 3600)
 			continue;
@@ -741,9 +771,10 @@ function probeCandidate() {
 		finishUnsuccessfulProbe(candidate);
 		return;
 	}
+	probe_suppressed[target.key] = now + int(settings.probe_timeout / 1000) * settings.probe_samples * 2 + 60;
 	for (let i = 0; i < settings.probe_samples; i++) {
 		const direct_value = target.type === 'domain' ?
-			domainDelay(FINAL_DIRECT_TAG, target.value) : ipDelay(probePort('direct'), target);
+			domainDelay(PROBE_DIRECT_TAG, target.value) : ipDelay(probePort('direct'), target);
 		if (direct_value)
 			push(direct, direct_value);
 		const proxy_value = target.type === 'domain' ?
@@ -757,7 +788,7 @@ function probeCandidate() {
 	const proxy_ms = median(proxy);
 	candidate.direct_ms = direct_ms || 0;
 	candidate.proxy_ms = proxy_ms || 0;
-	const required_successes = int((settings.probe_samples + 1) / 2);
+	const required_successes = int(settings.probe_samples / 2) + 1;
 	const baseline_ms = policy.baseline_kind === 'direct' ? direct_ms : proxy_ms;
 	const target_ms = policy.target_kind === 'direct' ? direct_ms : proxy_ms;
 	const baseline_samples = policy.baseline_kind === 'direct' ? length(direct) : length(proxy);
@@ -779,7 +810,8 @@ function probeCandidate() {
 	 * transient observation can leave many otherwise-fast targets in the queue,
 	 * and retrying each one three times wastes probe slots. */
 	if (baseline_ms < settings.baseline_slow_ms) {
-		deleteCandidate(target.key);
+		candidate.next_probe = time() + PROBE_COOLDOWN;
+		candidate.probe_attempts = 0;
 		return;
 	}
 
@@ -793,6 +825,8 @@ function probeCandidate() {
 
 function cleanupCandidates() {
 	const now = time();
+	for (let key, until in probe_suppressed)
+		if (until < now) delete probe_suppressed[key];
 	if (now - last_cleanup < 3600)
 		return;
 	last_cleanup = now;
@@ -816,6 +850,8 @@ writeStatus(true);
 
 sleep(5000);
 while (true) {
+	// Bound subprocess work even under a flood of unique destination IPs.
+	mainland_lookup_budget = 8;
 	paused_for_load = settings.max_load && currentLoad() >= settings.max_load;
 	if (!paused_for_load) {
 		pollConnections();

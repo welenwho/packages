@@ -6,6 +6,7 @@ config adaptive 'main'
 	# Only failed connections enter the learning queue by default. Slow-connection
 	# detection remains available as an explicit opt-in for networks that need it.
 	option candidate_trigger 'failure_only'
+	option protect_mainland '1'
 	option poll_interval '15'
 	option slow_seconds '10'
 	option slow_bytes '65536'

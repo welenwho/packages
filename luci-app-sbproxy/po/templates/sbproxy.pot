@@ -5205,6 +5205,24 @@ msgstr ""
 msgid "valid port value"
 msgstr ""
 
+msgid "Protect mainland destinations"
+msgstr ""
+
+msgid "Prevent adaptive proxy rules from overriding mainland GeoIP/GeoSite destinations. Explicit routing rules remain unchanged. Only applies when the adaptive target is a proxy."
+msgstr ""
+
+msgid "Learned IP rules apply only to TCP port 443, the service actually probed; other ports and UDP are not changed."
+msgstr ""
+
+msgid "Required for both failed and slow connections. Repeated unsuccessful probes enter a one-hour cooldown."
+msgstr ""
+
+msgid "Use a unique random secret of at least 16 characters. Dashboard access is restricted to LAN and explicitly allowed Tailscale interfaces, even when WAN input is allowed."
+msgstr ""
+
+msgid "Set an API secret of at least 16 characters when the dashboard is enabled."
+msgstr ""
+
 msgid "Preparing the core operation..."
 msgstr ""
 

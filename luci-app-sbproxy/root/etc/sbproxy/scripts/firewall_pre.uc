@@ -4,10 +4,12 @@
 
 import { writefile } from 'fs';
 import { cursor } from 'uci';
+import { connect } from 'ubus';
 import { RUN_DIR } from 'sbproxy';
 
 const cfgname = 'sbproxy';
-const uci = cursor();
+const config_dir = getenv('SBPROXY_UCI_CONFIG_DIR');
+const uci = config_dir ? cursor(config_dir) : cursor();
 uci.load(cfgname);
 
 let input = [];
@@ -57,7 +59,35 @@ if (derp_enabled && derp_firewall &&
 		push(input, `tcp dport ${acme_tls_port} counter accept comment "!${cfgname}: accept DERP ACME TLS"`);
 }
 
-const input_file = RUN_DIR + '/fw4_input.nft';
+/* Scope the dashboard independently of the WAN zone's input policy. Resolve
+ * actual LAN devices so PPPoE/Wi-Fi/custom bridge names are not hard-coded.
+ * This restriction must precede broad server-port allow rules above. */
+if (dashboard_enabled && dashboard_port && match(dashboard_port, /^[0-9]+$/) &&
+    int(dashboard_port) >= 1 && int(dashboard_port) <= 65535) {
+	uci.load('network');
+	uci.load('firewall');
+	let networks = ['lan'], devices = ['lo'];
+	uci.foreach('firewall', 'zone', (zone) => {
+		if (zone.name === 'lan')
+			for (let name in (type(zone.network) === 'array' ? zone.network : split(zone.network || '', /\s+/)))
+				if (name && !(name in networks)) push(networks, name);
+	});
+	const bus = connect();
+	for (let name in networks) {
+		const state = bus?.call(`network.interface.${name}`, 'status', {});
+		const device = state?.l3_device || uci.get('network', name, 'device');
+		if (device && match(device, /^[A-Za-z0-9_.-]+$/) && !(device in devices))
+			push(devices, device);
+	}
+	bus?.disconnect();
+	if (dashboard_allow_tailscale && match(dashboard_tailscale_interface, /^[A-Za-z0-9_.-]+$/) &&
+	    !(dashboard_tailscale_interface in devices))
+		push(devices, dashboard_tailscale_interface);
+	const allowed = join(', ', map(devices, (device) => `"${device}"`));
+	input = [`tcp dport ${dashboard_port} iifname != { ${allowed} } counter drop comment "!${cfgname}: restrict dashboard to LAN and allowed Tailnet"`, ...input];
+}
+
+const input_file = getenv('SBPROXY_FIREWALL_INPUT_PATH') || RUN_DIR + '/fw4_input.nft';
 
 if (writefile(input_file, length(input) ? join('\n', input) + '\n' : '') === null)
 	exit(1);

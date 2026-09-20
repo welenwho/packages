@@ -45,5 +45,7 @@ if (rules.rules?.[0]?.domain?.[0] !== 'legacy.example' ||
 	 rules.rules?.[1]?.ip_cidr?.[0] !== '1.1.1.1/32' ||
 	 rules.rules?.[1]?.ip_cidr?.[1] !== '2606:4700:4700::1111/128')
 	die(sprintf('adaptive rule rendering failed: %.J\n', rules));
+if (rules.rules[1].network !== 'tcp' || rules.rules[1].port !== 443)
+	die('IP learning must not affect UDP or unprobed ports\n');
 
 printf('Adaptive target test passed: public domain/IPv4/IPv6 rules generated\n');

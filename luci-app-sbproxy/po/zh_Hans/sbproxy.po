@@ -5326,6 +5326,24 @@ msgstr "有效端口范围（port1:port2）"
 msgid "valid port value"
 msgstr "有效端口值"
 
+msgid "Protect mainland destinations"
+msgstr "保护国内目标"
+
+msgid "Prevent adaptive proxy rules from overriding mainland GeoIP/GeoSite destinations. Explicit routing rules remain unchanged. Only applies when the adaptive target is a proxy."
+msgstr "避免自适应代理规则接管 GeoIP/GeoSite 国内目标，不影响显式路由规则。仅在自适应目标为代理时生效。"
+
+msgid "Learned IP rules apply only to TCP port 443, the service actually probed; other ports and UDP are not changed."
+msgstr "学习到的 IP 规则仅作用于实际探测的 TCP 443，不改变其他端口和 UDP 流量。"
+
+msgid "Required for both failed and slow connections. Repeated unsuccessful probes enter a one-hour cooldown."
+msgstr "同时适用于失败连接和慢连接。连续探测无改善的目标进入一小时冷却。"
+
+msgid "Use a unique random secret of at least 16 characters. Dashboard access is restricted to LAN and explicitly allowed Tailscale interfaces, even when WAN input is allowed."
+msgstr "请使用至少 16 个字符的独立随机密钥。面板仅允许 LAN 及显式授权的 Tailscale 接口访问，即使 WAN 入站策略为放行也不会暴露面板。"
+
+msgid "Set an API secret of at least 16 characters when the dashboard is enabled."
+msgstr "启用面板时，请设置至少 16 个字符的 API 密钥。"
+
 msgid "Preparing the core operation..."
 msgstr "正在准备核心操作…"
 

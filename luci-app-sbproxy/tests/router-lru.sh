@@ -23,7 +23,7 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 rm -rf /tmp/sbproxy-adaptive-lru-test
-mkdir -p "$UCI_DIR" "$RUN_DIR" "$API_DIR/proxies/sbproxy-adaptive-final-direct-out" \
+mkdir -p "$UCI_DIR" "$RUN_DIR" "$API_DIR/proxies/sbproxy-adaptive-probe-direct-out" \
 	"$API_DIR/proxies/sbproxy-adaptive-out"
 
 cat >"$UCI_DIR/sbproxy" <<-EOF
@@ -58,7 +58,7 @@ EOF
 cat >"$API_DIR/connections" <<-'EOF'
 {"connections":[{"id":"old-hit","metadata":{"host":"oldest.example","network":"tcp","destinationPort":"443"},"chains":["direct-out"],"rule":"final","download":0},{"id":"new-candidate","metadata":{"host":"new-entry.example","network":"tcp","destinationPort":"443"},"chains":["direct-out"],"rule":"final","download":0}]}
 EOF
-cat >"$API_DIR/proxies/sbproxy-adaptive-final-direct-out/delay" <<-'EOF'
+cat >"$API_DIR/proxies/sbproxy-adaptive-probe-direct-out/delay" <<-'EOF'
 {"delay":2000}
 EOF
 cat >"$API_DIR/proxies/sbproxy-adaptive-out/delay" <<-'EOF'

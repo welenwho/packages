@@ -273,7 +273,13 @@ return baseclass.extend({
 		o.default = '100';
 		o.rmempty = false;
 
+		o = s.taboption('general', form.Flag, 'protect_mainland', _('Protect mainland destinations'));
+		o.description = _('Prevent adaptive proxy rules from overriding mainland GeoIP/GeoSite destinations. Explicit routing rules remain unchanged. Only applies when the adaptive target is a proxy.');
+		o.default = '1';
+		o.rmempty = false;
+
 		o = s.taboption('general', form.Value, 'max_ip_rules', _('Maximum learned IP rules'));
+		o.description = _('Learned IP rules apply only to TCP port 443, the service actually probed; other ports and UDP are not changed.');
 		o.datatype = 'range(1,100)';
 		o.default = '20';
 		o.rmempty = false;
@@ -296,7 +302,7 @@ return baseclass.extend({
 		o.datatype = 'range(1,10)';
 		o.default = '2';
 		o.rmempty = false;
-		o.depends('candidate_trigger', 'slow_or_failure');
+		o.description = _('Required for both failed and slow connections. Repeated unsuccessful probes enter a one-hour cooldown.');
 
 		o = s.taboption('detection', form.Value, 'baseline_slow_ms', _('Default path latency threshold (ms)'));
 		o.datatype = 'range(100,30000)';

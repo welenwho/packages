@@ -24,7 +24,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 rm -rf "$TEST_ROOT"
 mkdir -p "$UCI_DIR" "$RUN_DIR" \
-	"$API_DIR/proxies/sbproxy-adaptive-final-direct-out" \
+	"$API_DIR/proxies/sbproxy-adaptive-probe-direct-out" \
 	"$API_DIR/proxies/sbproxy-adaptive-out"
 
 cat >"$UCI_DIR/sbproxy" <<-EOF
@@ -58,7 +58,7 @@ EOF
 cat >"$API_DIR/connections" <<-'EOF'
 {"connections":[{"id":"reverse","metadata":{"host":"reverse.example","network":"tcp","destinationPort":"443"},"chains":["sbproxy-adaptive-out"],"rule":"final","download":0}]}
 EOF
-printf '%s\n' '{"delay":200}' >"$API_DIR/proxies/sbproxy-adaptive-final-direct-out/delay"
+printf '%s\n' '{"delay":200}' >"$API_DIR/proxies/sbproxy-adaptive-probe-direct-out/delay"
 printf '%s\n' '{"delay":2000}' >"$API_DIR/proxies/sbproxy-adaptive-out/delay"
 printf '%s\n' '{"version":2,"entries":[]}' >"$TEST_ROOT/learned.json"
 : >"$CORE_LOG"

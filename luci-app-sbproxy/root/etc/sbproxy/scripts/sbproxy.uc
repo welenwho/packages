@@ -801,7 +801,9 @@ export function renderAdaptiveRules(entries, apply) {
 	if (length(domains))
 		push(rules, { domain: domains });
 	if (length(cidrs))
-		push(rules, { ip_cidr: cidrs });
+		// Raw-IP evidence comes only from TLS probes on TCP/443. It must not
+		// silently reroute games, QUIC, or unrelated services at the same IP.
+		push(rules, { ip_cidr: cidrs, network: 'tcp', port: 443 });
 	return { version: 5, rules };
 }
 /* String helper end */

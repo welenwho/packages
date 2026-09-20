@@ -474,8 +474,13 @@ return view.extend({
 
 		o = s.taboption('dashboard', form.Value, 'dashboard_secret', _('API secret'));
 		o.password = true;
-		o.description = _('Recommended when the dashboard is enabled. The dashboard API is blocked from Tailscale peers by default.');
-		o.rmempty = true;
+		o.depends('dashboard_enabled', '1');
+		o.description = _('Use a unique random secret of at least 16 characters. Dashboard access is restricted to LAN and explicitly allowed Tailscale interfaces, even when WAN input is allowed.');
+		o.validate = function(sectionId, value) {
+			return this.section.formvalue(sectionId, 'dashboard_enabled') !== '1' || (value || '').length >= 16 ?
+				true : _('Set an API secret of at least 16 characters when the dashboard is enabled.');
+		};
+		o.rmempty = false;
 		o.retain = true;
 
 		o = s.taboption('dashboard', form.Flag, 'dashboard_allow_tailscale', _('Allow dashboard from Tailscale'),
