@@ -57,8 +57,6 @@ new_release=$((10#$release + 1))
 cache_version="$(printf '%s\n' "$version" | sed 's/[^A-Za-z0-9_-]/-/g')"
 old_cache_key="${cache_version}-r${release}"
 new_cache_key="${cache_version}-r${new_release}"
-old_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${old_cache_key}.js"
-new_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${new_cache_key}.js"
 old_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${old_cache_key}.js"
 new_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${new_cache_key}.js"
 old_tailscale="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale-${old_cache_key}.js"
@@ -66,10 +64,6 @@ new_tailscale="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale
 old_core="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/core-${old_cache_key}.js"
 new_core="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/core-${new_cache_key}.js"
 
-[[ -L "$old_adaptive" && "$(readlink "$old_adaptive")" == 'sbproxy-adaptive.js' ]] || {
-	printf 'Invalid adaptive cache symlink: %s\n' "$old_adaptive" >&2
-	exit 1
-}
 [[ -L "$old_client" && "$(readlink "$old_client")" == 'client.js' ]] || {
 	printf 'Invalid client cache symlink: %s\n' "$old_client" >&2
 	exit 1
@@ -80,10 +74,6 @@ new_core="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/core-${new_cac
 }
 [[ -L "$old_core" && "$(readlink "$old_core")" == 'core.js' ]] || {
 	printf 'Invalid core management cache symlink: %s\n' "$old_core" >&2
-	exit 1
-}
-[[ ! -e "$new_adaptive" && ! -L "$new_adaptive" ]] || {
-	printf 'Target adaptive cache path already exists: %s\n' "$new_adaptive" >&2
 	exit 1
 }
 [[ ! -e "$new_client" && ! -L "$new_client" ]] || {
@@ -102,22 +92,18 @@ new_core="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/core-${new_cac
 replace_once "$MENU" "sbproxy/client-${old_cache_key}" "sbproxy/client-${new_cache_key}"
 replace_once "$MENU" "sbproxy/tailscale-${old_cache_key}" "sbproxy/tailscale-${new_cache_key}"
 replace_once "$MENU" "sbproxy/core-${old_cache_key}" "sbproxy/core-${new_cache_key}"
-replace_once "$CLIENT" "$old_cache_key" "$new_cache_key"
 replace_once "$MAKEFILE" "PKG_RELEASE:=$release" "PKG_RELEASE:=$new_release"
-mv -- "$old_adaptive" "$new_adaptive"
 mv -- "$old_client" "$new_client"
 mv -- "$old_tailscale" "$new_tailscale"
 mv -- "$old_core" "$new_core"
 
 [[ "$(make_value PKG_RELEASE)" == "$new_release" ]]
-[[ "$(readlink "$new_adaptive")" == 'sbproxy-adaptive.js' ]]
 [[ "$(readlink "$new_client")" == 'client.js' ]]
 [[ "$(readlink "$new_tailscale")" == 'tailscale.js' ]]
 [[ "$(readlink "$new_core")" == 'core.js' ]]
 grep -Fq "\"path\": \"sbproxy/client-${new_cache_key}\"" "$MENU"
 grep -Fq "\"path\": \"sbproxy/tailscale-${new_cache_key}\"" "$MENU"
 grep -Fq "\"path\": \"sbproxy/core-${new_cache_key}\"" "$MENU"
-grep -Fq "'require sbproxy-adaptive-${new_cache_key} as adaptive';" "$CLIENT"
 
 printf 'SBProxy package release: %s-r%s -> %s-r%s (LuCI cache key: %s)\n' \
 	"$version" "$release" "$version" "$new_release" "$new_cache_key"

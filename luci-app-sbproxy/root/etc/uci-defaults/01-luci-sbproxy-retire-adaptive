@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# Retire the removed worker on package upgrades as well as preserved-config
+# firmware upgrades. Keep user data recoverable, outside all active paths.
+ROOT="${SBPROXY_RETIRE_ROOT:-}"
+case "$ROOT" in
+	''|/*) ;;
+	*) printf '%s\n' 'SBProxy: retirement root must be an absolute path.' >&2; exit 1 ;;
+esac
+
+if [ -z "$ROOT" ]; then
+	# The old init script may already have been removed by the package manager.
+	# Stop its procd instance directly, including its respawn/reload triggers.
+	services="$(ubus call service list '{"name":"sbproxy-adaptive"}')" || exit 1
+	case "$services" in
+		*'"sbproxy-adaptive"'*)
+			ubus call service delete '{"name":"sbproxy-adaptive"}' >/dev/null || exit 1
+			;;
+	esac
+fi
+
+for link in "$ROOT"/etc/rc.d/S??sbproxy-adaptive "$ROOT"/etc/rc.d/K??sbproxy-adaptive; do
+	[ ! -L "$link" ] || rm -f "$link" || exit 1
+done
+
+backup=''
+archive() {
+	local source="$1" name="$2"
+	[ -e "$source" ] || return 0
+	if [ -z "$backup" ]; then
+		mkdir -p "$ROOT/etc/sbproxy/retired-adaptive" || return 1
+		chmod 700 "$ROOT/etc/sbproxy/retired-adaptive" || return 1
+		backup="$(mktemp -d "$ROOT/etc/sbproxy/retired-adaptive/backup.XXXXXX")" || return 1
+	fi
+	mv "$source" "$backup/$name"
+}
+
+archive "$ROOT/etc/config/sbproxy-adaptive" config || exit 1
+archive "$ROOT/etc/sbproxy/adaptive" data || exit 1
+archive "$ROOT/etc/init.d/sbproxy-adaptive" init-script || exit 1
+archive "$ROOT/etc/sbproxy/scripts/adaptive.uc" worker.uc || exit 1
+
+if [ -z "$ROOT" ] &&
+   grep -q 'sbproxy-adaptive-' /var/run/sbproxy/sing-box-c.json 2>/dev/null &&
+   /etc/init.d/sbproxy running >/dev/null 2>&1; then
+	# Replace an already-running core's learned rules and loopback probe
+	# listeners. Do not start a service that the user has disabled/stopped.
+	/etc/init.d/sbproxy restart || exit 1
+fi
+
+# Remove only known transient files, never recursively delete unknown data.
+for name in rules.json status.json rules.json.tmp status.json.tmp; do
+	rm -f "$ROOT/var/run/sbproxy-adaptive/$name" || exit 1
+done
+rmdir "$ROOT/var/run/sbproxy-adaptive" 2>/dev/null || true
+exit 0

@@ -16,7 +16,6 @@
 'require view';
 
 'require sbproxy as sb';
-'require sbproxy-adaptive-1-0-1-r13 as adaptive';
 'require tools.firewall as fwtool';
 'require tools.widgets as widgets';
 
@@ -153,7 +152,6 @@ return view.extend({
 			config,
 			sb.getBuiltinFeatures(),
 			network.getHostHints(),
-			adaptive.loadStatus(),
 			uci.load('wireless'),
 			config.then(() => uci.get('sbproxy', 'control', 'ingress_enabled') === '1' ? L.resolveDefault(callIngressStatus(), {}) : {})
 		]);
@@ -245,7 +243,6 @@ return view.extend({
 		s.tab('dashboard', _('Dashboard'));
 		s.tab('advanced', _('Advanced Settings'));
 		s.tab('diversion', _('Rule Diversion'));
-		adaptive.addForm(m, s, data[3]);
 
 		o = s.taboption('routing', form.ListValue, 'main_node', _('Main node'));
 		o.value('nil', _('Disable'));
@@ -1900,7 +1897,7 @@ return view.extend({
 		so = ss.taboption('ingress', form.DummyValue, '_ingress_status', _('Ingress policy status'));
 		so.depends('ingress_enabled', '1');
 		so.renderWidget = function() {
-			return E('div', { id: 'sbproxy-ingress-runtime' }, ingressStatusContent(data[5] || {}));
+			return E('div', { id: 'sbproxy-ingress-runtime' }, ingressStatusContent(data[4] || {}));
 		};
 		poll.add(function() {
 			const element = document.getElementById('sbproxy-ingress-runtime');

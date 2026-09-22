@@ -10,12 +10,9 @@ mkdir -p "$TEST_ROOT/etc/config" \
 	"$TEST_ROOT/etc/homeproxy/adaptive" \
 	"$TEST_ROOT/etc/homeproxy/certs" \
 	"$TEST_ROOT/etc/homeproxy/resources" \
-	"$TEST_ROOT/etc/sbproxy/adaptive" \
 	"$TEST_ROOT/usr/share/sbproxy/defaults"
 cp "$PACKAGE_ROOT/root/usr/share/sbproxy/defaults/sbproxy" \
 	"$TEST_ROOT/usr/share/sbproxy/defaults/sbproxy"
-cp "$PACKAGE_ROOT/root/usr/share/sbproxy/defaults/sbproxy-adaptive" \
-	"$TEST_ROOT/usr/share/sbproxy/defaults/sbproxy-adaptive"
 
 cat > "$TEST_ROOT/etc/config/homeproxy" <<-'EOF'
 	config homeproxy 'config'
@@ -32,7 +29,6 @@ printf '%s\n' '{"version":1,"learned":{"legacy.example":{}}}' \
 	> "$TEST_ROOT/etc/homeproxy/adaptive/learned.json"
 printf '%s\n' 'legacy certificate' > "$TEST_ROOT/etc/homeproxy/certs/client.pem"
 printf '%s\n' 'legacy.example' > "$TEST_ROOT/etc/homeproxy/resources/proxy_list.txt"
-printf '%s\n' '{"version":1,"learned":{}}' > "$TEST_ROOT/etc/sbproxy/adaptive/learned.json"
 
 old_config_hash="$(cksum "$TEST_ROOT/etc/config/homeproxy")"
 old_adaptive_hash="$(cksum "$TEST_ROOT/etc/config/homeproxy-adaptive")"
@@ -46,8 +42,8 @@ test "$(cksum "$TEST_ROOT/etc/homeproxy/adaptive/learned.json")" = "$old_data_ha
 grep -Fq "config sbproxy 'config'" "$TEST_ROOT/etc/config/sbproxy"
 grep -Fq "option dashboard_path '/etc/sbproxy/dashboard'" "$TEST_ROOT/etc/config/sbproxy"
 grep -Fq "option user_agent 'sbproxy'" "$TEST_ROOT/etc/config/sbproxy"
-grep -Fq "option enabled '1'" "$TEST_ROOT/etc/config/sbproxy-adaptive"
-grep -Fq 'legacy.example' "$TEST_ROOT/etc/sbproxy/adaptive/learned.json"
+test ! -e "$TEST_ROOT/etc/config/sbproxy-adaptive"
+test ! -e "$TEST_ROOT/etc/sbproxy/adaptive"
 grep -Fq 'legacy certificate' "$TEST_ROOT/etc/sbproxy/certs/client.pem"
 grep -Fq 'legacy.example' "$TEST_ROOT/etc/sbproxy/resources/proxy_list.txt"
 
@@ -67,12 +63,10 @@ DEFAULT_ROOT="$(mktemp -d)"
 mkdir -p "$DEFAULT_ROOT/usr/share/sbproxy/defaults"
 cp "$PACKAGE_ROOT/root/usr/share/sbproxy/defaults/sbproxy" \
 	"$DEFAULT_ROOT/usr/share/sbproxy/defaults/sbproxy"
-cp "$PACKAGE_ROOT/root/usr/share/sbproxy/defaults/sbproxy-adaptive" \
-	"$DEFAULT_ROOT/usr/share/sbproxy/defaults/sbproxy-adaptive"
 SBPROXY_MIGRATION_ROOT="$DEFAULT_ROOT" \
 	sh "$PACKAGE_ROOT/root/etc/uci-defaults/00-luci-sbproxy-migrate"
 grep -Fq "config sbproxy 'config'" "$DEFAULT_ROOT/etc/config/sbproxy"
-grep -Fq "config adaptive 'main'" "$DEFAULT_ROOT/etc/config/sbproxy-adaptive"
+test ! -e "$DEFAULT_ROOT/etc/config/sbproxy-adaptive"
 rm -rf "$DEFAULT_ROOT"
 
 echo 'Legacy migration test passed: SBProxy receives an isolated one-time copy and leaves the source unchanged'

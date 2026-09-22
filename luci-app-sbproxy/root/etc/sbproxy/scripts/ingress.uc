@@ -3,7 +3,7 @@
 export function ingressEnabled(control) {
 	return control?.ingress_enabled === '1' &&
 		(length(control.ingress_bypass_devices || []) || length(control.ingress_bypass_wifi || []));
-}
+};
 
 function list(value) {
 	return type(value) === 'array' ? [...value] : (value ? [value] : []);
@@ -21,7 +21,7 @@ export function ingressDevices(control, wireless) {
 		if (!match(dev, /^[A-Za-z0-9_][A-Za-z0-9_.:-]{0,14}$/) || dev === 'lo')
 			die('Invalid ingress device: ' + dev);
 	return devices;
-}
+};
 
 export function ingressNft(control, wireless, dns_port) {
 	if (!ingressEnabled(control))
@@ -56,4 +56,4 @@ export function ingressNft(control, wireless, dns_port) {
 	push(rules, `  meta mark & ${bit} != 0 meta mark set ${mark} ct mark set meta mark counter`);
 	push(rules, ' }', '}');
 	return join('\n', rules) + '\n';
-}
+};

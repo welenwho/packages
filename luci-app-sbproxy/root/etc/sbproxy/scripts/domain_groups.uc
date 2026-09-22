@@ -20,7 +20,7 @@ export function normalizeGroupDomains(value) {
 		push(result, domain);
 	}
 	return uniq(result);
-}
+};
 
 export function buildGroupMatch(section, uci, config) {
 	const legacy = normalizeGroupDomains(section.domains);
@@ -77,7 +77,7 @@ export function buildGroupMatch(section, uci, config) {
 	return { match: criteria, rule_set_refs: user_refs, dns_match: dns_safe ? criteria : null,
 		suffixes: cfg.domain_suffix, keywords: cfg.domain_keyword,
 		needs_sniff: !dns_safe || length(cfg.domain_keyword) > 0 || length(cfg.domain_regex) > 0 || !!criteria.invert };
-}
+};
 
 
 export function loadDomainGroups(uci, config, mode) {
@@ -103,7 +103,7 @@ export function loadDomainGroups(uci, config, mode) {
 			...criteria });
 	});
 	return groups;
-}
+};
 
 // Overlaps are legal: first group wins. Return a warning, not a startup error.
 export function domainGroupOverlap(groups) {
@@ -130,4 +130,4 @@ export function domainGroupOverlap(groups) {
 		}
 	}
 	return null;
-}
+};

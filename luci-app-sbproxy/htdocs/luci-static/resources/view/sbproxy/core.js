@@ -169,7 +169,7 @@ function featureTable(status) {
 	const compiledTags = status.tags || [];
 	const features = [
 		[ 'with_acme', _('ACME certificates'), _('Server Settings'), true ],
-		[ 'with_clash_api', _('Clash API'), _('URLTest and adaptive routing'), true ],
+		[ 'with_clash_api', _('Clash API'), _('URLTest and dashboard'), true ],
 		[ 'with_dhcp', _('DHCP DNS transport'), _('Client DNS settings'), true ],
 		[ 'with_gvisor', _('gVisor network stack'), _('Client TUN settings'), true ],
 		[ 'with_quic', _('QUIC protocols'), _('Hysteria, Hysteria2, TUIC and QUIC DNS'), true ],

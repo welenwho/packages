@@ -11,8 +11,7 @@ import { lstat, open, popen, readfile, writefile } from 'fs';
 import { cursor } from 'uci';
 
 import {
-	adaptiveEntryMatchesPolicy, adaptiveEntryTarget, SB_DIR, isBinary,
-	normalizeAdaptiveTarget, renderAdaptiveRules, resolveAdaptivePolicy,
+	SB_DIR, isBinary,
 	RUN_DIR, removeBlankAttrs, renderEndpoint, renderOutbound, shellQuote
 } from '/etc/sbproxy/scripts/sbproxy.uc';
 
@@ -407,113 +406,6 @@ const CONNECTION_SITES = {
 	youtube: 'https://www.youtube.com/'
 };
 
-const ADAPTIVE_STATE_PATH = getenv('SBPROXY_ADAPTIVE_LEARNED_PATH') ||
-      '/etc/sbproxy/adaptive/learned.json';
-const ADAPTIVE_RULES_PATH = getenv('SBPROXY_ADAPTIVE_RULES_PATH') ||
-      '/var/run/sbproxy-adaptive/rules.json';
-const ADAPTIVE_STATUS_PATH = getenv('SBPROXY_ADAPTIVE_STATUS_PATH') ||
-      '/var/run/sbproxy-adaptive/status.json';
-const ADAPTIVE_SERVICE = getenv('SBPROXY_ADAPTIVE_SERVICE') ||
-      '/etc/init.d/sbproxy-adaptive';
-
-function adaptiveCursor() {
-	const config_dir = getenv('SBPROXY_UCI_CONFIG_DIR');
-	return config_dir ? cursor(config_dir) : cursor();
-}
-
-function restartAdaptive(was_running) {
-	return !was_running || system(`${shellQuote(ADAPTIVE_SERVICE)} start >/dev/null 2>&1`) === 0;
-}
-
-function mutateAdaptiveRules(remove_target) {
-	const service = shellQuote(ADAPTIVE_SERVICE);
-	const was_running = system(`${service} running >/dev/null 2>&1`) === 0;
-	if (was_running && system(`${service} stop >/dev/null 2>&1`) !== 0)
-		return { result: false, error: 'failed to stop adaptive service' };
-
-	const sbpuci = adaptiveCursor();
-	sbpuci.load('sbproxy-adaptive');
-	sbpuci.load('sbproxy');
-	const policy = resolveAdaptivePolicy(sbpuci, 'sbproxy', 'sbproxy-adaptive');
-	let state;
-	try {
-		state = json(readfile(ADAPTIVE_STATE_PATH) || '{"version":2,"entries":[]}');
-	} catch (e) {
-		const restarted = restartAdaptive(was_running);
-		return {
-			result: false,
-			error: restarted ? 'failed to read adaptive rules' : 'failed to reload adaptive service'
-		};
-	}
-
-	let recent = {};
-	try {
-		const status = json(readfile(ADAPTIVE_STATUS_PATH) || '{}');
-		const current_status = status.policy_id ? status.policy_id === policy.id :
-			(policy.baseline_kind === 'direct' && policy.target_kind === 'proxy');
-		if (current_status)
-			for (let entry in ((type(status?.learned) === 'array') ? status.learned : [])) {
-				const target = adaptiveEntryTarget(entry);
-				if (target)
-					recent[target.key] = int(entry.last_seen);
-			}
-	} catch (e) {}
-
-	let entries = [], active_entries = [], removed = false;
-	for (let entry in ((type(state?.entries) === 'array') ? state.entries : [])) {
-		const active = adaptiveEntryMatchesPolicy(entry, policy);
-		const target = adaptiveEntryTarget(entry);
-		if (active && (remove_target === null || target?.key === remove_target.key)) {
-			removed = true;
-			continue;
-		}
-		if (active && target && recent[target.key] > int(entry.last_seen))
-			entry.last_seen = recent[target.key];
-		push(entries, entry);
-		if (active)
-			push(active_entries, entry);
-	}
-	if (remove_target !== null && !removed) {
-		const restarted = restartAdaptive(was_running);
-		return {
-			result: restarted,
-			removed: false,
-			error: restarted ? null : 'failed to reload adaptive service'
-		};
-	}
-
-	state = { version: 2, entries };
-	const rules = renderAdaptiveRules(active_entries,
-		sbpuci.get('sbproxy-adaptive', 'main', 'dry_run') === '0');
-	const state_tmp = ADAPTIVE_STATE_PATH + '.tmp';
-	const rules_tmp = ADAPTIVE_RULES_PATH + '.tmp';
-
-	system('/bin/mkdir -p /etc/sbproxy/adaptive /var/run/sbproxy-adaptive');
-	if (writefile(state_tmp, sprintf('%.J\n', state)) === null ||
-	    writefile(rules_tmp, sprintf('%.J\n', rules)) === null ||
-	    system(sprintf(
-		'/bin/chmod 600 %s && /bin/chmod 644 %s && /bin/mv -f %s %s && /bin/mv -f %s %s',
-		shellQuote(state_tmp), shellQuote(rules_tmp),
-		shellQuote(state_tmp), shellQuote(ADAPTIVE_STATE_PATH),
-		shellQuote(rules_tmp), shellQuote(ADAPTIVE_RULES_PATH)
-	    )) !== 0) {
-		system(sprintf('/bin/rm -f %s %s', shellQuote(state_tmp), shellQuote(rules_tmp)));
-		const restarted = restartAdaptive(was_running);
-		return {
-			result: false,
-			error: restarted ? 'failed to update adaptive rules' : 'failed to reload adaptive service'
-		};
-	}
-
-	system(`/bin/rm -f ${shellQuote(ADAPTIVE_STATUS_PATH)}`);
-	const restarted = restartAdaptive(was_running);
-	return {
-		result: restarted,
-		removed: remove_target !== null,
-		error: restarted ? null : 'failed to reload adaptive service'
-	};
-}
-
 const methods = {
 	ingress_status: {
 		call: function() {
@@ -760,61 +652,6 @@ const methods = {
 				return { result: false, error: 'failed to write domain list' };
 
 			return { result: true };
-		}
-	},
-
-	adaptive_status: {
-		call: function() {
-			const sbpuci = adaptiveCursor();
-			sbpuci.load('sbproxy-adaptive');
-			sbpuci.load('sbproxy');
-			const policy = resolveAdaptivePolicy(sbpuci, 'sbproxy', 'sbproxy-adaptive');
-			let status = {};
-			try {
-				status = json(readfile(ADAPTIVE_STATUS_PATH) || '{}');
-			} catch (e) {}
-			const current_status = status.policy_id ? status.policy_id === policy.id :
-				(policy.baseline_kind === 'direct' && policy.target_kind === 'proxy');
-			if (!current_status) {
-				status.learned = null;
-				status.candidates = [];
-			}
-
-			status.running = system(`${shellQuote(ADAPTIVE_SERVICE)} running >/dev/null 2>&1`) === 0;
-			status.enabled = sbpuci.get('sbproxy-adaptive', 'main', 'enabled') === '1';
-			status.dry_run = sbpuci.get('sbproxy-adaptive', 'main', 'dry_run') !== '0';
-			status.policy_id = policy.id;
-			status.baseline_kind = policy.baseline_kind;
-			status.target_kind = policy.target_kind;
-			status.candidates = (type(status.candidates) === 'array') ? status.candidates : [];
-			if (type(status.learned) !== 'array') {
-				try {
-					const state = json(readfile(ADAPTIVE_STATE_PATH) || '{}');
-					status.learned = filter(
-						(type(state?.entries) === 'array') ? state.entries : [],
-						(entry) => adaptiveEntryMatchesPolicy(entry, policy)
-					);
-				} catch (e) {
-					status.learned = [];
-				}
-			}
-			return status;
-		}
-	},
-
-	adaptive_clear: {
-		call: function() {
-			return mutateAdaptiveRules(null);
-		}
-	},
-
-	adaptive_remove: {
-		args: { target: 'target', domain: 'domain' },
-		call: function(req) {
-			const target = normalizeAdaptiveTarget(req.args?.target || req.args?.domain);
-			if (!target)
-				return { result: false, error: 'invalid target' };
-			return mutateAdaptiveRules(target);
 		}
 	},
 

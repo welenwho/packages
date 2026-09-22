@@ -8,15 +8,7 @@ tailscale_api_port="$(uci -q get sbproxy.infra.tailscale_api_port)"
 tailscale_api_port_initialized="$(uci -q get sbproxy.infra.tailscale_api_port_initialized)"
 main_node="$(uci -q get sbproxy.config.main_node)"
 dashboard_enabled="$(uci -q get sbproxy.config.dashboard_enabled)"
-adaptive_enabled="$(uci -q get sbproxy-adaptive.main.enabled)"
-adaptive_baseline_slow_ms="$(uci -q get sbproxy-adaptive.main.baseline_slow_ms)"
-adaptive_direct_slow_ms="$(uci -q get sbproxy-adaptive.main.direct_slow_ms)"
-direct_probe_port="$(uci -q get sbproxy-adaptive.main.direct_probe_port)"
-direct_probe_port_initialized="$(uci -q get sbproxy-adaptive.main.direct_probe_port_initialized)"
-proxy_probe_port="$(uci -q get sbproxy-adaptive.main.proxy_probe_port)"
-proxy_probe_port_initialized="$(uci -q get sbproxy-adaptive.main.proxy_probe_port_initialized)"
 changed=0
-adaptive_changed=0
 
 mkdir -p /var/run/sbproxy
 
@@ -71,49 +63,6 @@ case "$tailscale_api_port" in
 	;;
 esac
 
-if [ "$adaptive_enabled" = '1' ]; then
-	if [ -z "$adaptive_baseline_slow_ms" ] && [ -n "$adaptive_direct_slow_ms" ]; then
-		uci -q set sbproxy-adaptive.main.baseline_slow_ms="$adaptive_direct_slow_ms"
-		adaptive_changed=1
-	fi
-	if [ -n "$adaptive_direct_slow_ms" ]; then
-		uci -q delete sbproxy-adaptive.main.direct_slow_ms
-		adaptive_changed=1
-	fi
-
-	direct_probe_port="$(initialize_port "$direct_probe_port" auto "$direct_probe_port_initialized" \
-		"$clash_api_port" "$dashboard_port" "$tailscale_api_port" "$proxy_probe_port")"
-	proxy_probe_port="$(initialize_port "$proxy_probe_port" auto "$proxy_probe_port_initialized" \
-		"$clash_api_port" "$dashboard_port" "$tailscale_api_port" "$direct_probe_port")"
-	case "$direct_probe_port" in
-	"$clash_api_port"|"$dashboard_port"|"$tailscale_api_port")
-		direct_probe_port="$(random_port "$clash_api_port" "$dashboard_port" "$tailscale_api_port" "$proxy_probe_port")"
-		;;
-	esac
-	case "$proxy_probe_port" in
-	"$clash_api_port"|"$dashboard_port"|"$tailscale_api_port"|"$direct_probe_port")
-		proxy_probe_port="$(random_port "$clash_api_port" "$dashboard_port" "$tailscale_api_port" "$direct_probe_port")"
-		;;
-	esac
-
-	if [ "$(uci -q get sbproxy-adaptive.main.direct_probe_port)" != "$direct_probe_port" ]; then
-		uci -q set sbproxy-adaptive.main.direct_probe_port="$direct_probe_port"
-		adaptive_changed=1
-	fi
-	if [ "$(uci -q get sbproxy-adaptive.main.proxy_probe_port)" != "$proxy_probe_port" ]; then
-		uci -q set sbproxy-adaptive.main.proxy_probe_port="$proxy_probe_port"
-		adaptive_changed=1
-	fi
-	if [ "$direct_probe_port_initialized" != '1' ]; then
-		uci -q set sbproxy-adaptive.main.direct_probe_port_initialized='1'
-		adaptive_changed=1
-	fi
-	if [ "$proxy_probe_port_initialized" != '1' ]; then
-		uci -q set sbproxy-adaptive.main.proxy_probe_port_initialized='1'
-		adaptive_changed=1
-	fi
-fi
-
 if [ "$main_node" = 'urltest' ] && [ "$dashboard_enabled" = '1' ] && \
    [ "$clash_api_port" = "$dashboard_port" ]; then
 	dashboard_port="$(random_port "$clash_api_port" "$tailscale_api_port")"
@@ -147,7 +96,7 @@ fi
 if [ "$(uci -q get sbproxy.control.ingress_enabled)" = '1' ] &&
    [ -n "$(uci -q get sbproxy.control.ingress_bypass_devices)$(uci -q get sbproxy.control.ingress_bypass_wifi)" ]; then
 	ingress_dns_port="$(uci -q get sbproxy.infra.ingress_dns_port)"
-	ingress_reserved="$clash_api_port $dashboard_port $tailscale_api_port $direct_probe_port $proxy_probe_port $(uci -q get sbproxy.infra.dns_port) $(uci -q get sbproxy.infra.mixed_port) 53"
+	ingress_reserved="$clash_api_port $dashboard_port $tailscale_api_port $(uci -q get sbproxy.infra.dns_port) $(uci -q get sbproxy.infra.mixed_port) 53"
 	for reserved in $ingress_reserved; do
 		[ "$ingress_dns_port" != "$reserved" ] || ingress_dns_port=auto
 	done
@@ -161,5 +110,4 @@ if [ "$(uci -q get sbproxy.control.ingress_enabled)" = '1' ] &&
 fi
 
 [ "$changed" -eq 0 ] || uci -q commit sbproxy
-[ "$adaptive_changed" -eq 0 ] || uci -q commit sbproxy-adaptive
 exit 0

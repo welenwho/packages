@@ -8,9 +8,7 @@ esac
 
 DEFAULT_DIR="$MIGRATION_ROOT/usr/share/sbproxy/defaults"
 OLD_CONFIG="$MIGRATION_ROOT/etc/config/homeproxy"
-OLD_ADAPTIVE_CONFIG="$MIGRATION_ROOT/etc/config/homeproxy-adaptive"
 NEW_CONFIG="$MIGRATION_ROOT/etc/config/sbproxy"
-NEW_ADAPTIVE_CONFIG="$MIGRATION_ROOT/etc/config/sbproxy-adaptive"
 OLD_DATA="$MIGRATION_ROOT/etc/homeproxy"
 NEW_DATA="$MIGRATION_ROOT/etc/sbproxy"
 MIGRATE_FROM_LEGACY=0
@@ -36,21 +34,6 @@ migrate_main_config() {
 	mv -f "$temporary" "$target"
 }
 
-migrate_adaptive_config() {
-	local source="$1" target="$2" fallback="$3" temporary
-
-	[ ! -e "$target" ] || return 0
-	mkdir -p "${target%/*}" || return 1
-	temporary="${target}.new.$$"
-	if [ -f "$source" ]; then
-		cp -p "$source" "$temporary" || return 1
-	else
-		cp -p "$fallback" "$temporary" || return 1
-	fi
-	chmod 600 "$temporary" || return 1
-	mv -f "$temporary" "$target"
-}
-
 copy_tree_if_missing() {
 	local source="$1" target="$2"
 
@@ -58,14 +41,6 @@ copy_tree_if_missing() {
 	[ ! -e "$target" ] || return 0
 	mkdir -p "${target%/*}" || return 1
 	cp -a "$source" "$target"
-}
-
-copy_tree_contents() {
-	local source="$1" target="$2"
-
-	[ -d "$source" ] || return 0
-	mkdir -p "$target" || return 1
-	cp -a "$source/." "$target/"
 }
 
 copy_file_if_present() {
@@ -76,8 +51,7 @@ copy_file_if_present() {
 	cp -p "$source" "$target"
 }
 
-if ! migrate_main_config "$OLD_CONFIG" "$NEW_CONFIG" "$DEFAULT_DIR/sbproxy" ||
-	! migrate_adaptive_config "$OLD_ADAPTIVE_CONFIG" "$NEW_ADAPTIVE_CONFIG" "$DEFAULT_DIR/sbproxy-adaptive"; then
+if ! migrate_main_config "$OLD_CONFIG" "$NEW_CONFIG" "$DEFAULT_DIR/sbproxy"; then
 	printf '%s\n' 'SBProxy: failed to create isolated configuration files.' >&2
 	exit 1
 fi
@@ -85,10 +59,6 @@ fi
 if [ "$MIGRATE_FROM_LEGACY" = "1" ]; then
 	# Copy only persistent user state. Package-owned scripts, dashboard files,
 	# and geodata remain the SBProxy versions installed by this package.
-	if ! copy_tree_contents "$OLD_DATA/adaptive" "$NEW_DATA/adaptive"; then
-		printf '%s\n' "SBProxy: failed to migrate $OLD_DATA/adaptive." >&2
-		exit 1
-	fi
 	for data_dir in cache certs ruleset tailscale; do
 		if ! copy_tree_if_missing "$OLD_DATA/$data_dir" "$NEW_DATA/$data_dir"; then
 			printf '%s\n' "SBProxy: failed to migrate $OLD_DATA/$data_dir." >&2

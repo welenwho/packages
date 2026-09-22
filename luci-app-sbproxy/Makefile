@@ -24,13 +24,12 @@ LUCI_EXTRA_DEPENDS:=sing-box (>=1.14.0)
 
 PKG_NAME:=luci-app-sbproxy
 PKG_VERSION:=1.0.1
-PKG_RELEASE:=13
+PKG_RELEASE:=14
 PKG_PO_VERSION:=$(PKG_VERSION)-r$(PKG_RELEASE)
 
 define Package/luci-app-sbproxy/conffiles
 /etc/config/sbproxy
-/etc/config/sbproxy-adaptive
-/etc/sbproxy/adaptive/
+/etc/sbproxy/retired-adaptive/
 /etc/sbproxy/cache/
 /etc/sbproxy/certs/
 /etc/sbproxy/core/

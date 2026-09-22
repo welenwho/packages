@@ -18,7 +18,7 @@ import { cursor } from 'uci';
 import {
 	createNodeLabelRegistry, filterExistingNodes, hasForceProxyRules, isEmpty,
 	normalizeList, parseURL, resolveRoutingPorts,
-	resolveAdaptivePolicy, resolveUrltestNodes,
+	resolveUrltestNodes,
 	reserveUniqueLabel, strToBool, strToInt, strToTime,
 	removeBlankAttrs, renderEndpoint, renderOutbound, validation, SB_DIR, RUN_DIR
 } from 'sbproxy';
@@ -30,9 +30,7 @@ const uci_config_dir = getenv('SBPROXY_UCI_CONFIG_DIR');
 const uci = uci_config_dir ? cursor(uci_config_dir) : cursor();
 
 const uciconfig = 'sbproxy';
-const adaptiveconfig = 'sbproxy-adaptive';
 uci.load(uciconfig);
-uci.load(adaptiveconfig);
 
 const uciinfra = 'infra',
       ucimain = 'config',
@@ -52,21 +50,6 @@ const uciruleset = 'ruleset';
 
 const routing_mode = uci.get(uciconfig, ucimain, 'routing_mode') || 'bypass_mainland_china';
 const tailscale_enabled = uci.get(uciconfig, ucitailscale, 'enabled') === '1';
-const adaptive_policy = resolveAdaptivePolicy(uci, uciconfig, adaptiveconfig);
-if (adaptive_policy.requested && adaptive_policy.mode_allowed && adaptive_policy.error)
-	die(adaptive_policy.error);
-const adaptive_enabled = adaptive_policy.enabled;
-const adaptive_dry_run = uci.get(adaptiveconfig, 'main', 'dry_run') !== '0';
-const adaptive_apply = adaptive_enabled && !adaptive_dry_run;
-const adaptive_rules_path = getenv('SBPROXY_ADAPTIVE_RULES_PATH') ||
-      '/var/run/sbproxy-adaptive/rules.json';
-const adaptive_final_direct_tag = 'sbproxy-adaptive-final-direct-out';
-const adaptive_proxy_tag = 'sbproxy-adaptive-out';
-const adaptive_target_tag = adaptive_policy.target_kind === 'direct' ?
-      adaptive_final_direct_tag : adaptive_proxy_tag;
-const adaptive_direct_probe_port = strToInt(uci.get(adaptiveconfig, 'main', 'direct_probe_port'));
-const adaptive_proxy_probe_port = strToInt(uci.get(adaptiveconfig, 'main', 'proxy_probe_port'));
-
 const outbound_tags = createNodeLabelRegistry();
 const node_outbound_tags = {};
 const routing_outbound_tags = {};
@@ -1025,24 +1008,6 @@ if (proxy_client_enabled)
 		set_system_proxy: false
 	});
 
-if (proxy_client_enabled && adaptive_enabled) {
-	if (!adaptive_direct_probe_port || !adaptive_proxy_probe_port ||
-	    adaptive_direct_probe_port === adaptive_proxy_probe_port)
-		die('Adaptive routing probe ports are unavailable.');
-	push(config.inbounds, {
-		type: 'socks',
-		tag: 'sbproxy-adaptive-direct-probe-in',
-		listen: '127.0.0.1',
-		listen_port: adaptive_direct_probe_port
-	});
-	push(config.inbounds, {
-		type: 'socks',
-		tag: 'sbproxy-adaptive-proxy-probe-in',
-		listen: '127.0.0.1',
-		listen_port: adaptive_proxy_probe_port
-	});
-}
-
 if (proxy_client_enabled) {
 	const route_exclude_address = filter(unique_cidrs([
 		...normalizeList(uci.get(uciconfig, ucimain, 'tun_route_exclude_ipv4_ips')),
@@ -1083,15 +1048,6 @@ config.outbounds = [
 		tag: 'direct-out',
 	}
 ];
-if (adaptive_enabled)
-	push(config.outbounds, {
-		type: 'direct',
-		tag: adaptive_final_direct_tag,
-	}, {
-		type: 'direct',
-		tag: 'sbproxy-adaptive-probe-direct-out',
-	});
-
 /* Main outbounds */
 if (!isEmpty(main_node)) {
 	let urltest_nodes = [];
@@ -1229,29 +1185,6 @@ if (!isEmpty(main_node)) {
 
 }
 
-if (adaptive_enabled) {
-	let proxy_outbound;
-	if (adaptive_policy.baseline_kind === 'direct') {
-		const adaptive_section = uci.get_all(uciconfig, adaptive_policy.proxy_outbound) || {};
-		if (adaptive_section['.type'] !== uciroutingnode || adaptive_section.enabled !== '1')
-			die('Adaptive routing requires an enabled proxy routing node.');
-		proxy_outbound = get_outbound(adaptive_policy.proxy_outbound);
-	} else if (routing_mode === 'custom')
-		proxy_outbound = get_outbound(adaptive_policy.proxy_outbound);
-	else
-		proxy_outbound = 'main-out';
-
-	if (isEmpty(proxy_outbound) || proxy_outbound === 'direct-out')
-		die('Adaptive routing proxy path is unavailable.');
-	push(config.outbounds, {
-		type: 'selector',
-		tag: adaptive_proxy_tag,
-		outbounds: [proxy_outbound],
-		default: proxy_outbound,
-		interrupt_exist_connections: false
-	});
-}
-
 for (let group in domain_groups) {
 	if (group.node === '_reject') continue;
 	const tag = group_outbound(group);
@@ -1289,19 +1222,6 @@ if (tailscale_enabled)
 		action: 'route',
 		outbound: tailscale_endpoint_tag
 	});
-if (proxy_client_enabled && adaptive_enabled) {
-	push(config.route.rules, {
-		inbound: 'sbproxy-adaptive-direct-probe-in',
-		action: 'route',
-		outbound: 'sbproxy-adaptive-probe-direct-out'
-	});
-	push(config.route.rules, {
-		inbound: 'sbproxy-adaptive-proxy-probe-in',
-		action: 'route',
-		outbound: adaptive_proxy_tag
-	});
-}
-
 /* Routing rules */
 if (!isEmpty(main_node)) {
 	/* Avoid DNS loop */
@@ -1366,15 +1286,9 @@ if (!isEmpty(main_node)) {
 		});
 	}
 
-	if (adaptive_apply)
-		push(config.route.rules, {
-			rule_set: 'sbproxy-adaptive-rule',
-			action: 'route',
-			outbound: adaptive_target_tag
-		});
 	add_tailscale_exit_node_rule(config.route.rules);
 
-	config.route.final = adaptive_enabled ? adaptive_proxy_tag : 'main-out';
+	config.route.final = 'main-out';
 
 	/* Rule set */
 	/* Direct list */
@@ -1396,14 +1310,6 @@ if (!isEmpty(main_node)) {
 	if (routing_mode === 'bypass_mainland_china') {
 		add_mainland_rule_sets(config.route.rule_set);
 	}
-
-	if (adaptive_apply)
-		push(config.route.rule_set, {
-			type: 'local',
-			tag: 'sbproxy-adaptive-rule',
-			format: 'source',
-			path: adaptive_rules_path
-		});
 
 	if (isEmpty(config.route.rule_set))
 		config.route.rule_set = null;
@@ -1476,33 +1382,13 @@ if (!isEmpty(main_node)) {
 
 		push(config.route.rules, rule);
 	});
-	if (adaptive_apply) {
-		const protect_mainland = adaptive_policy.target_kind === 'proxy' &&
-		      uci.get('sbproxy-adaptive', 'main', 'protect_mainland') !== '0';
-		// Only constrain automatic rules. Explicit user proxy rules above
-		// retain their priority, including intentional mainland destinations.
-		if (protect_mainland && !bypass_cn_traffic)
-			add_mainland_rule_sets(config.route.rule_set);
-		push(config.route.rules, {
-			...(protect_mainland ? {
-				type: 'logical', mode: 'and', rules: [
-					{ rule_set: 'sbproxy-adaptive-rule' },
-					{ rule_set: ['geoip-cn', 'geosite-cn'], invert: true }
-				]
-			} : { rule_set: 'sbproxy-adaptive-rule' }),
-			action: 'route',
-			outbound: adaptive_target_tag
-		});
-	}
 	add_tailscale_exit_node_rule(config.route.rules);
 
 	if (default_outbound === 'reject')
 		push(config.route.rules, { action: 'reject' });
 	else {
 		const final_outbound = get_outbound(default_outbound);
-		config.route.final = adaptive_enabled ?
-			(adaptive_policy.baseline_kind === 'direct' ?
-				adaptive_final_direct_tag : adaptive_proxy_tag) : final_outbound;
+		config.route.final = final_outbound;
 	}
 
 	/* Rule set */
@@ -1513,14 +1399,6 @@ if (!isEmpty(main_node)) {
 		const ruleset_outbound = (cfg.type === 'remote') ? (get_outbound(cfg.outbound) || 'direct-out') : null;
 		push(config.route.rule_set, render_rule_set(cfg, ruleset_outbound));
 	});
-
-	if (adaptive_apply)
-		push(config.route.rule_set, {
-			type: 'local',
-			tag: 'sbproxy-adaptive-rule',
-			format: 'source',
-			path: adaptive_rules_path
-		});
 } else if (tailscale_enabled) {
 	config.route.default_domain_resolver = {
 		server: 'default-dns',
@@ -1548,7 +1426,7 @@ if (length(domain_groups)) {
 /* Routing rules end */
 
 /* Experimental start */
-const enable_clash_api = main_node === 'urltest' || adaptive_enabled;
+const enable_clash_api = main_node === 'urltest';
 const enable_cache_file = proxy_client_enabled &&
       routing_mode in ['bypass_mainland_china', 'custom'];
 if (enable_clash_api || enable_cache_file) {

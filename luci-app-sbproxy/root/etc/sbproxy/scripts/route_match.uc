@@ -21,4 +21,4 @@ export function renderRouteMatch(cfg, rule_sets) {
 		rule_set: rule_sets, rule_set_ip_cidr_match_source: strToBool(cfg.rule_set_ip_cidr_match_source),
 		invert: strToBool(cfg.invert)
 	};
-}
+};

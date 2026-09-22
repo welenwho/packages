@@ -21,7 +21,6 @@ pkg_version="$(sed -n 's/^PKG_VERSION:=//p' "$MAKEFILE")"
 pkg_release="$(sed -n 's/^PKG_RELEASE:=//p' "$MAKEFILE")"
 cache_version="$(printf '%s\n' "$pkg_version" | sed 's/[^A-Za-z0-9_-]/-/g')"
 cache_key="${cache_version}-r${pkg_release}"
-versioned_adaptive="$PACKAGE_ROOT/htdocs/luci-static/resources/sbproxy-adaptive-${cache_key}.js"
 versioned_client="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/client-${cache_key}.js"
 versioned_tailscale="$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/tailscale-${cache_key}.js"
 
@@ -45,8 +44,6 @@ grep -Fq "'require sbproxy as sb';" \
 	"$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/node.js"
 grep -Fq "'require sbproxy as sb';" \
 	"$PACKAGE_ROOT/htdocs/luci-static/resources/view/sbproxy/server.js"
-test "$(readlink "$versioned_adaptive")" = \
-	'sbproxy-adaptive.js'
 test "$(readlink "$versioned_client")" = \
 	'client.js'
 test "$(readlink "$versioned_tailscale")" = \

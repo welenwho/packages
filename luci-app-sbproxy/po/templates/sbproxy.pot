@@ -81,10 +81,6 @@ msgstr ""
 msgid "A mesh PSK or PSK file is required when DERP mesh peers are configured."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:256
-msgid "A proxy outbound is required."
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:469
 msgid "A random available port is assigned on first installation."
 msgstr ""
@@ -148,7 +144,6 @@ msgstr ""
 msgid "Account"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:120
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1059
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1549
 msgid "Action"
@@ -164,17 +159,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:312
 msgid "AdGuard Public DNS (DoH)"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:195
-msgid "Adaptive Routing"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:201
-msgid ""
-"Adaptive routing observes only traffic using the final default path. It "
-"learns proxy exceptions when the default is direct, and direct exceptions "
-"when the default is proxy. Manual routing rules keep priority."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1459
@@ -203,10 +187,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:139
 msgid "Add a server"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:116
-msgid "Added at"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:787
@@ -273,10 +253,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:481
 msgid "Allow dashboard from Tailscale"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:235
-msgid "Allow direct exceptions in global mode"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1518
@@ -525,15 +501,9 @@ msgstr ""
 msgid "CUBIC"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:58
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:78
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:223
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1779
 msgid "Cancel"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:265
-msgid "Candidate trigger"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:148
@@ -609,18 +579,6 @@ msgstr ""
 msgid "Clean log"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:89
-msgid "Clear"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:175
-msgid "Clear all"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:75
-msgid "Clear learned rules"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1017
 msgid "Client"
 msgstr ""
@@ -669,10 +627,6 @@ msgstr ""
 msgid "Common ports + additional ports"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:241
-msgid "Comparison proxy outbound"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:149
 msgid "Compiled"
 msgstr ""
@@ -698,10 +652,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:160
 msgid "Connection Status"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:320
-msgid "Connection polling interval (seconds)"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1661
@@ -989,14 +939,6 @@ msgstr ""
 msgid "Default packet encoding"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:301
-msgid "Default path latency threshold (ms)"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:160
-msgid "Default path: %s; learned target: %s"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:635
 msgid "Default server name"
 msgstr ""
@@ -1005,15 +947,6 @@ msgstr ""
 msgid ""
 "Defaults to 8443 to avoid the LuCI HTTPS listener. Publish this exact port "
 "in the Tailnet DERP map, or forward an external port to it."
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:69
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:138
-msgid "Delete"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:55
-msgid "Delete learned rule"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:435
@@ -1038,14 +971,6 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:209
-msgid "Detection"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:163
-msgid "Detection paused due to router load."
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:74
 msgid "Device"
 msgstr ""
@@ -1058,9 +983,6 @@ msgstr ""
 msgid "Devices to bypass"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:113
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:161
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:162
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:600
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:741
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:843
@@ -1199,10 +1121,6 @@ msgstr ""
 msgid "Diversion groups"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:102
-msgid "Domain"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:636
 msgid "Domain List"
 msgstr ""
@@ -1295,10 +1213,6 @@ msgstr ""
 msgid "Drop/keep specific nodes from subscriptions."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:231
-msgid "Dry-run"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:720
 msgid ""
 "EAB (External Account Binding) contains information necessary to bind or map "
@@ -1362,7 +1276,6 @@ msgstr ""
 msgid "Emergency recovery package"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:227
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:593
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:791
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:980
@@ -1494,10 +1407,6 @@ msgstr ""
 msgid "Evaluation server"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:281
-msgid "Excluded domain suffixes"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:350
 msgid "Exit Node"
 msgstr ""
@@ -1587,14 +1496,6 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:85
-msgid "Failed to clear learned rules."
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:65
-msgid "Failed to delete learned rule."
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:69
 msgid "Failed to generate %s, error: %s."
 msgstr ""
@@ -1605,10 +1506,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:376
 msgid "Failed to upload %s, error: %s."
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:266
-msgid "Failures only"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:309
@@ -1637,10 +1534,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:154
 msgid "Firewall"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:116
-msgid "First seen"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1212
@@ -1708,7 +1601,6 @@ msgstr ""
 msgid "Gecko minimum packet size"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:206
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:588
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:474
 msgid "General Settings"
@@ -1884,7 +1776,6 @@ msgstr ""
 msgid "IP version"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:100
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:681
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1000
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1493
@@ -1905,7 +1796,6 @@ msgstr ""
 msgid "IPv4 only"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:101
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:681
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1001
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1494
@@ -2212,10 +2102,6 @@ msgstr ""
 msgid "Last applied: %s"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:117
-msgid "Last seen"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:832
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:58
 msgid "Latency"
@@ -2223,10 +2109,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:282
 msgid "Latest stable package: %s"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:207
-msgid "Learned Rules"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:921
@@ -2526,10 +2408,6 @@ msgstr ""
 msgid "Maximum TLS version"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:289
-msgid "Maximum bytes during slow window (bytes)"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1437
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1451
 msgid "Maximum connections"
@@ -2537,14 +2415,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:980
 msgid "Maximum hop interval"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:276
-msgid "Maximum learned IP rules"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:271
-msgid "Maximum learned rules"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1449
@@ -2609,21 +2479,9 @@ msgstr ""
 msgid "Minimum idle sessions"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:315
-msgid "Minimum improvement percentage"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:310
-msgid "Minimum latency improvement (ms)"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1443
 msgid ""
 "Minimum multiplexed streams in a connection before opening a new connection."
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:295
-msgid "Minimum observations"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1442
@@ -2670,7 +2528,6 @@ msgstr ""
 msgid "Multiplex protocol."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:146
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:128
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:43
 msgid "NOT RUNNING"
@@ -2768,10 +2625,6 @@ msgstr ""
 msgid "No subscription node"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:108
-msgid "No targets recorded."
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1816
 msgid "No valid share link found."
 msgstr ""
@@ -2846,10 +2699,6 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1008
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:268
 msgid "Obfuscate type"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:115
-msgid "Observations"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:69
@@ -3010,10 +2859,6 @@ msgstr ""
 msgid "Path"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:342
-msgid "Pause at 1-minute load average"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:288
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:402
 msgid "Peer"
@@ -3085,14 +2930,6 @@ msgstr ""
 msgid "Peers"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:208
-msgid "Pending Candidates"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:210
-msgid "Performance"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1307
 msgid "Persist the complete DNS cache in the cache file."
 msgstr ""
@@ -3128,10 +2965,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1890
 msgid "Policy notes"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:155
-msgid "Polls: %d"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:705
@@ -3209,22 +3042,6 @@ msgstr ""
 msgid "Probe failed"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:325
-msgid "Probe interval (seconds)"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:335
-msgid "Probe samples"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:330
-msgid "Probe timeout (ms)"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:157
-msgid "Probes: %d"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:973
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1466
 msgid "Process Fields"
@@ -3260,12 +3077,6 @@ msgstr ""
 msgid ""
 "Protocol parameter. Will waste traffic randomly if enabled (enabled by "
 "default in v2ray and cannot be disabled)."
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:114
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:161
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:162
-msgid "Proxy"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1964
@@ -3357,7 +3168,6 @@ msgstr ""
 msgid "RPC failed"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:146
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:126
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:41
 msgid "RUNNING"
@@ -3412,16 +3222,8 @@ msgstr ""
 msgid "Remote"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:56
-msgid "Remove %s from automatically learned targets?"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1993
 msgid "Remove %s nodes"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:76
-msgid "Remove all automatically learned targets?"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1983
@@ -3434,12 +3236,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1159
 msgid "Reply with TCP RST / ICMP port unreachable"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:236
-msgid ""
-"Required before adaptive routing can create direct exceptions in global "
-"proxy mode."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:113
@@ -3721,10 +3517,6 @@ msgstr ""
 msgid "Select an online Tailscale exit node."
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:243
-msgid "Select an outbound"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:569
 msgid ""
 "Select local interface subnets to publish. Custom CIDR values remain "
@@ -3805,14 +3597,6 @@ msgstr ""
 msgid ""
 "Shows whether each optional core feature is compiled and where SBProxy "
 "currently uses it."
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:283
-msgid "Slow connection window (seconds)"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:267
-msgid "Slow connections or failures"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1018
@@ -3968,10 +3752,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:244
 msgid "Successfully updated."
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:116
-msgid "Suggested at"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1773
@@ -4189,7 +3969,6 @@ msgstr ""
 msgid "Tailscale, HTTPS certificates and DERP"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:111
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:598
 msgid "Target"
 msgstr ""
@@ -4583,10 +4362,6 @@ msgstr ""
 msgid "Trace"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:153
-msgid "Tracked connections: %d"
-msgstr ""
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1249
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:407
 msgid "Transport"
@@ -4597,7 +4372,6 @@ msgstr ""
 msgid "Trojan"
 msgstr ""
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:112
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1334
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1772
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:873
@@ -4658,7 +4432,7 @@ msgid "URLTest"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:137
-msgid "URLTest and adaptive routing"
+msgid "URLTest and dashboard"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:261
@@ -4851,12 +4625,6 @@ msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:611
 msgid "Use the main node"
-msgstr ""
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:242
-msgid ""
-"Used as the learned target only when the custom routing default outbound is "
-"Direct."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1509
@@ -5203,18 +4971,6 @@ msgstr ""
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:396
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:414
 msgid "valid port value"
-msgstr ""
-
-msgid "Protect mainland destinations"
-msgstr ""
-
-msgid "Prevent adaptive proxy rules from overriding mainland GeoIP/GeoSite destinations. Explicit routing rules remain unchanged. Only applies when the adaptive target is a proxy."
-msgstr ""
-
-msgid "Learned IP rules apply only to TCP port 443, the service actually probed; other ports and UDP are not changed."
-msgstr ""
-
-msgid "Required for both failed and slow connections. Repeated unsuccessful probes enter a one-hour cooldown."
 msgstr ""
 
 msgid "Use a unique random secret of at least 16 characters. Dashboard access is restricted to LAN and explicitly allowed Tailscale interfaces, even when WAN input is allowed."

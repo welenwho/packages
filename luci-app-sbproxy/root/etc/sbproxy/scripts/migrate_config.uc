@@ -15,9 +15,7 @@ import {
 const uciConfigDir = getenv('SBPROXY_UCI_CONFIG_DIR');
 const uci = uciConfigDir ? cursor(uciConfigDir) : cursor();
 const uciconfig = 'sbproxy';
-const adaptiveConfig = 'sbproxy-adaptive';
 uci.load(uciconfig);
-uci.load(adaptiveConfig);
 
 const stockWanProxyIPv4 = [
 	'91.105.192.0/23', '91.108.4.0/22', '91.108.8.0/21', '91.108.16.0/21',
@@ -116,10 +114,14 @@ if (subscriptionNodeMigrationState !== subscriptionNodeMigration) {
 /* Move installations from the pre-stability defaults once. Explicit changes
  * made after this migration are preserved on later package upgrades. */
 const stabilityMigration = '1';
-const stabilityMigrationOption = 'adaptive_stability_defaults';
+const stabilityMigrationOption = 'urltest_stability_defaults';
+// Preserve the completed URLTest migration from releases that bundled it
+// with the retired adaptive feature; never reapply it over user changes.
+if (uci.get(uciconfig, 'migration', 'adaptive_stability_defaults') === stabilityMigration) {
+	uci.set(uciconfig, 'migration', stabilityMigrationOption, stabilityMigration);
+	uci.delete(uciconfig, 'migration', 'adaptive_stability_defaults');
+}
 if (uci.get(uciconfig, 'migration', stabilityMigrationOption) !== stabilityMigration) {
-	if (uci.get(adaptiveConfig, 'main', 'candidate_trigger') === 'slow_or_failure')
-		uci.set(adaptiveConfig, 'main', 'candidate_trigger', 'failure_only');
 	if (uci.get(uciconfig, 'config', 'main_urltest_interrupt_exist_connections') === '1')
 		uci.set(uciconfig, 'config', 'main_urltest_interrupt_exist_connections', '0');
 	uci.foreach(uciconfig, 'routing_node', (section) => {
@@ -312,6 +314,4 @@ if (getenv('SBPROXY_MIGRATION_SKIP_CLEANUP') !== '1')
 	system('rm -f "/etc/sbproxy/resources/china_list.txt" "/etc/sbproxy/resources/china_list.ver" "/etc/sbproxy/resources/gfw_list.txt" "/etc/sbproxy/resources/gfw_list.ver"');
 
 if (!isEmpty(uci.changes(uciconfig)) && uci.commit(uciconfig) !== true)
-	exit(1);
-if (!isEmpty(uci.changes(adaptiveConfig)) && uci.commit(adaptiveConfig) !== true)
 	exit(1);

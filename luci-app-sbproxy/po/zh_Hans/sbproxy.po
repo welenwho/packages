@@ -93,10 +93,6 @@ msgstr "<strong>上传文件前请先保存配置！</strong>"
 msgid "A mesh PSK or PSK file is required when DERP mesh peers are configured."
 msgstr "配置 DERP 网状对等节点时，必须设置网状 PSK 或 PSK 文件。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:256
-msgid "A proxy outbound is required."
-msgstr "必须选择一个代理出站。"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:469
 msgid "A random available port is assigned on first installation."
 msgstr "首次安装时会随机分配一个可用端口。"
@@ -162,7 +158,6 @@ msgstr "访问密钥 Secret"
 msgid "Account"
 msgstr "账户"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:120
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1059
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1549
 msgid "Action"
@@ -179,19 +174,6 @@ msgstr "活跃"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:312
 msgid "AdGuard Public DNS (DoH)"
 msgstr "AdGuard 公共DNS (DoH)"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:195
-msgid "Adaptive Routing"
-msgstr "自适应路由"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:201
-msgid ""
-"Adaptive routing observes only traffic using the final default path. It "
-"learns proxy exceptions when the default is direct, and direct exceptions "
-"when the default is proxy. Manual routing rules keep priority."
-msgstr ""
-"自适应路由只观察最终使用默认路径的流量。默认直连时学习代理例外，默认代理时学"
-"习直连例外；手工路由规则保持更高优先级。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1459
 msgid "Add a DNS rule"
@@ -220,10 +202,6 @@ msgstr "新增规则集"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:139
 msgid "Add a server"
 msgstr "新增服务器"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:116
-msgid "Added at"
-msgstr "加入时间"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:787
 msgid "Additional client verification URLs"
@@ -290,10 +268,6 @@ msgstr "允许来自互联网的访问。"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:481
 msgid "Allow dashboard from Tailscale"
 msgstr "允许从 Tailscale 访问面板"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:235
-msgid "Allow direct exceptions in global mode"
-msgstr "允许全局模式产生直连例外"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1518
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1935
@@ -543,16 +517,10 @@ msgstr "CA 颁发机构"
 msgid "CUBIC"
 msgstr "CUBIC"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:58
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:78
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:223
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1779
 msgid "Cancel"
 msgstr "取消"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:265
-msgid "Candidate trigger"
-msgstr "候选触发条件"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:148
 msgid "Capability"
@@ -629,18 +597,6 @@ msgstr "Clash API"
 msgid "Clean log"
 msgstr "清空日志"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:89
-msgid "Clear"
-msgstr "清空"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:175
-msgid "Clear all"
-msgstr "清空全部"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:75
-msgid "Clear learned rules"
-msgstr "清空已学习规则"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1017
 msgid "Client"
 msgstr "客户端"
@@ -689,10 +645,6 @@ msgstr "正在收集数据中..."
 msgid "Common ports + additional ports"
 msgstr "常用端口 + 额外端口"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:241
-msgid "Comparison proxy outbound"
-msgstr "对比代理出站"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:149
 msgid "Compiled"
 msgstr "已编译"
@@ -719,10 +671,6 @@ msgstr "已连接"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:160
 msgid "Connection Status"
 msgstr "连接状态"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:320
-msgid "Connection polling interval (seconds)"
-msgstr "连接轮询间隔（秒）"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1661
 msgid "Connection timeout"
@@ -1009,14 +957,6 @@ msgstr "用于未被任何路由规则匹配的连接的默认出站。"
 msgid "Default packet encoding"
 msgstr "默认包封装格式"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:301
-msgid "Default path latency threshold (ms)"
-msgstr "默认路径延迟阈值（毫秒）"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:160
-msgid "Default path: %s; learned target: %s"
-msgstr "默认路径：%s；学习目标：%s"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:635
 msgid "Default server name"
 msgstr "默认服务器名称"
@@ -1028,15 +968,6 @@ msgid ""
 msgstr ""
 "默认为 8443，以避开 LuCI HTTPS 监听端口。请在 Tailnet DERP 映射中发布此端口，"
 "或将外部端口转发到此端口。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:69
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:138
-msgid "Delete"
-msgstr "删除"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:55
-msgid "Delete learned rule"
-msgstr "删除已学习规则"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:435
 msgid ""
@@ -1063,14 +994,6 @@ msgstr ""
 msgid "Details"
 msgstr "详细信息"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:209
-msgid "Detection"
-msgstr "探测"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:163
-msgid "Detection paused due to router load."
-msgstr "路由器负载较高，已暂停探测。"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:74
 msgid "Device"
 msgstr "设备接口"
@@ -1083,9 +1006,6 @@ msgstr "设备名称"
 msgid "Devices to bypass"
 msgstr "不接管的设备接口（可多选）"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:113
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:161
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:162
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:600
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:741
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:843
@@ -1228,10 +1148,6 @@ msgstr "从此接口动态发现 DNS 服务器。留空则使用默认接口。"
 msgid "Diversion groups"
 msgstr "分流组"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:102
-msgid "Domain"
-msgstr "域名"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:636
 msgid "Domain List"
 msgstr "域名列表"
@@ -1326,10 +1242,6 @@ msgstr ""
 msgid "Drop/keep specific nodes from subscriptions."
 msgstr "从订阅中丢弃/保留指定节点。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:231
-msgid "Dry-run"
-msgstr "试运行"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:720
 msgid ""
 "EAB (External Account Binding) contains information necessary to bind or map "
@@ -1398,7 +1310,6 @@ msgstr "嵌入式后端"
 msgid "Emergency recovery package"
 msgstr "应急恢复包"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:227
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:593
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:791
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:980
@@ -1532,10 +1443,6 @@ msgstr "在匹配响应地址或 IP 规则集前，先使用所选服务器查�
 msgid "Evaluation server"
 msgstr "预查询服务器"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:281
-msgid "Excluded domain suffixes"
-msgstr "排除的域名后缀"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:350
 msgid "Exit Node"
 msgstr "出口节点"
@@ -1625,14 +1532,6 @@ msgstr "附加记录"
 msgid "Failed"
 msgstr "失败"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:85
-msgid "Failed to clear learned rules."
-msgstr "清空已学习规则失败。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:65
-msgid "Failed to delete learned rule."
-msgstr "删除已学习规则失败。"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:69
 msgid "Failed to generate %s, error: %s."
 msgstr "生成 %s 失败，错误：%s。"
@@ -1644,10 +1543,6 @@ msgstr "保存域名列表失败。"
 #: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy.js:376
 msgid "Failed to upload %s, error: %s."
 msgstr "上传 %s 失败，错误：%s。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:266
-msgid "Failures only"
-msgstr "仅连接失败"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:309
 msgid "Family"
@@ -1676,10 +1571,6 @@ msgstr "Firefox / uquic firefox"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:154
 msgid "Firewall"
 msgstr "防火墙"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:116
-msgid "First seen"
-msgstr "首次出现"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1212
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:393
@@ -1748,7 +1639,6 @@ msgstr "Gecko 最大数据包大小"
 msgid "Gecko minimum packet size"
 msgstr "Gecko 最小数据包大小"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:206
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:588
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:474
 msgid "General Settings"
@@ -1924,7 +1814,6 @@ msgstr "IP CIDR"
 msgid "IP version"
 msgstr "IP 版本"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:100
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:681
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1000
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1493
@@ -1945,7 +1834,6 @@ msgstr "该选项中的 IPv4 地址将强制走全局代理。"
 msgid "IPv4 only"
 msgstr "仅 IPv4"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:101
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:681
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1001
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1494
@@ -2258,10 +2146,6 @@ msgstr "最后在线"
 msgid "Last applied: %s"
 msgstr "最近应用时间：%s"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:117
-msgid "Last seen"
-msgstr "最后出现"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:832
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:58
 msgid "Latency"
@@ -2270,10 +2154,6 @@ msgstr "延迟"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:282
 msgid "Latest stable package: %s"
 msgstr "最新稳定版软件包：%s"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:207
-msgid "Learned Rules"
-msgstr "已学习规则"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:921
 msgid ""
@@ -2576,10 +2456,6 @@ msgstr "TLS 握手的最长时长（秒）。留空则使用核心默认值。"
 msgid "Maximum TLS version"
 msgstr "最大 TLS 版本"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:289
-msgid "Maximum bytes during slow window (bytes)"
-msgstr "慢连接窗口内的最大传输量（字节）"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1437
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1451
 msgid "Maximum connections"
@@ -2588,14 +2464,6 @@ msgstr "最大连接数"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:980
 msgid "Maximum hop interval"
 msgstr "最大端口跳跃间隔"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:276
-msgid "Maximum learned IP rules"
-msgstr "已学习 IP 规则上限"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:271
-msgid "Maximum learned rules"
-msgstr "已学习规则上限"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1449
 msgid ""
@@ -2661,22 +2529,10 @@ msgstr "最低 TLS 版本"
 msgid "Minimum idle sessions"
 msgstr "最小空闲会话数"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:315
-msgid "Minimum improvement percentage"
-msgstr "最低改善百分比"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:310
-msgid "Minimum latency improvement (ms)"
-msgstr "最低延迟改善（毫秒）"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1443
 msgid ""
 "Minimum multiplexed streams in a connection before opening a new connection."
 msgstr "在打开新连接之前，连接中的最小多路复用流数量。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:295
-msgid "Minimum observations"
-msgstr "最少观测次数"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1442
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1451
@@ -2724,7 +2580,6 @@ msgstr "多路复用"
 msgid "Multiplex protocol."
 msgstr "多路复用协议。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:146
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:128
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:43
 msgid "NOT RUNNING"
@@ -2822,10 +2677,6 @@ msgstr "无可用订阅"
 msgid "No subscription node"
 msgstr "无订阅节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:108
-msgid "No targets recorded."
-msgstr "暂无目标记录。"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1816
 msgid "No valid share link found."
 msgstr "找不到有效分享链接。"
@@ -2901,10 +2752,6 @@ msgstr "混淆密码"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:268
 msgid "Obfuscate type"
 msgstr "混淆类型"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:115
-msgid "Observations"
-msgstr "观测次数"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:69
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:299
@@ -3070,10 +2917,6 @@ msgstr "密码"
 msgid "Path"
 msgstr "路径"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:342
-msgid "Pause at 1-minute load average"
-msgstr "1 分钟平均负载达到此值时暂停"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:288
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:402
 msgid "Peer"
@@ -3145,14 +2988,6 @@ msgstr "对端测试目标"
 msgid "Peers"
 msgstr "对端节点"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:208
-msgid "Pending Candidates"
-msgstr "待探测候选"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:210
-msgid "Performance"
-msgstr "性能"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1307
 msgid "Persist the complete DNS cache in the cache file."
 msgstr "将完整的 DNS 缓存持久保存到缓存文件。"
@@ -3189,10 +3024,6 @@ msgstr "策略规则"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1890
 msgid "Policy notes"
 msgstr "策略说明"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:155
-msgid "Polls: %d"
-msgstr "轮询：%d"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:705
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1250
@@ -3269,22 +3100,6 @@ msgstr "私钥口令"
 msgid "Probe failed"
 msgstr "探测失败"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:325
-msgid "Probe interval (seconds)"
-msgstr "探测间隔（秒）"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:335
-msgid "Probe samples"
-msgstr "探测样本数"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:330
-msgid "Probe timeout (ms)"
-msgstr "探测超时（毫秒）"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:157
-msgid "Probes: %d"
-msgstr "探测：%d"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:973
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1466
 msgid "Process Fields"
@@ -3321,12 +3136,6 @@ msgid ""
 "Protocol parameter. Will waste traffic randomly if enabled (enabled by "
 "default in v2ray and cannot be disabled)."
 msgstr "协议参数。如启用会随机浪费流量（在 v2ray 中默认启用并且无法禁用）。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:114
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:161
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:162
-msgid "Proxy"
-msgstr "代理"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1964
 msgid "Proxy Domain List"
@@ -3417,7 +3226,6 @@ msgstr "REALITY 标识符"
 msgid "RPC failed"
 msgstr "RPC 失败"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:146
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:126
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:41
 msgid "RUNNING"
@@ -3472,17 +3280,9 @@ msgstr "仅拒绝该组流量"
 msgid "Remote"
 msgstr "远程"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:56
-msgid "Remove %s from automatically learned targets?"
-msgstr "确定从自动学习目标中移除 %s？"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1993
 msgid "Remove %s nodes"
 msgstr "移除 %s 个节点"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:76
-msgid "Remove all automatically learned targets?"
-msgstr "确定移除所有自动学习的目标？"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1983
 msgid "Remove all nodes from subscriptions"
@@ -3495,12 +3295,6 @@ msgstr "回复 REFUSED"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1159
 msgid "Reply with TCP RST / ICMP port unreachable"
 msgstr "回复 TCP RST / ICMP 端口不可达"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:236
-msgid ""
-"Required before adaptive routing can create direct exceptions in global "
-"proxy mode."
-msgstr "必须明确开启后，自适应路由才能在全局代理模式下产生直连例外。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:113
 msgid "Required features"
@@ -3791,10 +3585,6 @@ msgstr ""
 msgid "Select an online Tailscale exit node."
 msgstr "选择一个在线的 Tailscale 出口节点。"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:243
-msgid "Select an outbound"
-msgstr "选择一个出站"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:569
 msgid ""
 "Select local interface subnets to publish. Custom CIDR values remain "
@@ -3883,14 +3673,6 @@ msgid ""
 "Shows whether each optional core feature is compiled and where SBProxy "
 "currently uses it."
 msgstr "显示各项可选核心功能是否已编译，以及 SBProxy 当前在何处使用它。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:283
-msgid "Slow connection window (seconds)"
-msgstr "慢连接判定窗口（秒）"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:267
-msgid "Slow connections or failures"
-msgstr "慢连接或连接失败"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1018
 msgid "Sniffed client type (QUIC client type or SSH client name)."
@@ -4056,10 +3838,6 @@ msgstr "成功导入 %s 个节点，共 %s 个。"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/status.js:244
 msgid "Successfully updated."
 msgstr "更新成功。"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:116
-msgid "Suggested at"
-msgstr "建议时间"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1773
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1901
@@ -4278,7 +4056,6 @@ msgstr "已退出 Tailscale。"
 msgid "Tailscale, HTTPS certificates and DERP"
 msgstr "Tailscale、HTTPS 证书和 DERP"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:111
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:598
 msgid "Target"
 msgstr "目标"
@@ -4694,10 +4471,6 @@ msgstr ""
 msgid "Trace"
 msgstr "跟踪"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:153
-msgid "Tracked connections: %d"
-msgstr "已跟踪连接：%d"
-
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1249
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:407
 msgid "Transport"
@@ -4708,7 +4481,6 @@ msgstr "传输层"
 msgid "Trojan"
 msgstr "Trojan"
 
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:112
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1334
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1772
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:873
@@ -4769,8 +4541,8 @@ msgid "URLTest"
 msgstr "URLTest"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/core.js:137
-msgid "URLTest and adaptive routing"
-msgstr "URLTest 和自适应路由"
+msgid "URLTest and dashboard"
+msgstr "URLTest 和仪表盘"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:261
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:873
@@ -4965,12 +4737,6 @@ msgstr "使用出口节点"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:611
 msgid "Use the main node"
 msgstr "改用主节点"
-
-#: luci-app-sbproxy/htdocs/luci-static/resources/sbproxy-adaptive.js:242
-msgid ""
-"Used as the learned target only when the custom routing default outbound is "
-"Direct."
-msgstr "仅在自定义路由的默认出站为直连时，作为学习规则的目标路径。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:1509
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:573
@@ -5325,18 +5091,6 @@ msgstr "有效端口范围（port1:port2）"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:414
 msgid "valid port value"
 msgstr "有效端口值"
-
-msgid "Protect mainland destinations"
-msgstr "保护国内目标"
-
-msgid "Prevent adaptive proxy rules from overriding mainland GeoIP/GeoSite destinations. Explicit routing rules remain unchanged. Only applies when the adaptive target is a proxy."
-msgstr "避免自适应代理规则接管 GeoIP/GeoSite 国内目标，不影响显式路由规则。仅在自适应目标为代理时生效。"
-
-msgid "Learned IP rules apply only to TCP port 443, the service actually probed; other ports and UDP are not changed."
-msgstr "学习到的 IP 规则仅作用于实际探测的 TCP 443，不改变其他端口和 UDP 流量。"
-
-msgid "Required for both failed and slow connections. Repeated unsuccessful probes enter a one-hour cooldown."
-msgstr "同时适用于失败连接和慢连接。连续探测无改善的目标进入一小时冷却。"
 
 msgid "Use a unique random secret of at least 16 characters. Dashboard access is restricted to LAN and explicitly allowed Tailscale interfaces, even when WAN input is allowed."
 msgstr "请使用至少 16 个字符的独立随机密钥。面板仅允许 LAN 及显式授权的 Tailscale 接口访问，即使 WAN 入站策略为放行也不会暴露面板。"
