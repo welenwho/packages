@@ -235,6 +235,7 @@ start_service() {
 	local client_ready=0 server_ready=0
 	local dashboard_enabled dashboard_ready=0
 	config_get_bool dashboard_enabled "config" "dashboard_enabled" "0"
+	[ "$routing_mode" != "disabled" ] || dashboard_enabled=0
 	if [ "$dashboard_enabled" = "1" ]; then
 		rm -f "$DASHBOARD_DIR/.etag"
 		if [ -s "$DASHBOARD_DIR/index.html" ]; then

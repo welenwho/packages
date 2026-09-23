@@ -178,7 +178,8 @@ const udp_timeout = uci.get(uciconfig, routing_mode === 'custom' ? uciroutingset
 
 const log_level = uci.get(uciconfig, ucimain, 'log_level') || 'warn';
 const dashboard_path = SB_DIR + '/dashboard';
-const dashboard_enabled = uci.get(uciconfig, ucimain, 'dashboard_enabled') === '1' &&
+const dashboard_enabled = routing_mode !== 'disabled' &&
+      uci.get(uciconfig, ucimain, 'dashboard_enabled') === '1' &&
       !isEmpty(readfile(dashboard_path + '/index.html')),
       dashboard_port = strToInt(uci.get(uciconfig, ucimain, 'dashboard_port')),
       dashboard_secret = uci.get(uciconfig, ucimain, 'dashboard_secret');

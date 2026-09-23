@@ -25,7 +25,8 @@ if (getenv('SBPROXY_SERVER_READY') === '1')
 /* The dashboard API is intended for the router LAN. Do not expose it to
  * Tailnet peers by default; users who need remote dashboard access can set an
  * API secret and explicitly enable dashboard_allow_tailscale. */
-const dashboard_enabled = uci.get(cfgname, 'config', 'dashboard_enabled') === '1';
+const dashboard_enabled = uci.get(cfgname, 'config', 'routing_mode') !== 'disabled' &&
+      uci.get(cfgname, 'config', 'dashboard_enabled') === '1';
 const dashboard_port = uci.get(cfgname, 'config', 'dashboard_port');
 const dashboard_allow_tailscale = uci.get(cfgname, 'config', 'dashboard_allow_tailscale') === '1';
 const dashboard_tailscale_interface = uci.get(cfgname, 'tailscale', 'system_interface_name') || 'tailscale0';

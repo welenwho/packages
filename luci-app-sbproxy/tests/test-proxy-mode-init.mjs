@@ -34,3 +34,35 @@ assert.match(source, /\[ "\$tailscale_enabled" = "0" \]; then\s+sync_subscriptio
 const rpc = fs.readFileSync(new URL('root/usr/share/rpcd/ucode/luci.sbproxy', root), 'utf8');
 assert.match(rpc, /mode: 'disabled', proxy_enabled: false/);
 console.log('Proxy mode startup tests passed: saved nodes ignored only when off, Tailscale startup remains independent');
+
+// A saved dashboard must not redirect Tailscale control to a stopped listener.
+const helper = fs.readFileSync(new URL('root/usr/sbin/sbproxy_tailscale_helper', root), 'utf8');
+const loadSettings = helper.slice(helper.indexOf('load_settings() {'), helper.indexOf('\nvalidate_settings() {'))
+  .replace('dashboard_path="/etc/sbproxy/dashboard/index.html"', 'dashboard_path="$DASHBOARD_FIXTURE"');
+assert(loadSettings.includes('routing_mode'));
+for (const mode of ['disabled', 'global', 'custom', 'bypass_mainland_china']) {
+  for (const enabled of ['0', '1']) {
+    const result = spawnSync('sh', ['-c', `
+config_load() { :; }
+config_get() {
+  case "$2.$3" in
+    config.routing_mode) value="$MODE" ;;
+    config.dashboard_enabled) value="$DASHBOARD_ENABLED" ;;
+    config.dashboard_port) value=19095 ;;
+    infra.tailscale_api_port) value=19096 ;;
+    *) value="\${4:-}" ;;
+  esac
+  export "$1=$value"
+}
+config_get_bool() { config_get "$@"; }
+${loadSettings}
+load_settings
+printf '%s' "$API_URL"
+`], { env: { ...process.env, MODE: mode, DASHBOARD_ENABLED: enabled,
+      DASHBOARD_FIXTURE: new URL('root/etc/sbproxy/dashboard/index.html', root).pathname }, encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, `http://127.0.0.1:${mode !== 'disabled' && enabled === '1' ? 19095 : 19096}`, mode);
+  }
+}
+assert.match(source, /\[ "\$routing_mode" != "disabled" \] \|\| dashboard_enabled=0/);
+console.log('Tailscale helper uses its internal API when proxy mode is off, even with a saved enabled dashboard');

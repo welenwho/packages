@@ -32,7 +32,7 @@ fail() {
 }
 
 load_settings() {
-	local cfg="tailscale" dashboard_enabled dashboard_port dashboard_path
+	local cfg="tailscale" dashboard_enabled dashboard_port dashboard_path routing_mode
 
 	config_load sbproxy
 	config_get_bool ENABLED "$cfg" enabled 0
@@ -42,6 +42,8 @@ load_settings() {
 	config_get API_PORT infra tailscale_api_port
 	config_get dashboard_port config dashboard_port
 	config_get_bool dashboard_enabled config dashboard_enabled 0
+	config_get routing_mode config routing_mode
+	[ "$routing_mode" != "disabled" ] || dashboard_enabled=0
 	config_get_bool MAGIC_DNS "$cfg" magic_dns 1
 	config_get_bool ACCEPT_ROUTES "$cfg" accept_routes 0
 	config_get SUBNET_ROUTES "$cfg" subnet_routes

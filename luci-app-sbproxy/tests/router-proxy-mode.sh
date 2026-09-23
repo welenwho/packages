@@ -5,9 +5,11 @@ PACKAGE_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 SCRIPTS="$PACKAGE_ROOT/root/etc/sbproxy/scripts"
 TEST_ROOT="$(mktemp -d /tmp/sbproxy-mode-test.XXXXXX)"
 trap 'rm -rf -- "$TEST_ROOT"' EXIT INT TERM
-mkdir -p "$TEST_ROOT/uci"
+mkdir -p "$TEST_ROOT/uci" "$TEST_ROOT/save"
 cp "$PACKAGE_ROOT/root/usr/share/sbproxy/defaults/sbproxy" "$TEST_ROOT/uci/sbproxy"
-cfg() { uci -q -c "$TEST_ROOT/uci" "$@"; }
+cfg() { uci -q -c "$TEST_ROOT/uci" -t "$TEST_ROOT/save" "$@"; }
+cfg set sbproxy.config.dashboard_enabled=1
+cfg set sbproxy.config.dashboard_port=19095
 cfg set sbproxy.infra.clash_api_port=19090
 cfg set sbproxy.infra.tailscale_api_port=19096
 cfg set sbproxy.tailscale.enabled=1
@@ -35,7 +37,7 @@ for mode in disabled bypass_mainland_china; do
     cfg commit sbproxy
     SBPROXY_UCI_CONFIG_DIR="$TEST_ROOT/uci" SBPROXY_CLIENT_CONFIG_PATH="$TEST_ROOT/config.json" \
       ucode -S -L "$SCRIPTS" "$SCRIPTS/generate_client.uc"
-    ucode "$PACKAGE_ROOT/tests/check-proxy-disabled.uc" "$TEST_ROOT/config.json" "$magic"
+    ucode "$PACKAGE_ROOT/tests/check-proxy-disabled.uc" "$TEST_ROOT/config.json" "$magic" "$mode"
   done
 done
 cfg set sbproxy.config.routing_mode=disabled
@@ -45,4 +47,5 @@ SBPROXY_UCI_CONFIG_DIR="$TEST_ROOT/uci" SBPROXY_MIGRATION_SKIP_CLEANUP=1 \
   ucode -S -L "$SCRIPTS" "$SCRIPTS/migrate_config.uc"
 test "$(cfg get sbproxy.config.routing_mode)" = disabled
 test "$(cfg get sbproxy.tailscale.enabled)" = 1
+test "$(cfg get sbproxy.config.dashboard_enabled)" = 1
 echo 'Explicit off survives config migration; legacy main-node disable still supports Tailscale'

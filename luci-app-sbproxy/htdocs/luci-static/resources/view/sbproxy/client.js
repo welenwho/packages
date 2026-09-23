@@ -248,7 +248,6 @@ return view.extend({
 
 		s.tab('routing', _('Routing Settings'));
 		s.tab('dashboard', _('Dashboard'));
-		s.tab('advanced', _('Advanced Settings'));
 		s.tab('diversion', _('Rule Diversion'));
 
 		// Always first; never depend on the selected node or proxy mode.
@@ -260,6 +259,39 @@ return view.extend({
 		o.value('global', _('Global'));
 		o.default = 'disabled';
 		o.rmempty = false;
+
+		o = s.taboption('routing', form.Value, 'routing_port', _('Proxy ports'),
+			_('Choose all ports, common ports, or enter a comma-separated custom list. A custom list replaces the common ports.'));
+		proxyModeDepends(o);
+		o.retain = true;
+		o.value('', _('All ports'));
+		o.value('common', _('Common ports + additional ports'));
+		o.validate = function(section_id, value) {
+			if (section_id && value && value !== 'common') {
+
+				let ports = [];
+				for (let i of value.split(',')) {
+					if (!stubValidator.apply('port', i) && !stubValidator.apply('portrange', i))
+						return _('Expecting: %s').format(_('valid port value'));
+					if (ports.includes(i))
+						return _('Port %s already exists!').format(i);
+					ports = ports.concat(i);
+				}
+			}
+
+			return true;
+		}
+
+		o = s.taboption('routing', form.DynamicList, 'routing_port_extra', _('Additional ports'),
+			_('Built-in common ports: %s. Add only ports or ranges that are not already listed.').format(
+				'<code>%h</code>'.format(common_routing_ports.replace(/,/g, ', '))));
+		proxyModeDepends(o, { routing_port: 'common' });
+		o.retain = true;
+		o.rmempty = true;
+		o.validate = function(section_id, value) {
+			return !value || stubValidator.apply('port', value) || stubValidator.apply('portrange', value)
+				? true : _('Expecting: %s').format(_('valid port value'));
+		}
 
 		o = s.taboption('routing', form.ListValue, 'main_node', _('Main node'),
 			_('Disable is retained for compatibility. Use Proxy mode to turn the proxy off while keeping the selected node.'));
@@ -391,39 +423,6 @@ return view.extend({
 			return true;
 		}
 
-		o = s.taboption('routing', form.Value, 'routing_port', _('Proxy ports'),
-			_('Choose all ports, common ports, or enter a comma-separated custom list. A custom list replaces the common ports.'));
-		proxyModeDepends(o);
-		o.retain = true;
-		o.value('', _('All ports'));
-		o.value('common', _('Common ports + additional ports'));
-		o.validate = function(section_id, value) {
-			if (section_id && value && value !== 'common') {
-
-				let ports = [];
-				for (let i of value.split(',')) {
-					if (!stubValidator.apply('port', i) && !stubValidator.apply('portrange', i))
-						return _('Expecting: %s').format(_('valid port value'));
-					if (ports.includes(i))
-						return _('Port %s already exists!').format(i);
-					ports = ports.concat(i);
-				}
-			}
-
-			return true;
-		}
-
-		o = s.taboption('routing', form.DynamicList, 'routing_port_extra', _('Additional ports'),
-			_('Built-in common ports: %s. Add only ports or ranges that are not already listed.').format(
-				'<code>%h</code>'.format(common_routing_ports.replace(/,/g, ', '))));
-		proxyModeDepends(o, { routing_port: 'common' });
-		o.retain = true;
-		o.rmempty = true;
-		o.validate = function(section_id, value) {
-			return !value || stubValidator.apply('port', value) || stubValidator.apply('portrange', value)
-				? true : _('Expecting: %s').format(_('valid port value'));
-		}
-
 		o = s.taboption('routing', form.DynamicList, 'tun_route_exclude_ipv4_ips', _('TUN route exclusion IPv4 addresses'),
 			_('Destinations excluded from TUN automatic redirect and handled by system routing. Applies to all routing modes.'));
 		o.datatype = 'or(ip4addr, cidr4)';
@@ -471,15 +470,20 @@ return view.extend({
 		}
 
 		o = s.taboption('routing', form.Flag, 'ipv6_support', _('IPv6 support'));
+		proxyModeDepends(o);
+		o.retain = true;
 		o.default = o.enabled;
 		o.rmempty = false;
 
 		o = s.taboption('dashboard', form.Flag, 'dashboard_enabled', _('Enable dashboard'));
+		proxyModeDepends(o);
 		o.default = '0';
 		o.rmempty = false;
+		o.retain = true;
 
 		o = s.taboption('dashboard', form.Value, 'dashboard_port', _('Listen port'),
 			_('A random available port is assigned on first installation.'));
+		proxyModeDepends(o, { dashboard_enabled: '1' });
 		o.default = '9095';
 		o.datatype = 'port';
 		o.rmempty = false;
@@ -487,7 +491,7 @@ return view.extend({
 
 		o = s.taboption('dashboard', form.Value, 'dashboard_secret', _('API secret'));
 		o.password = true;
-		o.depends('dashboard_enabled', '1');
+		proxyModeDepends(o, { dashboard_enabled: '1' });
 		o.description = _('Use a unique random secret of at least 16 characters. Dashboard access is restricted to LAN and explicitly allowed Tailscale interfaces, even when WAN input is allowed.');
 		o.validate = function(sectionId, value) {
 			return this.section.formvalue(sectionId, 'dashboard_enabled') !== '1' || (value || '').length >= 16 ?
@@ -499,14 +503,16 @@ return view.extend({
 		o = s.taboption('dashboard', form.Flag, 'dashboard_allow_tailscale', _('Allow dashboard from Tailscale'),
 			_('Only enable this when remote dashboard access is required; set an API secret first.'));
 		o.default = o.disabled;
-		o.depends('dashboard_enabled', '1');
+		proxyModeDepends(o, { dashboard_enabled: '1' });
 		o.rmempty = false;
+		o.retain = true;
 
 		o = s.taboption('dashboard', form.Flag, 'dashboard_tls_tailscale', _('Use Tailscale HTTPS certificate'),
 			_('Serve the dashboard with a certificate issued for this device by Tailscale. Embedded Tailscale and HTTPS certificates in the Tailnet DNS settings must be enabled, and the dashboard must be opened with the device MagicDNS name.'));
 		o.default = o.disabled;
-		o.depends({ dashboard_enabled: '1', dashboard_allow_tailscale: '1' });
+		proxyModeDepends(o, { dashboard_enabled: '1', dashboard_allow_tailscale: '1' });
 		o.rmempty = false;
+		o.retain = true;
 		o.validate = function(section_id, value) {
 			if (value !== '1')
 				return true;
@@ -519,13 +525,14 @@ return view.extend({
 		o = s.taboption('dashboard', form.Value, 'dashboard_tls_name', _('Dashboard MagicDNS name'),
 			_('Fully qualified Tailscale DNS name used to request the HTTPS certificate and open the dashboard.'));
 		o.datatype = 'hostname';
-		o.depends({ dashboard_enabled: '1', dashboard_allow_tailscale: '1', dashboard_tls_tailscale: '1' });
+		proxyModeDepends(o, { dashboard_enabled: '1', dashboard_allow_tailscale: '1', dashboard_tls_tailscale: '1' });
 		o.rmempty = false;
+		o.retain = true;
 
 		o = s.taboption('dashboard', form.Button, '_open_dashboard', _('sing-box dashboard'));
 		o.inputtitle = _('Open dashboard');
 		o.inputstyle = 'apply';
-		o.depends('dashboard_enabled', '1');
+		proxyModeDepends(o, { dashboard_enabled: '1' });
 		o.onclick = function() {
 			let host = uci.get('sbproxy', 'config', 'dashboard_tls_tailscale') === '1' ?
 					uci.get('sbproxy', 'config', 'dashboard_tls_name') : window.location.hostname,
@@ -535,65 +542,6 @@ return view.extend({
 			const scheme = uci.get('sbproxy', 'config', 'dashboard_tls_tailscale') === '1' ? 'https://' : 'http://';
 			window.open(scheme + host + ':' + port + '/dashboard/', '_blank', 'noopener,noreferrer');
 		};
-
-		o = s.taboption('advanced', form.Flag, 'memory_guard_enabled', _('Memory pressure guard'),
-			_('Monitor sing-box memory pressure, release unused memory and rebuild network state before the process exhausts router memory. Applied independently to the client and server processes.'));
-		o.default = o.disabled;
-		o.rmempty = false;
-
-		o = s.taboption('advanced', form.Value, 'memory_guard_limit', _('Memory limit per process'),
-			_('Soft memory limit in MiB for each sing-box process. The guard acts before this limit is reached.'));
-		o.default = '256';
-		o.datatype = 'range(32,4096)';
-		o.depends('memory_guard_enabled', '1');
-		o.rmempty = false;
-
-		o = s.taboption('advanced', form.Value, 'memory_guard_safety_margin', _('Memory safety margin'),
-			_('The guard starts reclaiming memory when usage is this many MiB below the configured limit.'));
-		o.default = '32';
-		o.datatype = 'range(4,2048)';
-		o.depends('memory_guard_enabled', '1');
-		o.rmempty = false;
-		o.validate = function(section_id, value) {
-			const limit = Number(this.section.formvalue(section_id, 'memory_guard_limit'));
-			return !section_id || Number(value) < limit ? true :
-				_('The safety margin must be smaller than the memory limit.');
-		};
-
-		o = s.taboption('advanced', form.Flag, 'dns_disable_cache', _('Disable DNS cache'));
-		o.default = o.disabled;
-		o.rmempty = false;
-
-		o = s.taboption('advanced', form.Flag, 'dns_disable_cache_expire', _('Disable DNS cache expiration'));
-		o.default = o.disabled;
-		o.depends('dns_disable_cache', '0');
-		o.rmempty = false;
-
-		o = s.taboption('advanced', form.Flag, 'dns_optimistic', _('Optimistic DNS cache'),
-			_('Serve expired DNS entries while refreshing them in the background.'));
-		o.default = o.disabled;
-		o.depends({ dns_disable_cache: '0', dns_disable_cache_expire: '0' });
-		o.rmempty = false;
-
-		o = s.taboption('advanced', form.Value, 'dns_optimistic_timeout', _('Optimistic cache timeout'),
-			_('Maximum time in seconds to serve an expired DNS entry while it is refreshed.'));
-		o.default = '259200';
-		o.datatype = 'uinteger';
-		o.depends({ dns_disable_cache: '0', dns_disable_cache_expire: '0', dns_optimistic: '1' });
-		o.rmempty = false;
-
-		o = s.taboption('advanced', form.Value, 'dns_cache_capacity', _('DNS cache capacity'),
-			_('Maximum number of cached DNS entries. The sing-box minimum is 1024.'));
-		o.default = '1024';
-		o.datatype = 'range(1024,1048576)';
-		o.depends('dns_disable_cache', '0');
-		o.rmempty = false;
-
-		o = s.taboption('advanced', form.Value, 'dns_timeout', _('DNS query timeout'),
-			_('The default timeout for DNS queries, in seconds.'));
-		o.default = '10';
-		o.datatype = 'uinteger';
-		o.rmempty = false;
 
 		o = s.taboption('diversion', form.SectionValue, '_domain_groups', form.GridSection, 'domain_route', _('Diversion groups'),
 			_('Mainland whitelist only. Groups are evaluated in order before domain lists and geographic rules. Device and ingress bypass policies still take priority; custom routing is unchanged.'));
@@ -2039,6 +1987,67 @@ return view.extend({
 		}
 		/* Direct domain list end */
 		/* ACL settings end */
+
+		s.tab('advanced', _('Advanced Settings'));
+
+		o = s.taboption('advanced', form.Flag, 'memory_guard_enabled', _('Memory pressure guard'),
+			_('Monitor sing-box memory pressure, release unused memory and rebuild network state before the process exhausts router memory. Applied independently to the client and server processes.'));
+		o.default = o.disabled;
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'memory_guard_limit', _('Memory limit per process'),
+			_('Soft memory limit in MiB for each sing-box process. The guard acts before this limit is reached.'));
+		o.default = '256';
+		o.datatype = 'range(32,4096)';
+		o.depends('memory_guard_enabled', '1');
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'memory_guard_safety_margin', _('Memory safety margin'),
+			_('The guard starts reclaiming memory when usage is this many MiB below the configured limit.'));
+		o.default = '32';
+		o.datatype = 'range(4,2048)';
+		o.depends('memory_guard_enabled', '1');
+		o.rmempty = false;
+		o.validate = function(section_id, value) {
+			const limit = Number(this.section.formvalue(section_id, 'memory_guard_limit'));
+			return !section_id || Number(value) < limit ? true :
+				_('The safety margin must be smaller than the memory limit.');
+		};
+
+		o = s.taboption('advanced', form.Flag, 'dns_disable_cache', _('Disable DNS cache'));
+		o.default = o.disabled;
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Flag, 'dns_disable_cache_expire', _('Disable DNS cache expiration'));
+		o.default = o.disabled;
+		o.depends('dns_disable_cache', '0');
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Flag, 'dns_optimistic', _('Optimistic DNS cache'),
+			_('Serve expired DNS entries while refreshing them in the background.'));
+		o.default = o.disabled;
+		o.depends({ dns_disable_cache: '0', dns_disable_cache_expire: '0' });
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'dns_optimistic_timeout', _('Optimistic cache timeout'),
+			_('Maximum time in seconds to serve an expired DNS entry while it is refreshed.'));
+		o.default = '259200';
+		o.datatype = 'uinteger';
+		o.depends({ dns_disable_cache: '0', dns_disable_cache_expire: '0', dns_optimistic: '1' });
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'dns_cache_capacity', _('DNS cache capacity'),
+			_('Maximum number of cached DNS entries. The sing-box minimum is 1024.'));
+		o.default = '1024';
+		o.datatype = 'range(1024,1048576)';
+		o.depends('dns_disable_cache', '0');
+		o.rmempty = false;
+
+		o = s.taboption('advanced', form.Value, 'dns_timeout', _('DNS query timeout'),
+			_('The default timeout for DNS queries, in seconds.'));
+		o.default = '10';
+		o.datatype = 'uinteger';
+		o.rmempty = false;
 
 		return m.render();
 	}

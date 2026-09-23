@@ -16,5 +16,9 @@ assert(ts[0].system_interface === true && ts[0].system_interface_name === 'tails
 assert(ts[0].advertise_routes[0] === '192.0.2.0/24', 'Advertised subnet changed');
 assert(ts[0].accept_routes === true, 'Peer route acceptance changed');
 assert(length(filter(c.services, (s) => s.tag === 'api-internal' && s.listen_port === 19096)) === 1, 'Tailscale control API missing');
+if (ARGV[2] === 'disabled')
+	assert(!length(filter(c.services, (s) => s.tag === 'api')), 'Public dashboard remains enabled while proxy mode is off');
+else if (length(readfile('/etc/sbproxy/dashboard/index.html') || ''))
+	assert(length(filter(c.services, (s) => s.tag === 'api')) === 1, 'Saved dashboard no longer works outside explicit off mode');
 assert(length(filter(c.route.rules, (r) => r.preferred_by === 'sbproxy-tailscale')) === 1, 'Tailscale routing rule missing');
 print('Disabled proxy retains Tailscale endpoint, saved login path, routes, API and optional MagicDNS\n');
