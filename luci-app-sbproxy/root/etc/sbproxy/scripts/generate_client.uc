@@ -119,7 +119,12 @@ dns_optimistic_timeout = uci.get(uciconfig, ucimain, 'dns_optimistic_timeout');
 dns_cache_capacity = uci.get(uciconfig, ucimain, 'dns_cache_capacity');
 dns_timeout = uci.get(uciconfig, ucimain, 'dns_timeout');
 
-if (routing_mode !== 'custom') {
+if (routing_mode === 'disabled') {
+	// Do not load proxy nodes, custom DNS or diversion rules in Tailscale-only
+	// mode. Retain their UCI values so enabling the proxy restores the setup.
+	main_node = 'nil';
+	dns_default_strategy = (ipv6_support !== '1') ? 'ipv4_only' : null;
+} else if (routing_mode !== 'custom') {
 	main_node = uci.get(uciconfig, ucimain, 'main_node') || 'nil';
 
 	dns_server = uci.get(uciconfig, ucimain, 'dns_server');

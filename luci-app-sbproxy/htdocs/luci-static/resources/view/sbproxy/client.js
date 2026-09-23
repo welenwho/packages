@@ -116,6 +116,11 @@ const callCurrentNode = rpc.declare({
 	expect: { '': {} }
 });
 
+function proxyModeDepends(option, extra, modes) {
+	for (const mode of modes || ['bypass_mainland_china', 'custom', 'global'])
+		option.depends(Object.assign({ routing_mode: mode }, extra || {}));
+}
+
 function renderStatus(isRunning, version, currentNode) {
 	let spanTemp = '<em><span style="color:%s"><strong>%s (sing-box v%s) %s</strong></span></em>';
 	let renderHTML;
@@ -218,7 +223,9 @@ return view.extend({
 					    current = res[1],
 					    current_label = null;
 
-					if (current?.mode === 'urltest') {
+					if (current?.proxy_enabled === false)
+						current_label = _('Proxy disabled');
+					else if (current?.mode === 'urltest') {
 						let active = current.active || {};
 						let nodeName = (active?.id && active.id !== 'urltest') ? (proxy_nodes[active.id] || active.label || active.id) : _('Invalid node');
 
@@ -244,7 +251,18 @@ return view.extend({
 		s.tab('advanced', _('Advanced Settings'));
 		s.tab('diversion', _('Rule Diversion'));
 
-		o = s.taboption('routing', form.ListValue, 'main_node', _('Main node'));
+		// Always first; never depend on the selected node or proxy mode.
+		o = s.taboption('routing', form.ListValue, 'routing_mode', _('Proxy mode'),
+			_('Disable proxy traffic handling without stopping enabled Tailscale or server services. Saved nodes and routing rules are retained.'));
+		o.value('disabled', _('Off'));
+		o.value('bypass_mainland_china', _('Bypass mainland China'));
+		o.value('custom', _('Custom routing'));
+		o.value('global', _('Global'));
+		o.default = 'disabled';
+		o.rmempty = false;
+
+		o = s.taboption('routing', form.ListValue, 'main_node', _('Main node'),
+			_('Disable is retained for compatibility. Use Proxy mode to turn the proxy off while keeping the selected node.'));
 		o.value('nil', _('Disable'));
 		o.value('urltest', _('URLTest'));
 		for (let i in proxy_nodes)
@@ -259,7 +277,7 @@ return view.extend({
 			_('Manually selected nodes to test.'));
 		for (let i in proxy_nodes)
 			o.value(i, proxy_nodes[i]);
-		o.depends('main_node', 'urltest');
+		proxyModeDepends(o, { main_node: 'urltest' }, ['bypass_mainland_china', 'global']);
 		o.rmempty = true;
 		o.retain = true;
 		o.validate = function(section_id) {
@@ -275,7 +293,7 @@ return view.extend({
 			_('Include all current and future nodes from the selected subscriptions.'));
 		for (const source of subscription_sources)
 			o.value(source.hash, source.title);
-		o.depends('main_node', 'urltest');
+		proxyModeDepends(o, { main_node: 'urltest' }, ['bypass_mainland_china', 'global']);
 		o.rmempty = true;
 		o.retain = true;
 
@@ -283,21 +301,21 @@ return view.extend({
 			_('The test interval in seconds.'));
 		o.datatype = 'uinteger';
 		o.placeholder = '180';
-		o.depends('main_node', 'urltest');
+		proxyModeDepends(o, { main_node: 'urltest' }, ['bypass_mainland_china', 'global']);
 		o.retain = true;
 
 		o = s.taboption('routing', form.Value, 'main_urltest_tolerance', _('Test tolerance'),
 			_('The test tolerance in milliseconds.'));
 		o.datatype = 'uinteger';
 		o.placeholder = '50';
-		o.depends('main_node', 'urltest');
+		proxyModeDepends(o, { main_node: 'urltest' }, ['bypass_mainland_china', 'global']);
 		o.retain = true;
 
 		o = s.taboption('routing', form.Flag, 'main_urltest_interrupt_exist_connections', _('Interrupt existing connections'),
 			_('Interrupt existing connections when the selected outbound has changed.'));
 		o.default = o.disabled;
 		o.rmempty = false;
-		o.depends('main_node', 'urltest');
+		proxyModeDepends(o, { main_node: 'urltest' }, ['bypass_mainland_china', 'global']);
 		o.retain = true;
 
 		o = s.taboption('routing', form.Value, 'dns_server', _('DNS server'),
@@ -373,15 +391,10 @@ return view.extend({
 			return true;
 		}
 
-		o = s.taboption('routing', form.ListValue, 'routing_mode', _('Routing mode'));
-		o.value('bypass_mainland_china', _('Bypass mainland China'));
-		o.value('custom', _('Custom routing'));
-		o.value('global', _('Global'));
-		o.default = 'bypass_mainland_china';
-		o.rmempty = false;
-
-		o = s.taboption('routing', form.Value, 'routing_port', _('Routing ports'),
+		o = s.taboption('routing', form.Value, 'routing_port', _('Proxy ports'),
 			_('Choose all ports, common ports, or enter a comma-separated custom list. A custom list replaces the common ports.'));
+		proxyModeDepends(o);
+		o.retain = true;
 		o.value('', _('All ports'));
 		o.value('common', _('Common ports + additional ports'));
 		o.validate = function(section_id, value) {
@@ -400,10 +413,10 @@ return view.extend({
 			return true;
 		}
 
-		o = s.taboption('routing', form.DynamicList, 'routing_port_extra', _('Additional proxy ports'),
+		o = s.taboption('routing', form.DynamicList, 'routing_port_extra', _('Additional ports'),
 			_('Built-in common ports: %s. Add only ports or ranges that are not already listed.').format(
 				'<code>%h</code>'.format(common_routing_ports.replace(/,/g, ', '))));
-		o.depends('routing_port', 'common');
+		proxyModeDepends(o, { routing_port: 'common' });
 		o.retain = true;
 		o.rmempty = true;
 		o.validate = function(section_id, value) {
@@ -414,6 +427,7 @@ return view.extend({
 		o = s.taboption('routing', form.DynamicList, 'tun_route_exclude_ipv4_ips', _('TUN route exclusion IPv4 addresses'),
 			_('Destinations excluded from TUN automatic redirect and handled by system routing. Applies to all routing modes.'));
 		o.datatype = 'or(ip4addr, cidr4)';
+		proxyModeDepends(o);
 		o.retain = true;
 		o.validate = function(section_id, value) {
 			return !value.endsWith('/0') || _('The default route cannot be excluded from TUN redirect.');
@@ -422,7 +436,7 @@ return view.extend({
 		o = s.taboption('routing', form.DynamicList, 'tun_route_exclude_ipv6_ips', _('TUN route exclusion IPv6 addresses'),
 			_('Destinations excluded from TUN automatic redirect and handled by system routing. Applies to all routing modes.'));
 		o.datatype = 'or(ip6addr, cidr6)';
-		o.depends('ipv6_support', '1');
+		proxyModeDepends(o, { ipv6_support: '1' });
 		o.retain = true;
 		o.validate = function(section_id, value) {
 			return !value.endsWith('/0') || _('The default route cannot be excluded from TUN redirect.');
@@ -430,12 +444,14 @@ return view.extend({
 
 		o = s.taboption('routing', form.Flag, 'tun_route_exclude_tailscale', _('Auto-exclude Tailscale routes'),
 			_('Keep active Tailnet addresses and peer subnets on tailscale0. New Tailscale routes are detected when SBProxy reloads; default routes are ignored so exit-node traffic can still use SBProxy rules.'));
+		proxyModeDepends(o);
 		o.default = o.disabled;
 		o.retain = true;
 		o.rmempty = false;
 
 		o = s.taboption('routing', form.ListValue, 'tcpip_stack', _('TCP/IP stack'),
 			_('TCP/IP stack.'));
+		proxyModeDepends(o);
 		if (features.with_gvisor) {
 			o.value('mixed', 'Mixed');
 			o.value('gvisor', 'gVisor');

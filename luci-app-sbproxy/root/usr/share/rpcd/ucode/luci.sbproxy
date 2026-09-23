@@ -11,7 +11,7 @@ import { lstat, open, popen, readfile, writefile } from 'fs';
 import { cursor } from 'uci';
 
 import {
-	SB_DIR, isBinary,
+	SB_DIR, isBinary, isEmpty,
 	RUN_DIR, removeBlankAttrs, renderEndpoint, renderOutbound, shellQuote
 } from '/etc/sbproxy/scripts/sbproxy.uc';
 
@@ -841,8 +841,10 @@ const methods = {
 			const uci = cursor();
 			uci.load('sbproxy');
 			const routing_mode = uci.get('sbproxy', 'config', 'routing_mode') || 'bypass_mainland_china';
+			if (routing_mode === 'disabled')
+				return { mode: 'disabled', proxy_enabled: false, active: null, error: null };
 			if (routing_mode === 'custom')
-				return { mode: 'custom', active: null, error: null };
+				return { mode: 'custom', proxy_enabled: !isEmpty(uci.get('sbproxy', 'routing', 'default_outbound')), active: null, error: null };
 
 			const formatNode = (section_id, fallback_name) => {
 				if (!section_id || section_id in ['nil', 'same'])
@@ -866,6 +868,7 @@ const methods = {
 			if (main_node !== 'urltest')
 				return {
 					mode: main_node,
+					proxy_enabled: main_node !== 'nil',
 					active: formatNode(main_node, (main_node === 'nil') ? 'Disable' : null),
 					error: null
 				};

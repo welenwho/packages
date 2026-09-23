@@ -212,8 +212,8 @@ msgid "Additional headers to be sent to the DNS server."
 msgstr "发送到 DNS 服务器的附加标头。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:406
-msgid "Additional proxy ports"
-msgstr "额外代理端口"
+msgid "Additional ports"
+msgstr "额外端口"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1346
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js:894
@@ -3406,12 +3406,12 @@ msgid "Routing Settings"
 msgstr "路由设置"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:379
-msgid "Routing mode"
-msgstr "路由模式"
+msgid "Proxy mode"
+msgstr "代理模式"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:386
-msgid "Routing ports"
-msgstr "路由端口"
+msgid "Proxy ports"
+msgstr "代理端口"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:247
 msgid "Rule Diversion"
@@ -5154,3 +5154,15 @@ msgstr "操作在路由器后台执行，关闭此弹窗或刷新页面不会取
 
 msgid "Connection interrupted. Waiting for the router to reconnect; the core operation may still be running..."
 msgstr "连接暂时中断，正在等待路由器恢复连接；核心操作可能仍在后台进行…"
+
+msgid "Off"
+msgstr "关闭"
+
+msgid "Proxy disabled"
+msgstr "代理已关闭"
+
+msgid "Disable proxy traffic handling without stopping enabled Tailscale or server services. Saved nodes and routing rules are retained."
+msgstr "关闭代理流量接管，不停止已启用的 Tailscale 或服务端。保留已选节点和路由规则。"
+
+msgid "Disable is retained for compatibility. Use Proxy mode to turn the proxy off while keeping the selected node."
+msgstr "保留“禁用”以兼容旧配置。建议通过“代理模式”关闭代理，这样可以保留已选节点。"

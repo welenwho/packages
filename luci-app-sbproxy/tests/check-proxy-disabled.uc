@@ -1,0 +1,20 @@
+import { readfile } from 'fs';
+const c = json(readfile(ARGV[0])), magic = ARGV[1] === '1';
+function assert(ok, message) { if (!ok) die(message); }
+assert(!length(filter(c.inbounds || [], (i) => i.type === 'tun' || i.type === 'mixed')), 'Proxy listener remains');
+assert(!length(filter(c.outbounds, (o) => o.type !== 'direct')), 'Proxy outbound remains');
+assert(c.route.final === 'direct-out', 'Tailscale-only default is not direct');
+assert(!length(c.route.rule_set || []), 'Proxy rule sets remain');
+assert(!c.experimental?.clash_api && !c.experimental?.cache_file, 'Proxy-only API/cache remains');
+assert(c.dns.final === 'default-dns', 'Proxy DNS remains');
+assert(!length(filter(c.dns.servers, (s) => index(s.tag, 'cfg-') === 0 || s.tag === 'main-dns')), 'Custom proxy DNS leaked');
+assert(length(filter(c.inbounds, (i) => i.tag === 'dns-in')) === (magic ? 1 : 0), 'MagicDNS listener mismatch');
+const ts = filter(c.endpoints || [], (e) => e.type === 'tailscale');
+assert(length(ts) === 1, 'Tailscale endpoint missing');
+assert(ts[0].state_directory === '/etc/sbproxy/tailscale', 'Login state path changed');
+assert(ts[0].system_interface === true && ts[0].system_interface_name === 'tailscale0', 'Tailscale interface missing');
+assert(ts[0].advertise_routes[0] === '192.0.2.0/24', 'Advertised subnet changed');
+assert(ts[0].accept_routes === true, 'Peer route acceptance changed');
+assert(length(filter(c.services, (s) => s.tag === 'api-internal' && s.listen_port === 19096)) === 1, 'Tailscale control API missing');
+assert(length(filter(c.route.rules, (r) => r.preferred_by === 'sbproxy-tailscale')) === 1, 'Tailscale routing rule missing');
+print('Disabled proxy retains Tailscale endpoint, saved login path, routes, API and optional MagicDNS\n');

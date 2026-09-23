@@ -221,7 +221,9 @@ start_service() {
 	fi
 
 	local outbound_node
-	if [ "$routing_mode" != "custom" ]; then
+	if [ "$routing_mode" = "disabled" ]; then
+		outbound_node="nil"
+	elif [ "$routing_mode" != "custom" ]; then
 		config_get outbound_node "config" "main_node" "nil"
 	else
 		config_get outbound_node "routing" "default_outbound" "nil"
@@ -245,7 +247,7 @@ start_service() {
 	if [ "$outbound_node" = "nil" ] && [ "$server_enabled" = "0" ] && \
 	   [ "$tailscale_enabled" = "0" ]; then
 		sync_subscription_cron 0 || log "Error: failed to clear the subscription update schedule."
-		return 1
+		return 0
 	fi
 
 	rm -f "$RUN_DIR/sing-box-c.json.new" "$RUN_DIR/sing-box-s.json.new"

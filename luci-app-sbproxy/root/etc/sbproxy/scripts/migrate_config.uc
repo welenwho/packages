@@ -139,7 +139,7 @@ if (uci.get(uciconfig, 'migration', stabilityMigrationOption) !== stabilityMigra
 synchronizeNodeLabels(uci, uciconfig);
 
 /* Keep only the modes implemented by the 1.14 configuration generator. */
-if (!(uci.get(uciconfig, 'config', 'routing_mode') in ['bypass_mainland_china', 'custom', 'global']))
+if (!(uci.get(uciconfig, 'config', 'routing_mode') in ['disabled', 'bypass_mainland_china', 'custom', 'global']))
 	uci.set(uciconfig, 'config', 'routing_mode', 'bypass_mainland_china');
 // Packet capture is TUN-only. Preserve custom routing sections and their settings.
 uci.delete(uciconfig, 'config', 'proxy_mode');

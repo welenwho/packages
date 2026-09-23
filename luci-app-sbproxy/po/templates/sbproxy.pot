@@ -198,7 +198,7 @@ msgid "Additional headers to be sent to the DNS server."
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:406
-msgid "Additional proxy ports"
+msgid "Additional ports"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1346
@@ -3348,11 +3348,11 @@ msgid "Routing Settings"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:379
-msgid "Routing mode"
+msgid "Proxy mode"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:386
-msgid "Routing ports"
+msgid "Proxy ports"
 msgstr ""
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:247
@@ -5034,4 +5034,16 @@ msgid "The operation runs on the router. Closing this dialog or refreshing the p
 msgstr ""
 
 msgid "Connection interrupted. Waiting for the router to reconnect; the core operation may still be running..."
+msgstr ""
+
+msgid "Off"
+msgstr ""
+
+msgid "Proxy disabled"
+msgstr ""
+
+msgid "Disable proxy traffic handling without stopping enabled Tailscale or server services. Saved nodes and routing rules are retained."
+msgstr ""
+
+msgid "Disable is retained for compatibility. Use Proxy mode to turn the proxy off while keeping the selected node."
 msgstr ""
