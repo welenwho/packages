@@ -220,6 +220,10 @@ msgstr "额外端口"
 msgid "Address"
 msgstr "地址"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js
+msgid "Address family for resolving this node's server address."
+msgstr "解析此节点服务器地址时使用的地址族。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:590
 msgid "Address matching"
 msgstr "地址匹配"
@@ -872,6 +876,10 @@ msgstr "DNS 服务器"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1581
 msgid "DNS server used to obtain the response before response matching."
 msgstr "在匹配响应前用于获取 DNS 响应的服务器。"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js
+msgid "DNS server used to resolve this node's server address, not the URLTest target."
+msgstr "用于解析此节点的服务器地址，不用于解析 URLTest 测试目标。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/server.js:664
 msgid "DNS-01 challenge"
@@ -2020,6 +2028,10 @@ msgstr "接口没有 Tailscale 地址"
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/tailscale.js:231
 msgid "Interface is missing"
 msgstr "接口不存在"
+
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/node.js
+msgid "Interface used to connect to this node. Leave empty to use automatic detection."
+msgstr "连接此节点使用的底层接口。留空则自动检测。"
 
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:299
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:948

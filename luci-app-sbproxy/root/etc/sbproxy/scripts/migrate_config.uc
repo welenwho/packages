@@ -138,6 +138,33 @@ if (uci.get(uciconfig, 'migration', stabilityMigrationOption) !== stabilityMigra
 
 synchronizeNodeLabels(uci, uciconfig);
 
+/* Promote unambiguous legacy routing-node dial fields without removing the
+ * original values. The node can subsequently override the legacy fallback. */
+if (uci.get(uciconfig, 'migration', 'node_dial_fields') !== '1') {
+	let legacy = {}, conflicts = {};
+	uci.foreach(uciconfig, 'routing_node', (route) => {
+		if (route.enabled !== '1' || route.node === 'urltest' || route.outbound ||
+		    uci.get(uciconfig, route.node) !== 'node') return;
+		const id = route.node;
+		if (!legacy[id]) legacy[id] = {};
+		for (let field in ['bind_interface', 'domain_resolver', 'domain_strategy']) {
+			const value = isEmpty(route[field]) ? null : route[field];
+			if (field in legacy[id] && legacy[id][field] !== value)
+				conflicts[`${id}:${field}`] = true;
+			else
+				legacy[id][field] = value;
+		}
+	});
+	for (let id in keys(legacy))
+		for (let field in keys(legacy[id]))
+			if (!conflicts[`${id}:${field}`] && legacy[id][field] &&
+			    isEmpty(uci.get(uciconfig, id, field)))
+				uci.set(uciconfig, id, field, legacy[id][field]);
+	if (uci.get(uciconfig, 'migration') === null)
+		uci.set(uciconfig, 'migration', 'sbproxy');
+	uci.set(uciconfig, 'migration', 'node_dial_fields', '1');
+}
+
 /* Keep only the modes implemented by the 1.14 configuration generator. */
 if (!(uci.get(uciconfig, 'config', 'routing_mode') in ['disabled', 'bypass_mainland_china', 'custom', 'global']))
 	uci.set(uciconfig, 'config', 'routing_mode', 'bypass_mainland_china');

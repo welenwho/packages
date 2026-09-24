@@ -17,10 +17,12 @@ import { cursor } from 'uci';
 
 import {
 	createNodeLabelRegistry, filterExistingNodes, hasForceProxyRules, isEmpty,
-	normalizeList, parseURL, resolveRoutingPorts,
+	normalizeList, parseDnsServerAddress, resolveRoutingPorts,
 	resolveUrltestNodes,
 	reserveUniqueLabel, strToBool, strToInt, strToTime,
-	removeBlankAttrs, renderEndpoint, renderOutbound, validation, SB_DIR, RUN_DIR
+	removeBlankAttrs, renderEndpoint, renderOutbound, renderNodeDomainResolver,
+	resolveNodeDialFields,
+	SB_DIR, RUN_DIR
 } from 'sbproxy';
 
 const ubus = connect();
@@ -524,22 +526,6 @@ function add_mainland_rule_sets(rule_sets) {
 	});
 }
 
-function parse_dnsserver(server_addr, default_protocol) {
-	if (isEmpty(server_addr))
-		return null;
-
-	if (!match(server_addr, /:\/\//))
-		server_addr = (default_protocol || 'udp') + '://' + (validation('ip6addr', server_addr) ? `[${server_addr}]` : server_addr);
-	server_addr = parseURL(server_addr);
-
-	return {
-		type: server_addr.protocol,
-		server: server_addr.hostname,
-		server_port: strToInt(server_addr.port),
-		path: (server_addr.pathname !== '/') ? server_addr.pathname : null,
-	}
-}
-
 function parse_dnsquery(strquery) {
 	if (type(strquery) !== 'array' || isEmpty(strquery))
 		return null;
@@ -573,20 +559,6 @@ function render_dns_rule_match(cfg) {
 		process_path_regex: cfg.process_path_regex,
 		user: cfg.user
 	};
-}
-
-function generate_outbound(node) {
-	const outbound = renderOutbound(node);
-	if (outbound && node['.name'])
-		outbound.tag = get_node_outbound_tag(node['.name']);
-	return outbound;
-}
-
-function generate_endpoint(node) {
-	const endpoint = renderEndpoint(node);
-	if (endpoint && node['.name'])
-		endpoint.tag = get_node_outbound_tag(node['.name']);
-	return endpoint;
 }
 
 function get_outbound(cfg) {
@@ -628,6 +600,44 @@ function get_resolver(cfg) {
 	default:
 		return 'cfg-' + cfg + '-dns';
 	}
+}
+
+function resolve_node_dns(name) {
+	if (name && !(name in ['default-dns', 'system-dns', 'china-dns'])) {
+		const server = uci.get_all(uciconfig, name);
+		if (routing_mode !== 'custom' || server?.['.type'] !== ucidnsserver || server.enabled !== '1')
+			die(sprintf('Node DNS resolver %s is not available in %s mode.', name, routing_mode));
+	}
+	return name === 'china-dns' ? name : get_resolver(name);
+}
+
+function render_node_dial(outbound, node) {
+	if (!outbound) return null;
+	const resolved = resolveNodeDialFields(uci, uciconfig, node);
+	if (resolved.conflict)
+		die(sprintf('Conflicting legacy %s for node %s; set it on the node or split the node.',
+			resolved.conflict, node['.name']));
+	const effective = resolved.node;
+	const fallback = !isEmpty(main_node) ?
+		(routing_mode === 'bypass_mainland_china' ? 'china-dns' : 'default-dns') :
+		(default_outbound_dns || 'default-dns');
+	outbound.bind_interface = effective.bind_interface;
+	outbound.domain_resolver = renderNodeDomainResolver(effective, resolve_node_dns, fallback);
+	return outbound;
+}
+
+function generate_outbound(node) {
+	const outbound = render_node_dial(renderOutbound(node), node);
+	if (outbound && node['.name'])
+		outbound.tag = get_node_outbound_tag(node['.name']);
+	return outbound;
+}
+
+function generate_endpoint(node) {
+	const endpoint = render_node_dial(renderEndpoint(node), node);
+	if (endpoint && node['.name'])
+		endpoint.tag = get_node_outbound_tag(node['.name']);
+	return endpoint;
 }
 
 function render_rule_set(cfg, outbound) {
@@ -831,7 +841,7 @@ if (length(domain_groups)) {
 				group_resolvers[outbound] = server;
 				push(config.dns.servers, {
 					tag: server, domain_resolver: 'default-dns', detour: outbound,
-					...parse_dnsserver(dns_server, 'tcp')
+					...parseDnsServerAddress(dns_server, 'tcp')
 				});
 			}
 		}
@@ -848,7 +858,7 @@ if (!isEmpty(main_node)) {
 			strategy: (ipv6_support !== '1') ? 'ipv4_only' : null
 		},
 		detour: 'main-out',
-		...parse_dnsserver(dns_server, 'tcp')
+		...parseDnsServerAddress(dns_server, 'tcp')
 	});
 	config.dns.final = 'main-dns';
 
@@ -875,7 +885,7 @@ if (!isEmpty(main_node)) {
 				strategy: 'prefer_ipv6'
 			},
 			detour: null,
-			...parse_dnsserver(china_dns_server)
+			...parseDnsServerAddress(china_dns_server)
 		});
 
 		if (length(proxy_domain_list))
@@ -1054,6 +1064,17 @@ config.outbounds = [
 		tag: 'direct-out',
 	}
 ];
+let emitted_nodes = {};
+function emit_node(entry, endpoint) {
+	const signature = sprintf('%J', removeBlankAttrs(entry));
+	if (entry.tag in emitted_nodes) {
+		if (emitted_nodes[entry.tag] !== signature)
+			die(sprintf('Node %s has conflicting routing contexts; split the node.', entry.tag));
+		return;
+	}
+	emitted_nodes[entry.tag] = signature;
+	push(endpoint ? config.endpoints : config.outbounds, entry);
+}
 /* Main outbounds */
 if (!isEmpty(main_node)) {
 	let urltest_nodes = [];
@@ -1086,13 +1107,13 @@ if (!isEmpty(main_node)) {
 			const main_endpoint = generate_endpoint(main_node_cfg);
 			if (main_endpoint) {
 				main_endpoint.tag = 'main-out';
-				push(config.endpoints, main_endpoint);
+				emit_node(main_endpoint, true);
 			}
 		} else {
 			const main_outbound = generate_outbound(main_node_cfg);
 			if (main_outbound) {
 				main_outbound.tag = 'main-out';
-				push(config.outbounds, main_outbound);
+				emit_node(main_outbound, false);
 			}
 		}
 	}
@@ -1105,16 +1126,15 @@ if (!isEmpty(main_node)) {
 		if (urltest_node.type === 'wireguard') {
 			const endpoint = generate_endpoint(urltest_node);
 			if (endpoint)
-				push(config.endpoints, endpoint);
+				emit_node(endpoint, true);
 		} else {
 			const outbound = generate_outbound(urltest_node);
 			if (outbound)
-				push(config.outbounds, outbound);
+				emit_node(outbound, false);
 		}
 	}
 } else if (!isEmpty(default_outbound)) {
-	let urltest_nodes = [],
-	    routing_nodes = [];
+	let urltest_nodes = [];
 
 	uci.foreach(uciconfig, uciroutingnode, (cfg) => {
 		if (cfg.enabled !== '1')
@@ -1147,33 +1167,30 @@ if (!isEmpty(main_node)) {
 				if (!endpoint)
 					return;
 
-				endpoint.bind_interface = cfg.bind_interface;
 				endpoint.detour = get_outbound(cfg.outbound);
-				if (cfg.domain_resolver)
-					endpoint.domain_resolver = {
-						server: get_resolver(cfg.domain_resolver),
-						strategy: cfg.domain_strategy
-					};
-				push(config.endpoints, endpoint);
+				if (endpoint.detour) {
+					endpoint.bind_interface = null;
+					endpoint.domain_resolver = null;
+				}
+				emit_node(endpoint, true);
 			} else {
 				const routed_outbound = generate_outbound(outbound);
 				if (!routed_outbound)
 					return;
 
-				routed_outbound.bind_interface = cfg.bind_interface;
 				routed_outbound.detour = get_outbound(cfg.outbound);
-				if (cfg.domain_resolver)
-					routed_outbound.domain_resolver = {
-						server: get_resolver(cfg.domain_resolver),
-						strategy: cfg.domain_strategy
-					};
-				push(config.outbounds, routed_outbound);
+				if (routed_outbound.detour) {
+					routed_outbound.bind_interface = null;
+					routed_outbound.domain_resolver = null;
+				}
+				emit_node(routed_outbound, false);
 			}
-			push(routing_nodes, cfg.node);
 		}
 	});
 
-	for (let i in filter(urltest_nodes, (l) => !~index(routing_nodes, l))) {
+	/* Re-render URLTest members even if a direct route already emitted the tag:
+	 * emit_node verifies the effective dial definition before de-duplicating. */
+	for (let i in urltest_nodes) {
 		const urltest_node = uci.get_all(uciconfig, i) || {};
 		if (isEmpty(urltest_node))
 			continue;
@@ -1181,11 +1198,11 @@ if (!isEmpty(main_node)) {
 		if (urltest_node.type === 'wireguard') {
 			const endpoint = generate_endpoint(urltest_node);
 			if (endpoint)
-				push(config.endpoints, endpoint);
+				emit_node(endpoint, true);
 		} else {
 			const outbound = generate_outbound(urltest_node);
 			if (outbound)
-				push(config.outbounds, outbound);
+				emit_node(outbound, false);
 		}
 	}
 
@@ -1198,7 +1215,7 @@ for (let group in domain_groups) {
 	const node = uci.get_all(uciconfig, group.node);
 	const entry = node.type === 'wireguard' ? generate_endpoint(node) : generate_outbound(node);
 	if (!entry) die('Unable to render diversion node: ' + group.node);
-	push(node.type === 'wireguard' ? config.endpoints : config.outbounds, entry);
+	emit_node(entry, node.type === 'wireguard');
 }
 
 if (isEmpty(config.endpoints))

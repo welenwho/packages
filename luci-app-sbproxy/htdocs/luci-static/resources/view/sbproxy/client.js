@@ -767,39 +767,6 @@ return view.extend({
 		so.validate = L.bind(sb.validateUniqueValue, this, data[0], 'routing_node', 'node');
 		so.editable = true;
 
-		so = ss.option(form.ListValue, 'domain_resolver', _('Domain resolver'),
-			_('For resolving domain name in the server address.'));
-		so.load = function(section_id) {
-			delete this.keylist;
-			delete this.vallist;
-
-			this.value('', _('Default'));
-			this.value('default-dns', _('Default DNS (issued by WAN)'));
-			this.value('system-dns', _('System DNS'));
-			uci.sections(data[0], 'dns_server', (res) => {
-				if (res.enabled === '1')
-					this.value(res['.name'], res.label);
-			});
-
-			return this.super('load', section_id);
-		}
-		so.depends({'node': 'urltest', '!reverse': true});
-		so.modalonly = true;
-
-		so = ss.option(form.ListValue, 'domain_strategy', _('Domain strategy'),
-			_('The domain strategy for resolving the domain name in the address.'));
-		for (let i in sb.dns_strategy)
-			so.value(i, sb.dns_strategy[i]);
-		so.depends({'node': 'urltest', '!reverse': true});
-		so.modalonly = true;
-
-		so = ss.option(widgets.DeviceSelect, 'bind_interface', _('Bind interface'),
-			_('The network interface to bind to.'));
-		so.multiple = false;
-		so.noaliases = true;
-		so.depends({'outbound': '', 'node': /^((?!urltest$).)+$/});
-		so.modalonly = true;
-
 		so = ss.option(form.ListValue, 'outbound', _('Outbound'),
 			_('The tag of the upstream outbound.<br/>Other dial fields will be ignored when enabled.'));
 		so.load = function(section_id) {

@@ -1164,13 +1164,16 @@ function main() {
 			const next = cached_group[cfg['.name']];
 			let changed = false;
 			for (let option in keys(cfg))
-				if (!match(option, /^\./) && !(option in next)) {
+				if (!match(option, /^\./) && !(option in next) &&
+				    !(option in ['bind_interface', 'domain_resolver', 'domain_strategy'])) {
 					uci.delete(uciconfig, cfg['.name'], option);
 					changed = true;
 				}
 
 			for (let option in keys(next))
-				if (!match(option, /^__/) && option !== 'isExisting' && !values_equal(cfg[option], next[option])) {
+				if (!match(option, /^__/) && option !== 'isExisting' &&
+				    !((option in ['bind_interface', 'domain_resolver', 'domain_strategy']) && !isEmpty(cfg[option])) &&
+				    !values_equal(cfg[option], next[option])) {
 					uci.set(uciconfig, cfg['.name'], option, next[option]);
 					changed = true;
 				}

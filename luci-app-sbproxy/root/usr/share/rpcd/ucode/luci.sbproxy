@@ -9,10 +9,12 @@
 
 import { lstat, open, popen, readfile, writefile } from 'fs';
 import { cursor } from 'uci';
+import { connect } from 'ubus';
 
 import {
 	SB_DIR, isBinary, isEmpty,
-	RUN_DIR, removeBlankAttrs, renderEndpoint, renderOutbound, shellQuote
+	RUN_DIR, parseDnsServerAddress, removeBlankAttrs, renderEndpoint, renderOutbound,
+	renderNodeDomainResolver, resolveNodeDialFields, shellQuote
 } from '/etc/sbproxy/scripts/sbproxy.uc';
 
 function hasKernelModule(kmod) {
@@ -918,7 +920,7 @@ const methods = {
 	},
 
 	node_latency_test: {
-		args: { nodes: [], routing_nodes: [] },
+		args: { nodes: [] },
 		call: function(req) {
 			const error_codes = {
 				invalid_node: 'invalid_node',
@@ -936,6 +938,11 @@ const methods = {
 			const probe_parallelism = 16;
 			const sbpuci = cursor();
 			sbpuci.load('sbproxy');
+			const mode = sbpuci.get('sbproxy', 'config', 'routing_mode') || 'bypass_mainland_china';
+			const wan_dns = connect()?.call('network.interface', 'status', { interface: 'wan' })?.['dns-server']?.[0] ||
+				(mode === 'global' ? '9.9.9.9' : '223.5.5.5');
+			let china_dns = sbpuci.get('sbproxy', 'config', 'china_dns_server');
+			if (!china_dns || china_dns === 'wan') china_dns = wan_dns;
 			const reserved_controller_port = int(sbpuci.get('sbproxy', 'infra', 'clash_api_port')) || 0;
 
 			const formatResult = (node, state, latency_ms, err) => ({
@@ -991,14 +998,24 @@ const methods = {
 				const config = {
 					log: { disabled: true },
 					dns: {
-						servers: [{ type: 'local', tag: 'local-dns' }]
+						servers: [
+							{ type: 'udp', tag: 'default-dns', server: wan_dns },
+							{ type: 'local', tag: 'system-dns' },
+							...(mode === 'bypass_mainland_china' ? [
+								{
+									tag: 'china-dns',
+									domain_resolver: { server: 'default-dns', strategy: 'prefer_ipv6' },
+									...parseDnsServerAddress(china_dns)
+								}
+							] : [])
+						]
 					},
 					outbounds: [{ type: 'direct', tag: 'direct-out' }],
 					endpoints: [],
 					route: {
 						final: 'direct-out',
 						auto_detect_interface: true,
-						default_domain_resolver: 'local-dns'
+						default_domain_resolver: 'default-dns'
 					},
 					experimental: {
 						clash_api: {
@@ -1007,8 +1024,29 @@ const methods = {
 					}
 				};
 
-				for (let entry in entries)
+				for (let entry in entries) {
 					push(entry.endpoint ? config.endpoints : config.outbounds, entry.outbound);
+					const resolver = entry.outbound.domain_resolver?.server;
+					if (resolver && index(resolver, 'cfg-') === 0 &&
+					    !length(filter(config.dns.servers, (server) => server.tag === resolver))) {
+						const id = replace(replace(resolver, /^cfg-/, ''), /-dns$/, '');
+						const dns = sbpuci.get_all('sbproxy', id);
+						const remote = dns.type in ['udp', 'tcp', 'tls', 'https', 'h3', 'quic'];
+						push(config.dns.servers, {
+							tag: resolver, type: dns.type,
+							server: remote ? dns.server : null,
+							server_port: remote ? int(dns.server_port) || null : null,
+							interface: dns.type === 'dhcp' ? dns.interface : null,
+							path: remote ? dns.path : null,
+							headers: remote ? dns.headers : null,
+							tls: remote && dns.tls_sni ? { enabled: true, server_name: dns.tls_sni } : null,
+							domain_resolver: remote && (dns.domain_resolver || dns.domain_strategy) ? {
+								server: dns.domain_resolver || 'default-dns',
+								strategy: dns.domain_strategy
+							} : null
+						});
+					}
+				}
 
 				if (system(`/bin/mkdir -p ${shellQuote(session_dir)}`) !== 0)
 					return { error: 'failed to prepare temporary runtime directory' };
@@ -1122,10 +1160,6 @@ const methods = {
 			let requested_nodes = req.args?.nodes;
 			if (type(requested_nodes) !== 'array')
 				requested_nodes = requested_nodes ? [requested_nodes] : [];
-			let requested_routing_nodes = req.args?.routing_nodes;
-			if (type(requested_routing_nodes) !== 'array')
-				requested_routing_nodes = requested_routing_nodes ? [requested_routing_nodes] : [];
-
 			let slots = [], entries = [], seen = {};
 			for (let index = 0; index < length(requested_nodes); index++) {
 				const value = requested_nodes[index];
@@ -1145,8 +1179,27 @@ const methods = {
 					continue;
 				}
 
-				const endpoint = section.type === 'wireguard';
-				const outbound = endpoint ? renderEndpoint(section) : renderOutbound(section);
+				const resolved = resolveNodeDialFields(sbpuci, 'sbproxy', section);
+				if (resolved.conflict) {
+					push(slots, { result: formatResult(node, 'error', null, {
+						code: error_codes.invalid_routing_context,
+						message: sprintf('Conflicting legacy %s for node %s; set it on the node or split the node.',
+							resolved.conflict, node)
+					}) });
+					continue;
+				}
+				const effective = resolved.node;
+				if (effective.bind_interface &&
+				    (!match(effective.bind_interface, /^[a-zA-Z0-9_.:-]{1,15}$/) ||
+				     !lstat(`/sys/class/net/${effective.bind_interface}`))) {
+					push(slots, { result: formatResult(node, 'error', null, {
+						code: error_codes.invalid_outbound,
+						message: sprintf('Bound interface %s does not exist.', effective.bind_interface)
+					}) });
+					continue;
+				}
+				const endpoint = effective.type === 'wireguard';
+				const outbound = endpoint ? renderEndpoint(effective) : renderOutbound(effective);
 				const tag = `probe-${length(entries)}`;
 				if (!outbound || type(outbound) !== 'object' || !outbound.type) {
 					push(slots, {
@@ -1158,23 +1211,25 @@ const methods = {
 					continue;
 				}
 
-				const routing_node = trim(sprintf('%s', requested_routing_nodes[index] || ''));
-				if (routing_node) {
-					const routing_context = sbpuci.get_all('sbproxy', routing_node);
-					if (!routing_context || routing_context['.type'] !== 'routing_node' ||
-					    routing_context.enabled !== '1' || routing_context.node !== node ||
-					    routing_context.node === 'urltest' || routing_context.outbound) {
-						push(slots, {
-							result: formatResult(node, 'error', null, {
-								code: error_codes.invalid_routing_context,
-								message: 'routing node context does not reference the requested node'
-							})
-						});
+				const fallback_resolver = mode === 'bypass_mainland_china' ? 'china-dns' :
+					(mode === 'custom' ? sbpuci.get('sbproxy', 'routing', 'default_outbound_dns') || 'default-dns' : 'default-dns');
+				const resolver_id = effective.domain_resolver ||
+					(effective.domain_strategy ? fallback_resolver : null);
+				if (resolver_id && !(resolver_id in ['default-dns', 'system-dns'])) {
+					const dns = sbpuci.get_all('sbproxy', resolver_id);
+					if (mode !== 'custom' || dns?.['.type'] !== 'dns_server' || dns.enabled !== '1' ||
+					    dns.outbound && dns.outbound !== 'direct-out' ||
+					    dns.domain_resolver && !(dns.domain_resolver in ['default-dns', 'system-dns'])) {
+						push(slots, { result: formatResult(node, 'error', null, {
+							code: error_codes.invalid_outbound,
+							message: 'selected DNS server needs an unavailable proxy or chained resolver in isolated latency test'
+						}) });
 						continue;
 					}
-
-					outbound.bind_interface = routing_context.bind_interface;
 				}
+				outbound.domain_resolver = renderNodeDomainResolver(effective, (name) =>
+					name in ['default-dns', 'system-dns', 'china-dns'] ? name : `cfg-${name}-dns`,
+					fallback_resolver);
 
 				outbound.tag = tag;
 				const entry = { node, tag, endpoint, outbound };

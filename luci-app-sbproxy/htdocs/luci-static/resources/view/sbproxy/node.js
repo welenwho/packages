@@ -18,7 +18,7 @@
 const callNodeLatencyTest = rpc.declare({
 	object: 'luci.sbproxy',
 	method: 'node_latency_test',
-	params: ['nodes', 'routing_nodes'],
+	params: ['nodes'],
 	expect: { '': { results: [] } },
 	reject: true
 });
@@ -552,17 +552,6 @@ function getNodeLatencyActionTitle(row_state) {
 	return (row_state?.state === NODE_LATENCY_ROW_STATES.TESTING) ? _('Testing') : _('Test');
 }
 
-function getNodeLatencyRoutingContext(config, node) {
-	let matches = [];
-
-	uci.sections(config, 'routing_node', (section) => {
-		if (section.enabled === '1' && section.node === node && section.node !== 'urltest' && !section.outbound)
-			matches.push(section['.name']);
-	});
-
-	return (matches.length === 1) ? matches[0] : null;
-}
-
 function parseNodeLatencySectionId(widget_id) {
 	let matched = String(widget_id || '').match(/^cbi-sbproxy-(.*)-_test_latency$/);
 	return matched ? matched[1] : null;
@@ -771,8 +760,7 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 			this.refreshNodeLatencyRow(sid);
 		}
 
-		let routing_nodes = section_ids.map((sid) => getNodeLatencyRoutingContext(data[0], sid));
-		return callNodeLatencyTest(section_ids, routing_nodes).then((response) => {
+		return callNodeLatencyTest(section_ids).then((response) => {
 			let results = Object.create(null);
 			for (let result of response?.results || [])
 				if (result?.node)
@@ -900,6 +888,37 @@ function renderNodeSettings(section, data, features, main_node, routing_mode, no
 	o.datatype = 'port';
 	o.depends({'type': 'direct', '!reverse': true});
 	o.rmempty = false;
+
+	o = s.option(widgets.DeviceSelect, 'bind_interface', _('Bind interface'),
+		_('Interface used to connect to this node. Leave empty to use automatic detection.'));
+	o.multiple = false;
+	o.noaliases = true;
+	o.modalonly = true;
+
+	o = s.option(form.ListValue, 'domain_resolver', _('Domain resolver'),
+		_('DNS server used to resolve this node\'s server address, not the URLTest target.'));
+	o.load = function(section_id) {
+		delete this.keylist;
+		delete this.vallist;
+		this.value('', _('Default'));
+		this.value('default-dns', _('Default DNS (issued by WAN)'));
+		this.value('system-dns', _('System DNS'));
+		if (routing_mode === 'custom')
+			uci.sections(data[0], 'dns_server', (res) => {
+				if (res.enabled === '1')
+					this.value(res['.name'], res.label);
+			});
+		return this.super('load', section_id);
+	};
+	o.depends({'type': 'direct', '!reverse': true});
+	o.modalonly = true;
+
+	o = s.option(form.ListValue, 'domain_strategy', _('Domain strategy'),
+		_('Address family for resolving this node\'s server address.'));
+	for (let i in sb.dns_strategy)
+		o.value(i, sb.dns_strategy[i]);
+	o.depends({'type': 'direct', '!reverse': true});
+	o.modalonly = true;
 
 	o = s.option(form.Value, 'username', _('Username'));
 	o.depends('type', 'http');

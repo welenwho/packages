@@ -279,6 +279,38 @@ export function strToTime(str) {
 	return !isEmpty(str) ? (str + 's') : null;
 };
 
+export function renderNodeDomainResolver(node, resolve, fallback) {
+	if (isEmpty(node.domain_resolver) && isEmpty(node.domain_strategy))
+		return null;
+	return {
+		server: resolve(node.domain_resolver || fallback),
+		strategy: node.domain_strategy
+	};
+};
+
+/* Routing-node dial fields predate node-level settings. Only inherit a legacy
+ * value when every enabled direct reference agrees; an explicit node value wins. */
+export function resolveNodeDialFields(uci, config, node) {
+	let effective = { ...node }, legacy = {}, conflict = null;
+	if (uci.get(config, 'config', 'routing_mode') !== 'custom' || !node['.name'])
+		return { node: effective, conflict };
+	uci.foreach(config, 'routing_node', (route) => {
+		if (route.enabled !== '1' || route.node !== node['.name'] || route.outbound)
+			return;
+		for (let field in ['bind_interface', 'domain_resolver', 'domain_strategy']) {
+			if (!isEmpty(node[field])) continue;
+			const value = isEmpty(route[field]) ? null : route[field];
+			if (field in legacy && legacy[field] !== value)
+				conflict = field;
+			else
+				legacy[field] = value;
+		}
+	});
+	for (let field in ['bind_interface', 'domain_resolver', 'domain_strategy'])
+		if (isEmpty(effective[field])) effective[field] = legacy[field];
+	return { node: effective, conflict };
+};
+
 function strListToInts(value) {
 	if (type(value) !== 'array' || isEmpty(value))
 		return null;
@@ -293,6 +325,7 @@ export function renderEndpoint(node) {
 	return {
 		type: node.type,
 		tag: 'cfg-' + node['.name'] + '-out',
+		bind_interface: node.bind_interface,
 		address: node.wireguard_local_address,
 		mtu: strToInt(node.wireguard_mtu),
 		private_key: node.wireguard_private_key,
@@ -425,6 +458,7 @@ export function renderOutbound(node, routingMark) {
 	const outbound = {
 		type: node.type,
 		tag: 'cfg-' + node['.name'] + '-out',
+		bind_interface: node.bind_interface,
 		routing_mark: strToInt(routingMark),
 		connect_timeout: strToTime(node.connect_timeout),
 		disable_tcp_keep_alive: strToBool(node.disable_tcp_keep_alive),
@@ -673,5 +707,20 @@ export function parseURL(url) {
 	objurl.origin = `${objurl.protocol}://${objurl.host}`;
 
 	return objurl;
+};
+
+export function parseDnsServerAddress(address, protocol) {
+	if (isEmpty(address)) return null;
+	if (!match(address, /:\/\//))
+		address = (protocol || 'udp') + '://' +
+			(validation('ip6addr', address) ? `[${address}]` : address);
+	const url = parseURL(address);
+	if (!url) return null;
+	return {
+		type: url.protocol,
+		server: url.hostname,
+		server_port: strToInt(url.port),
+		path: url.pathname !== '/' ? url.pathname : null
+	};
 };
 /* String parser end */
