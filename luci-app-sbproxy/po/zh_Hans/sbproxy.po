@@ -2414,6 +2414,10 @@ msgstr "匹配规则集。"
 msgid "Match source IP CIDR."
 msgstr "匹配源 IP CIDR。"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
+msgid "Match the originating LAN device by MAC address. Devices behind another router or NAT may not be identifiable."
+msgstr "按来源局域网设备的 MAC 地址匹配。位于另一台路由器或 NAT 后的设备可能无法识别。"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1246
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1718
 msgid "Match source port range. Format as START:/:END/START:END."
@@ -3721,6 +3725,10 @@ msgstr "来源"
 msgid "Source IP CIDR"
 msgstr "源 IP CIDR"
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
+msgid "Source MAC addresses"
+msgstr "来源 MAC 地址"
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1780
 msgid "Source file"
 msgstr "源文件"
@@ -4196,14 +4204,15 @@ msgid ""
 "domain_suffix || domain_keyword || domain_regex || ip_cidr || "
 "ip_is_private)</code> &&<br/><code>(port || port_range)</code> &&<br/"
 "><code>(source_ip_cidr || source_ip_is_private)</code> &&<br/"
-"><code>(source_port || source_port_range)</code> &&<br/><code>other fields</"
+"><code>source_mac_address</code> &&<br/><code>(source_port || "
+"source_port_range)</code> &&<br/><code>other fields</"
 "code>.<br/>Additionally, included rule sets can be considered merged rather "
 "than as a single rule sub-item."
 msgstr ""
 "默认规则使用以下匹配逻辑：<br/><code>(domain || domain_suffix || "
 "domain_keyword || domain_regex || ip_cidr || ip_is_private)</code> &&<br/"
 "><code>(port || port_range)</code> &&<br/><code>(source_ip_cidr || "
-"source_ip_is_private)</code> &&<br/><code>(source_port || "
+"source_ip_is_private)</code> &&<br/><code>source_mac_address</code> &&<br/><code>(source_port || "
 "source_port_range)</code> &&<br/><code>其他字段</code>。此外，包含的所有规则"
 "集会被合并而不是独立生效。"
 

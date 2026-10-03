@@ -13,8 +13,15 @@ if (mode === 'tailscale-only') {
 	else if (mode === 'custom-reject') assert(c.route.rules[length(c.route.rules)-1].action === 'reject', 'Reject default changed');
 	else assert(c.route.final === 'main-out', 'Main default changed');
 }
-if (index(mode, 'custom-') === 0)
-	assert(length(filter(c.route.rules, (r) => r.domain?.[0] === 'explicit.example' && r.outbound === 'direct-out')) === 1, 'Explicit routing rule missing');
+if (index(mode, 'custom-') === 0) {
+	const explicit = filter(c.route.rules, (r) => r.domain?.[0] === 'explicit.example' && r.outbound === 'direct-out');
+	assert(length(explicit) === 1, 'Explicit routing rule missing');
+	assert(explicit[0].source_mac_address?.[0] === '40:24:B2:FE:01:4D', 'Source MAC lost from route rule');
+	const block = filter(c.route.rules, (r) => r.action === 'reject' &&
+		r.source_mac_address?.[0] === '40:24:B2:FE:01:4D' &&
+		r.rule_set?.[0] === 'cfg-site_set-rule');
+	assert(length(block) === 1, 'MAC and rule-set reject condition missing');
+}
 if (mode === 'urltest') {
 	assert(length(filter(c.outbounds, (o) => o.type === 'urltest')) === 1, 'URLTest removed');
 	assert(c.experimental?.clash_api?.external_controller === '127.0.0.1:19090', 'URLTest API removed');

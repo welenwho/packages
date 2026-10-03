@@ -13,6 +13,7 @@ export function renderRouteMatch(cfg, rule_sets) {
 		network: cfg.network, domain: cfg.domain, domain_suffix: cfg.domain_suffix,
 		domain_keyword: cfg.domain_keyword, domain_regex: cfg.domain_regex,
 		source_ip_cidr: cfg.source_ip_cidr, source_ip_is_private: strToBool(cfg.source_ip_is_private),
+		source_mac_address: cfg.source_mac_address,
 		ip_cidr: cfg.ip_cidr, ip_is_private: strToBool(cfg.ip_is_private),
 		source_port: ports(cfg.source_port), source_port_range: cfg.source_port_range,
 		port: ports(cfg.port), port_range: cfg.port_range,

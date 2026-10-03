@@ -2354,6 +2354,10 @@ msgstr ""
 msgid "Match source IP CIDR."
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
+msgid "Match the originating LAN device by MAC address. Devices behind another router or NAT may not be identifiable."
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1246
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1718
 msgid "Match source port range. Format as START:/:END/START:END."
@@ -3631,6 +3635,10 @@ msgstr ""
 msgid "Source IP CIDR"
 msgstr ""
 
+#: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js
+msgid "Source MAC addresses"
+msgstr ""
+
 #: luci-app-sbproxy/htdocs/luci-static/resources/view/sbproxy/client.js:1780
 msgid "Source file"
 msgstr ""
@@ -4094,7 +4102,8 @@ msgid ""
 "domain_suffix || domain_keyword || domain_regex || ip_cidr || "
 "ip_is_private)</code> &&<br/><code>(port || port_range)</code> &&<br/"
 "><code>(source_ip_cidr || source_ip_is_private)</code> &&<br/"
-"><code>(source_port || source_port_range)</code> &&<br/><code>other fields</"
+"><code>source_mac_address</code> &&<br/><code>(source_port || "
+"source_port_range)</code> &&<br/><code>other fields</"
 "code>.<br/>Additionally, included rule sets can be considered merged rather "
 "than as a single rule sub-item."
 msgstr ""

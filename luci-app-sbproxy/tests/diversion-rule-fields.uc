@@ -27,6 +27,8 @@ for (let bad in [{ ip_cidr: ['bad-address'] }, { port: ['0'] }, { port_range: ['
 }
 const custom = renderRouteMatch({ domain_suffix: ['example.org'], ip_cidr: ['192.0.2.0/24'], port: ['443'], source_port_range: ['1000:2000'], invert: '1' }, ['cfg-site_set-rule']);
 assert(custom.port[0] === 443 && custom.invert && custom.domain_suffix[0] === 'example.org', 'Shared custom-rule renderer changed types');
+const mac = renderRouteMatch({ source_mac_address: ['40:24:B2:FE:01:4D'] }, ['cfg-site_set-rule']);
+assert(mac.source_mac_address[0] === '40:24:B2:FE:01:4D' && mac.rule_set[0] === 'cfg-site_set-rule', 'MAC and rule-set match fields must coexist');
 let sections = [{ '.name': 'ip_only', enabled: '1', node: '_main', ip_cidr: ['192.0.2.0/24'] }, { '.name': 'set_only', enabled: '1', node: '_direct', rule_set: ['site_set'] }];
 const groupsUci = { get: uci.get, foreach: (_c, _t, fn) => { for (let s in sections) fn(s); } };
 assert(length(loadDomainGroups(groupsUci, 'sbproxy', 'bypass_mainland_china')) === 2, 'Groups without legacy domains were skipped');

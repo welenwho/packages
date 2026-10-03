@@ -25,6 +25,17 @@ cfg set sbproxy.explicit.enabled=1
 cfg set sbproxy.explicit.action=route
 cfg set sbproxy.explicit.outbound=direct-out
 cfg add_list sbproxy.explicit.domain=explicit.example
+cfg add_list sbproxy.explicit.source_mac_address=40:24:B2:FE:01:4D
+cfg set sbproxy.site_set=ruleset
+cfg set sbproxy.site_set.enabled=1
+cfg set sbproxy.site_set.type=remote
+cfg set sbproxy.site_set.format=binary
+cfg set sbproxy.site_set.url=https://example.invalid/site.srs
+cfg set sbproxy.mac_block=routing_rule
+cfg set sbproxy.mac_block.enabled=1
+cfg set sbproxy.mac_block.action=reject
+cfg add_list sbproxy.mac_block.source_mac_address=40:24:B2:FE:01:4D
+cfg add_list sbproxy.mac_block.rule_set=site_set
 cfg add_list sbproxy.config.main_urltest_nodes=fixture
 cfg commit sbproxy
 

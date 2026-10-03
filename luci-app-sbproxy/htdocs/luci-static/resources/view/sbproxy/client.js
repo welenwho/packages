@@ -920,6 +920,7 @@ return view.extend({
 			'<code>(domain || domain_suffix || domain_keyword || domain_regex || ip_cidr || ip_is_private)</code> &&<br/>' +
 			'<code>(port || port_range)</code> &&<br/>' +
 			'<code>(source_ip_cidr || source_ip_is_private)</code> &&<br/>' +
+			'<code>source_mac_address</code> &&<br/>' +
 			'<code>(source_port || source_port_range)</code> &&<br/>' +
 			'<code>other fields</code>.<br/>' +
 			'Additionally, included rule sets can be considered merged rather than as a single rule sub-item.'));
@@ -1158,6 +1159,9 @@ return view.extend({
 			_('Match source IP CIDR.'));
 		so.datatype = 'or(cidr, ipaddr)';
 		so.modalonly = true;
+
+		so = fwtool.addMACOption(ss, 'field_host', 'source_mac_address', _('Source MAC addresses'),
+			_('Match the originating LAN device by MAC address. Devices behind another router or NAT may not be identifiable.'), hosts);
 
 		so = ss.taboption('field_host', form.Flag, 'source_ip_is_private', _('Match private source IP'));
 		so.modalonly = true;
